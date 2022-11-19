@@ -36,7 +36,10 @@ namespace vk
 
     //const VkDescriptorSetLayout& GetVulkanDescriptorSetLayout() const { return m_descriptorSetLayout; }
     void Clean();
-  
+    const std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding>& GetBindings() const 
+    {
+      return m_bindings;
+    }
   private:
     VULKAN_HANDLE(VkDescriptorSetLayout, m_desLayout);
     const class Device& m_device;

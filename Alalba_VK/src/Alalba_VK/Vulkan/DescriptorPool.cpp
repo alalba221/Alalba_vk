@@ -21,4 +21,14 @@ namespace vk
 		err = vkCreateDescriptorPool(m_device.Handle(), &ci, nullptr, &m_descriptorPool);
 		ALALBA_ASSERT(err == VK_SUCCESS, "failed to create descriptor pool!");
 	}
+
+	void DescriptorPool::Clean()
+	{
+		if (m_descriptorPool != VK_NULL_HANDLE)
+		{
+			ALALBA_WARN("Clean Descriptor Pool: {0}", m_tag);
+			vkDestroyDescriptorPool(m_device.Handle(), m_descriptorPool, nullptr);
+			m_descriptorPool = VK_NULL_HANDLE;
+		}
+	}
 }

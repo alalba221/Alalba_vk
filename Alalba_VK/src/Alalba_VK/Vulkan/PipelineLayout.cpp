@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "PipelineLayout.h"
 #include "Device.h"
+#include "DescriptorSetLayout.h"
+
 namespace vk
 {
 	PipelineLayout::Builder& PipelineLayout::Builder::AddPushConstant()
@@ -8,19 +10,15 @@ namespace vk
 		// TODO: insert return statement here
 		return *this;
 	}
-	std::unique_ptr<PipelineLayout> PipelineLayout::Builder::Build()const
-	{
-		return(std::make_unique<PipelineLayout>(m_device));
-	}
 
-	PipelineLayout::PipelineLayout(const Device& device)
-		:m_device(device)
+	PipelineLayout::PipelineLayout(const Device& device,const std::vector<const DescriptorSetLayout*>pdescSetLayout, const std::string& tag)
+		:m_device(device),m_tag(tag)
 	{
-		ALALBA_INFO("Create PipelineLayout");
+		ALALBA_INFO("Create PipelineLayout: {0}",m_tag);
 		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
-		for (int i = 0; i < m_device.GetSetLayouCount(); i++)
+		for (int i = 0; i < pdescSetLayout.size(); i++)
 		{
-			descriptorSetLayouts.push_back(m_device.GetDescriptorSetLayout(i).Handle());
+			descriptorSetLayouts.push_back(pdescSetLayout[i]->Handle());
 		}
 
 		VkPipelineLayoutCreateInfo ci{};
@@ -41,7 +39,7 @@ namespace vk
 	{
 		if (m_pipelineLayout != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean PipelineLayout {0}", m_tag);
+			ALALBA_WARN("Clean PipelineLayout: {0}", m_tag);
 			vkDestroyPipelineLayout(m_device.Handle(), m_pipelineLayout, nullptr);
 			m_pipelineLayout = VK_NULL_HANDLE;
 		}

@@ -10,7 +10,7 @@ namespace vk
 		class Builder
 		{
 		public:
-			Builder(const Device& device) :m_device(device) {};
+			Builder(const Device& device) :m_device(device) {}
 			Builder& SetTag(const std::string& tag) { m_tag = tag; return *this; }
 			std::unique_ptr<Semaphore>Build() { return std::make_unique<Semaphore>(m_device, m_tag); };
 

@@ -83,16 +83,6 @@ namespace vk
 		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().graphics.value(), 0, &m_grapicsQ->m_queue);
 		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().compute.value(), 0, &m_computeQ->m_queue);
 		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().transfer.value(), 0, &m_transferQ->m_queue);
-
-		/// test 
-		// uniform buffer	
-		m_descSetLayouts.push_back(
-			vk::DescriptorSetLayout::Builder(*this)
-			// 0 : is bingdingindex to set layout
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.Build()
-		);
-
 	}
 
 	Device::~Device()
@@ -102,11 +92,6 @@ namespace vk
 
 	void Device::Clean()
 	{
-		
-		for (int i = 0; i < m_descSetLayouts.size(); i++)
-		{
-			m_descSetLayouts[i]->Clean();
-		}
 		if (m_device != VK_NULL_HANDLE)
 		{
 			ALALBA_WARN("Clean Logical Device {0}", m_tag);
@@ -115,13 +100,13 @@ namespace vk
 		}
 	}
 
-	const DescriptorSetLayout& Device::GetDescriptorSetLayout(uint32_t index) const
-	{
-		if (index < m_descSetLayouts.size())
-			return(*m_descSetLayouts[index].get());
-		else
-			ALALBA_ASSERT("Not valid descripotor set layout index");
-	}
+	//const DescriptorSetLayout& Device::GetDescriptorSetLayout(uint32_t index) const
+	//{
+	//	if (index < m_descSetLayouts.size())
+	//		return(*m_descSetLayouts[index].get());
+	//	else
+	//		ALALBA_ASSERT("Not valid descripotor set layout index");
+	//}
 
 	VkFormat Device::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
 	{

@@ -95,7 +95,7 @@ namespace vk
 	{
 		// 1. create staging buffer 
 		std::unique_ptr<Buffer>m_stagingVectexBuffer = Buffer::Builder(m_device, *this)
-			.SetTag("Staging Vertex Buffer")
+			.SetTag("Staging Buffer")
 			.SetSize(sizeInByte)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
 			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)

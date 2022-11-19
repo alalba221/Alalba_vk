@@ -60,7 +60,18 @@ namespace vk
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
 			.SetFormat(m_depthImage->GetFormat())
 			.Build();
+
+		/// test 
+		// descriptor set layout
+		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
+			// 0 : is bingding index to set layout
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.SetTag("Global Descriptor Set Layout")
+			.Build();
+
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
+			.SetTag("Pipeline layout")
+			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
 			.Build();
 
 		m_graphicsPipeline = GraphicsPipeline::Builder(m_device, *m_pipelineLayout.get(), *m_renderPass.get(),
@@ -116,6 +127,40 @@ namespace vk
 				);
 		}
 		
+		// uniform buffer
+		// test
+		uniformBuffersMapped.resize(3);
+		for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
+		{
+			m_globalUniformbuffers.push_back(
+				Buffer::Builder(m_device, m_allocator)
+				.SetTag("Uniform Buffer" + std::to_string(i))
+				.SetSize(sizeof(UniformBufferObject))
+				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+				.Build()
+				);
+
+			uniformBuffersMapped[i] = m_allocator.MapMemory(m_globalUniformbuffers[i]->GetAllocation());
+		}
+
+		m_globalDescPool = DescriptorPool::Builder(m_device)
+			.SetTag("Descriptor Pool")
+			.SetMaxSets(m_SwapChain->GetImgCount())
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
+			.Build();
+
+		m_globalDescSets = DescriptorSets::Allocator(m_device, *m_globalDescPool.get())
+			.SetTag("Global Descriptor Sets")
+			.SetCount(3)
+			.AddDescSetLayout(0, *m_globalDescSetLayout.get())
+			.AddDescSetLayout(1, *m_globalDescSetLayout.get())
+			.AddDescSetLayout(2, *m_globalDescSetLayout.get())
+			.Allocate();
+		// The descriptor sets have been allocated now, but the descriptors within still need to be configured
+
+
+
 	}
 	void VulkanRenderer::Shutdown()
 	{
@@ -142,8 +187,13 @@ namespace vk
 			m_inFlightFences[i]->Clean();
 			m_imageAvailableSemaphores[i]->Clean();
 			m_renderFinishedSemaphores[i]->Clean();
+
+			m_globalUniformbuffers[i]->Clean();
 		}
+
+		m_globalDescSetLayout->Clean();
 		
+		m_globalDescPool->Clean();
 	}
 	void VulkanRenderer::RecreateSwapChainAndFramebuffers()
 	{
@@ -261,6 +311,11 @@ namespace vk
 		else {
 			ALALBA_ASSERT(result == VK_SUCCESS, "Acquire Next Image Failed");
 		}
+
+		// update camera
+///////////////////////////////////////////////////////////
+		updateUniformBuffer(imageIndex);
+//////////////////////////////////////////////////////////////
 		vkResetFences(m_device.Handle(), 1, &inflightFence);
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
 		EncodeCommand(m_currentFrame, imageIndex,mesh);

@@ -2,7 +2,6 @@
 #include <vulkan/vulkan.h>
 // composition queue
 #include "Queue.h"
-#include "DescriptorSetLayout.h"
 
 namespace vk
 {
@@ -34,8 +33,7 @@ namespace vk
 		const Queue& GetComputeQ()	const { return *(m_computeQ.get()); }
 		const Queue& GetTransferQ() const { return *(m_transferQ.get()); }
 	
-		const uint32_t GetSetLayouCount() const { return m_descSetLayouts.size(); }
-		const DescriptorSetLayout& GetDescriptorSetLayout(uint32_t index) const;
+		//const DescriptorSetLayout& GetDescriptorSetLayout(uint32_t index) const;
 
 		//const SwapChain& GetSwapChain() const { return *m_SwapChain.get(); }
 
@@ -49,10 +47,6 @@ namespace vk
 		std::unique_ptr<Queue> m_grapicsQ;
 		std::unique_ptr<Queue> m_transferQ;
 		std::unique_ptr<Queue> m_computeQ;
-
-		// Descriptor set layout
-		std::vector<std::unique_ptr<DescriptorSetLayout>> m_descSetLayouts;
-
 		const class PhysicalDevice& m_physicalDevice;
 	};
 }

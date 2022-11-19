@@ -19,7 +19,7 @@ namespace vk
     return *this;
   }
   std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::Build() const {
-    return std::make_unique<DescriptorSetLayout>(m_device, m_bindings);
+    return std::make_unique<DescriptorSetLayout>(m_device, m_bindings, m_tag);
   }
   // *************** Descriptor Set Layout *********************
   DescriptorSetLayout::DescriptorSetLayout(
@@ -28,7 +28,7 @@ namespace vk
     const std::string& tag)
     : m_device{ device }, m_bindings{ bindings },m_tag(tag)
   {
-    ALALBA_INFO(" Create DescriptorSet Layout {0}", m_tag);
+    ALALBA_INFO("Create DescriptorSet Layout: {0}", m_tag);
     std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
     for (auto kv : m_bindings) {
       setLayoutBindings.push_back(kv.second);
@@ -52,7 +52,7 @@ namespace vk
   {
     if (m_desLayout != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean DescriptorSet Layout {0}", m_tag);
+      ALALBA_WARN("Clean DescriptorSet Layout: {0}", m_tag);
       vkDestroyDescriptorSetLayout(m_device.Handle(), m_desLayout, nullptr);
       m_desLayout = VK_NULL_HANDLE;
     }
