@@ -21,8 +21,9 @@
 
 #include "DescriptorSetLayout.h"
 #include "DescriptorPool.h"
-#include "DescriptorSets.h"
+#include "DescriptorSet.h"
 
+#include "Allocator.h"
 namespace Alalba
 {
 	class Mesh;
@@ -47,6 +48,7 @@ namespace vk
 		void RecreateSwapChainAndFramebuffers();
 		VulkanRenderer(const Device& device, Allocator& allocator) :m_device(device), m_allocator(allocator) {};
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
+		// cmdBufferIndex =  imageIndex
 		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Mesh& mesh);
 		void DrawFrame(const Alalba::Mesh& mesh);
 		void Init();
@@ -82,8 +84,8 @@ namespace vk
 		//test 
 		std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
 		std::unique_ptr<DescriptorPool> m_globalDescPool;
-		std::unique_ptr<DescriptorSets> m_globalDescSets;
-		 
+		std::vector<std::unique_ptr<DescriptorSet>> m_globalDescSets;
+		
 		struct UniformBufferObject {
 			glm::mat4 model;
 			glm::mat4 view;
@@ -93,7 +95,8 @@ namespace vk
 
 		std::vector< std::unique_ptr<Buffer> > m_globalUniformbuffers;
 		
-		std::vector<void*> uniformBuffersMapped;
+		
+		std::vector<void*> datas;
 		void updateUniformBuffer(uint32_t currentImage) {
 			static auto startTime = std::chrono::high_resolution_clock::now();
 
@@ -103,7 +106,13 @@ namespace vk
 			ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			ubo.proj = glm::perspective(glm::radians(45.0f), ((float)m_SwapChain->GetExtent().width) / ((float)m_SwapChain->GetExtent().width), 0.1f, 10.0f);
 			ubo.proj[1][1] *= -1;
-			memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+
+			
+			/*memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));*/
+
+			void* data = m_allocator.MapMemory(m_globalUniformbuffers[currentImage]->GetAllocation());
+			memcpy(data, &ubo, sizeof(ubo));
+			m_allocator.UnMapMemory(m_globalUniformbuffers[currentImage]->GetAllocation());
 		}
 
 		uint32_t m_currentFrame = 0;

@@ -128,8 +128,13 @@ namespace vk
 		}
 		
 		// uniform buffer
+		m_globalDescPool = DescriptorPool::Builder(m_device)
+			.SetTag("Descriptor Pool")
+			.SetMaxSets(m_SwapChain->GetImgCount())
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
+			.Build();
 		// test
-		uniformBuffersMapped.resize(3);
+		
 		for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
 		{
 			m_globalUniformbuffers.push_back(
@@ -139,27 +144,25 @@ namespace vk
 				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
 				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
 				.Build()
-				);
+			);
+			m_globalDescSets.push_back(
+				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
+				.SetTag("Global Set " + std::to_string(i))
+				.SetDescSetLayout(*m_globalDescSetLayout.get())
+				.Allocate()
+			);
 
-			uniformBuffersMapped[i] = m_allocator.MapMemory(m_globalUniformbuffers[i]->GetAllocation());
+			m_globalDescSets[i]->BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
+				.UpdateDescriptors();
 		}
+		
 
-		m_globalDescPool = DescriptorPool::Builder(m_device)
-			.SetTag("Descriptor Pool")
-			.SetMaxSets(m_SwapChain->GetImgCount())
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
-			.Build();
-
-		m_globalDescSets = DescriptorSets::Allocator(m_device, *m_globalDescPool.get())
-			.SetTag("Global Descriptor Sets")
-			.SetCount(3)
-			.AddDescSetLayout(0, *m_globalDescSetLayout.get())
-			.AddDescSetLayout(1, *m_globalDescSetLayout.get())
-			.AddDescSetLayout(2, *m_globalDescSetLayout.get())
-			.Allocate();
-		// The descriptor sets have been allocated now, but the descriptors within still need to be configured
-
-
+		// test
+		//for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
+		//{
+		//	void* data = m_allocator.MapMemory(m_globalUniformbuffers[i]->GetAllocation());
+		//	datas.push_back(data);
+		//}
 
 	}
 	void VulkanRenderer::Shutdown()
@@ -281,10 +284,16 @@ namespace vk
 		scissor.extent = m_SwapChain->GetExtent();
 		vkCmdSetScissor(cmdBuffer[cmdBufferIndex], 0, 1, &scissor);
 
-	
+	 // test 
+		std::vector<VkDescriptorSet>DescSets;
+		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
+		vkCmdBindDescriptorSets(cmdBuffer[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_pipelineLayout->Handle(), 0, 1, DescSets.data(), 0, nullptr);
+		
+		
 		// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
 		// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
-		
+		// 
 		vkCmdDrawIndexed(cmdBuffer[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
 		vkCmdEndRenderPass(cmdBuffer[cmdBufferIndex]);
 
@@ -299,6 +308,7 @@ namespace vk
 
 		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(m_device.Handle(), m_SwapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &imageIndex);
+		
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			RecreateSwapChainAndFramebuffers();
 			return;
@@ -314,7 +324,7 @@ namespace vk
 
 		// update camera
 ///////////////////////////////////////////////////////////
-		updateUniformBuffer(imageIndex);
+		updateUniformBuffer(m_currentFrame);
 //////////////////////////////////////////////////////////////
 		vkResetFences(m_device.Handle(), 1, &inflightFence);
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
