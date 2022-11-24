@@ -42,6 +42,9 @@ namespace vk
 
 		const VmaAllocation& GetAllocation() const { return m_allocation; }
 
+		void* MapMemory();
+		void UnMapMemory();
+
 	private:
 		VULKAN_HANDLE(VkBuffer, m_buffer);
 		const class Device& m_device;

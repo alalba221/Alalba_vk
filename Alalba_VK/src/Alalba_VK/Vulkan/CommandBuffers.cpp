@@ -38,7 +38,7 @@ namespace vk
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = m_cmdBuffers.data();
+		submitInfo.pCommandBuffers = &m_cmdBuffers[index];
 
 		// Create fence to ensure that the command buffer has finished executing
 		VkFenceCreateInfo fenceCreateInfo = {};

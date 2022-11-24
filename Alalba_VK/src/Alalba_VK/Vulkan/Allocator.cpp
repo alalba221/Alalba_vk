@@ -79,18 +79,6 @@ namespace vk
 		vmaDestroyBuffer(m_allocator, buffer, allocation);
 	}
 
-	void* Allocator::MapMemory(VmaAllocation allocation)
-	{
-		void* mappedMemory;
-		vmaMapMemory(m_allocator, allocation, &mappedMemory);
-		return mappedMemory;
-	}
-
-	void Allocator::UnMapMemory(VmaAllocation allocation)
-	{
-		vmaUnmapMemory(m_allocator, allocation);
-	}
-
 	void Allocator::CopyDataToGPU(void* src, Buffer& dst, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 
@@ -102,9 +90,9 @@ namespace vk
 			.Build();
 		
 		// 2. copy data to staging buffer
-		void* data = MapMemory(m_stagingVectexBuffer->GetAllocation());
+		void* data = m_stagingVectexBuffer->MapMemory();
 		memcpy(data, src, (size_t)sizeInByte);
-		UnMapMemory(m_stagingVectexBuffer->GetAllocation());
+		m_stagingVectexBuffer->UnMapMemory();
 
 		// 3. copy staging buffer to vertex buffer: using command pool for graphics
 		std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)

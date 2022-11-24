@@ -23,7 +23,6 @@
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 
-#include "Allocator.h"
 namespace Alalba
 {
 	class Mesh;
@@ -110,9 +109,9 @@ namespace vk
 			
 			/*memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));*/
 
-			void* data = m_allocator.MapMemory(m_globalUniformbuffers[currentImage]->GetAllocation());
+			void* data = m_globalUniformbuffers[currentImage]->MapMemory();
 			memcpy(data, &ubo, sizeof(ubo));
-			m_allocator.UnMapMemory(m_globalUniformbuffers[currentImage]->GetAllocation());
+			m_globalUniformbuffers[currentImage]->UnMapMemory();
 		}
 
 		uint32_t m_currentFrame = 0;

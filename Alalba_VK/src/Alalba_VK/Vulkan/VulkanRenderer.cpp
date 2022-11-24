@@ -78,6 +78,7 @@ namespace vk
 			*m_vertShaderModule.get(), *m_fragShaderModule.get())
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
+			.SetBackCulling(false)
 			.SetScirrorExtent(m_SwapChain->GetExtent())
 			.SetViewPortWidth(static_cast<float>(m_SwapChain->GetExtent().width))
 			.SetViewPortHeight(static_cast<float>(m_SwapChain->GetExtent().height))
@@ -243,8 +244,8 @@ namespace vk
 	}
 	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Mesh& mesh)
 	{
-		CommandBuffers&  cmdBuffer = (*m_cmdBuffers.get());
-		cmdBuffer.BeginRecording(cmdBufferIndex);
+		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
+		cmdBuffers.BeginRecording(cmdBufferIndex);
 		
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
@@ -259,16 +260,16 @@ namespace vk
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBeginRenderPass(cmdBuffer[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(cmdBuffer[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
+		vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 
 		VkBuffer vertexBuffers[] = { mesh.GetVertexbuffer().Handle()};
 		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(cmdBuffer[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
+		vkCmdBindVertexBuffers(cmdBuffers[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
 
 		VkBuffer indexBuffer = mesh.GetIndexbuffer().Handle();
 		VkDeviceSize offset = 0;
-		vkCmdBindIndexBuffer(cmdBuffer[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -277,27 +278,27 @@ namespace vk
 		viewport.height = static_cast<float>(m_SwapChain->GetExtent().height);
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(cmdBuffer[cmdBufferIndex], 0, 1, &viewport);
+		vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
-		vkCmdSetScissor(cmdBuffer[cmdBufferIndex], 0, 1, &scissor);
+		vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
 	 // test 
 		std::vector<VkDescriptorSet>DescSets;
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
-		vkCmdBindDescriptorSets(cmdBuffer[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipelineLayout->Handle(), 0, 1, DescSets.data(), 0, nullptr);
 		
 		
 		// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
 		// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
 		// 
-		vkCmdDrawIndexed(cmdBuffer[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
-		vkCmdEndRenderPass(cmdBuffer[cmdBufferIndex]);
+		vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
+		vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
 
-		cmdBuffer.EndRecording(cmdBufferIndex);
+		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
 	void VulkanRenderer::DrawFrame(const const Alalba::Mesh& mesh)

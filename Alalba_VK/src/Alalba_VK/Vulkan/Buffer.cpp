@@ -33,4 +33,15 @@ namespace vk
 			m_buffer = VK_NULL_HANDLE;
 		}
 	}
+
+	void* Buffer::MapMemory()
+	{
+		void* mappedMemory;
+		vmaMapMemory(m_allocator.Handle(), m_allocation, &mappedMemory);
+		return mappedMemory;
+	}
+	void Buffer::UnMapMemory()
+	{
+		vmaUnmapMemory(m_allocator.Handle(), m_allocation);
+	}
 }

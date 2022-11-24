@@ -19,6 +19,7 @@ namespace vk
 			
 			Builder& SetAssemblyTopology(VkPrimitiveTopology topology) { m_topology = topology; return *this; };
 			Builder& SetPolygonMode(VkPolygonMode polygonMode) { m_polygonMode = polygonMode; return *this; };
+			Builder& SetBackCulling(bool backcull) { m_backcull = backcull; return *this; }
 			Builder& SetViewPortWidth(float width) { m_viewportWidth = width; return *this; };
 			Builder& SetViewPortHeight(float height) { m_viewportHeight = height; return *this; };
 			Builder& SetScirrorExtent(VkExtent2D scirrorExtent) { m_scirrorExtent = scirrorExtent; return *this; };
@@ -26,7 +27,8 @@ namespace vk
 			std::unique_ptr<GraphicsPipeline> Build() const
 			{
 				return std::make_unique<GraphicsPipeline>(m_device, m_layout, m_renderpass,m_vertShader, m_fragShader,
-					m_topology, m_polygonMode, m_viewportWidth, m_viewportHeight, m_scirrorExtent);
+					m_topology, m_polygonMode, m_backcull
+					, m_viewportWidth, m_viewportHeight, m_scirrorExtent);
 			};
 
 		private:
@@ -41,6 +43,8 @@ namespace vk
 			float m_viewportWidth;
 			float m_viewportHeight;
 			VkExtent2D m_scirrorExtent;
+
+			bool m_backcull = true;
 		};
 
 	public:
@@ -49,6 +53,7 @@ namespace vk
 			const ShaderModule& vertex, const ShaderModule& fragment,
 			const VkPrimitiveTopology topology,
 			const VkPolygonMode polygonMode,
+			const bool backculling,
 			const float viewportWidth, const float viewportHight, const VkExtent2D scirrorExtent
 			);
 

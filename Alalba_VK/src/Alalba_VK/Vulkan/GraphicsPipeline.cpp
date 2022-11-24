@@ -11,6 +11,7 @@ namespace vk
     const ShaderModule& vertex, const ShaderModule& fragment,
     const VkPrimitiveTopology topology,
     const VkPolygonMode polygonMode,
+    const bool backculling,
     const float viewportWidth, const float viewportHight, const VkExtent2D scirrorExtent)
 		: m_device(device), m_layout(layout),m_renderpass(renderpass),m_vertShader(vertex),m_fragShader(fragment)
 	{
@@ -70,8 +71,9 @@ namespace vk
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = polygonMode;// VK_POLYGON_MODE_LINE: VK_POLYGON_MODE_FILL;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.cullMode = backculling?VK_CULL_MODE_BACK_BIT: VK_CULL_MODE_NONE;
+    // rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f; // Optional
     rasterizer.depthBiasClamp = 0.0f; // Optional

@@ -37,9 +37,6 @@ namespace vk
 		void DestroyImage(VkImage image, VmaAllocation allocation);
 		void DestroyBuffer(VkBuffer buffer, VmaAllocation allocation);
 		
-		// todo: put following functions into buffer class
-		void* MapMemory(VmaAllocation allocation);
-		void UnMapMemory(VmaAllocation allocation);
 		void CopyDataToGPU(void* src, Buffer& dst, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 
 		~Allocator() {Clean(); };
