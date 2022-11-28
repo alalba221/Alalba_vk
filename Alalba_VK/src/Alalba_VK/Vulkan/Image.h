@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
+#include "Alalba_VK/Vulkan/CommandPool.h"
 namespace vk
 {
 	class Device;
@@ -20,13 +21,13 @@ namespace vk
 			Builder& SetImageFormat(const VkFormat format) { m_format = format; return*this; }
 			Builder& SetUsageFlags(const VkImageUsageFlags usageFlags) { m_usageFlags = usageFlags; return *this; }
 			Builder& SetImageTiling(const VkImageTiling tilling) { m_tilling = tilling; return *this; }
-
 			std::unique_ptr<Image>Build()const;
 
 		private:
 			const class Device& m_device;
 			// allocator is not a const, as s_total size varies after each allocation
 			class Allocator& m_allocator;
+
 			VkImageType m_imageType;
 			VkExtent3D m_extent = {0,0,0};
 			VkFormat m_format;

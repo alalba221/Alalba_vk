@@ -11,6 +11,8 @@ namespace vk
 
 	void VulkanRenderer::Init()
 	{
+		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
+		
 		m_SwapChain = SwapChain::Builder(m_device, Alalba::Application::Get().GetSurface())
 			.SetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR)
 			.SetImgSharingMode(VK_SHARING_MODE_EXCLUSIVE)
@@ -41,7 +43,9 @@ namespace vk
 			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
 			.Build();
 		
-		m_depthImage = Image::Builder(m_device, m_allocator)
+
+		// depth image and image views are not in use right now
+		m_depthImage = Image::Builder(m_device, *m_allocator.get())
 			.SetTag("DepthImage")
 			.SetImgType(VK_IMAGE_TYPE_2D)
 			.SetImageFormat(m_device.FindSupportedFormat(
@@ -139,7 +143,7 @@ namespace vk
 		for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
 		{
 			m_globalUniformbuffers.push_back(
-				Buffer::Builder(m_device, m_allocator)
+				Buffer::Builder(m_device, *m_allocator.get())
 				.SetTag("Uniform Buffer" + std::to_string(i))
 				.SetSize(sizeof(UniformBufferObject))
 				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
@@ -198,6 +202,8 @@ namespace vk
 		m_globalDescSetLayout->Clean();
 		
 		m_globalDescPool->Clean();
+
+		m_allocator->Clean();
 	}
 	void VulkanRenderer::RecreateSwapChainAndFramebuffers()
 	{
@@ -214,7 +220,7 @@ namespace vk
 		// recreate framebuffers , depth image , depthimage view and swapchain
 		m_SwapChain.reset(new SwapChain(m_device, Alalba::Application::Get().GetSurface(), VK_PRESENT_MODE_MAILBOX_KHR, VK_SHARING_MODE_EXCLUSIVE));
 		
-		m_depthImage.reset(new Image(m_device,m_allocator, VK_IMAGE_TYPE_2D,
+		m_depthImage.reset(new Image(m_device, *m_allocator.get(), VK_IMAGE_TYPE_2D,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 			VkExtent3D{ m_SwapChain->GetExtent().width, m_SwapChain->GetExtent().height,1 },
 			m_device.FindSupportedFormat(

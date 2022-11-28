@@ -27,8 +27,12 @@ namespace Alalba
     const uint32_t GetIndexCount() const { return indices.size(); }
     const uint32_t GetInstanceCount() const { return 1; }
 
+    static vk::Allocator* Allocator() { return s_allocator; }
   private:
     std::unique_ptr<vk::Buffer> m_vertexBuffer;
     std::unique_ptr<vk::Buffer> m_indexBuffer;
+
+    // Allocator for Mesh
+    static vk::Allocator* s_allocator;
   };
 }

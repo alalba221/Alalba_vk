@@ -13,20 +13,23 @@ namespace vk
 	class Allocator
 	{
 	public:
-		class Builder
-		{
-		public:
-			Builder(const Device& device, const Instance& instance) :m_device(device), m_instance(instance) {};
-			std::unique_ptr<Allocator>Build() const { return std::make_unique<Allocator>(m_device, m_instance);};
+	//	class Builder
+	//	{
+	//	public:
+	//		Builder(const Device& device, const Instance& instance) :m_device(device), m_instance(instance) {};
+	//		Builder& SetTag(const std::string tag) { m_tag = tag; return *this; };
+	//		Allocator* Build() const { return new Allocator(m_device, m_instance, m_tag);};
+	//		//Allocator* Build() const { return new Allocator(m_device, m_instance, m_tag); };
 
-		private:
-			const class Device& m_device;
-			const class Instance& m_instance;
-		};
+	//	private:
+	//		const class Device& m_device;
+	//		const class Instance& m_instance;
+	//		std::string m_tag{};
+	//	};
 
-	public:
+	//public:
 		VULKAN_NON_COPIABLE(Allocator);
-		Allocator(const Device& device, const Instance& instance);
+		Allocator(const Device& device, const Instance& instance, const std::string& tag);
 
 		VmaAllocation AllocateImage(VkImageCreateInfo imageCreateInfo, 
 			VmaMemoryUsage usage, VkImage& outImage, const std::string& imagetag);
@@ -46,7 +49,6 @@ namespace vk
 		VULKAN_HANDLE(VmaAllocator, m_allocator);
 		const class Device& m_device;
 		const class Instance& m_instance;
-
 		uint64_t s_totalAllocatedBytes = 0;
 
 	};

@@ -10,6 +10,8 @@ IncludeDir["GLFW"] = "%{wks.location}/Alalba_VK/vendor/GLFW/include"
 IncludeDir["spdlog"] = "%{wks.location}/Alalba_VK/vendor/spdlog/include"
 IncludeDir["Assimp"] = "%{wks.location}/Alalba_VK/vendor/assimp/include"
 IncludeDir["tinyobj"] = "%{wks.location}/Alalba_VK/vendor/tiny_obj_loader"
+IncludeDir["stb"] = "%{wks.location}/Alalba_VK/vendor/stb/include"
+
 
 LibraryDir = {}
 LibraryDir["VulkanSDK"] = "%{VULKAN_SDK}/Lib"

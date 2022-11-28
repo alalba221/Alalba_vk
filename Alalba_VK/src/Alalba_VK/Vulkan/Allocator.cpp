@@ -7,10 +7,10 @@
 #include "Alalba_VK/Utilities/StringUtils.h"
 namespace vk
 {
-	Allocator::Allocator(const Device& device, const Instance& instance)
-		:m_device(device),m_instance(instance)
+	Allocator::Allocator(const Device& device, const Instance& instance, const std::string& tag)
+		:m_device(device),m_instance(instance),m_tag(tag)
 	{
-		ALALBA_INFO("Create VMA Allocator");
+		ALALBA_INFO("Create VMA Allocator: {0}", m_tag);
 		VmaAllocatorCreateInfo CI = {};
 		//CI.flags
 		CI.physicalDevice = m_instance.GetPhysicalDevice().Handle();
@@ -25,6 +25,7 @@ namespace vk
 		//CI.pTypeExternalMemoryHandleTypes
 		vmaCreateAllocator(&CI, &m_allocator);
 	}
+
 	VmaAllocation Allocator::AllocateImage(VkImageCreateInfo imageCreateInfo, VmaMemoryUsage usage, VkImage& outImage, const std::string& imagetag)
 	{
 		VmaAllocationCreateInfo allocCreateInfo = {};
@@ -36,10 +37,10 @@ namespace vk
 		// TODO: Tracking
 		VmaAllocationInfo allocInfo;
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
-		ALALBA_INFO ("VulkanAllocator: allocating image {1}; size = {0}", Utils::BytesToString(allocInfo.size), imagetag);
+		ALALBA_INFO("VulkanAllocator: {0} allocating image{1}; size = {2}", m_tag, imagetag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
-			ALALBA_INFO("VulkanAllocator: total allocated since start is {0}",  Utils::BytesToString(s_totalAllocatedBytes));
+			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}", m_tag, Utils::BytesToString(s_totalAllocatedBytes));
 		}
 		return allocation;
 	}
@@ -56,10 +57,10 @@ namespace vk
 		VmaAllocationInfo allocInfo{};
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
 
-		ALALBA_INFO("VulkanAllocator : allocating buffer{1}; size = {0}",Utils::BytesToString(allocInfo.size),buffertag);
+		ALALBA_INFO("VulkanAllocator: {0} allocating buffer{1}; size = {2}",m_tag, buffertag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
-			ALALBA_INFO("VulkanAllocator: total allocated since start is {0}", Utils::BytesToString(s_totalAllocatedBytes));
+			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}",m_tag, Utils::BytesToString(s_totalAllocatedBytes));
 		}
 
 		return allocation;
@@ -100,7 +101,7 @@ namespace vk
 			.SetSize(1)
 			.Allocate();
 
-		{
+		{ 
 			// recording command buffer
 			VkBufferCopy copyRegion = {};
 			copyRegion.size = sizeInByte;

@@ -45,7 +45,7 @@ namespace vk
 
 		void Shutdown();
 		void RecreateSwapChainAndFramebuffers();
-		VulkanRenderer(const Device& device, Allocator& allocator) :m_device(device), m_allocator(allocator) {};
+		VulkanRenderer(const Device& device) :m_device(device){};
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
 		// cmdBufferIndex =  imageIndex
 		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Mesh& mesh);
@@ -57,7 +57,8 @@ namespace vk
 	private:
 		
 		const class Device& m_device;
-		class Allocator& m_allocator;
+		
+		std::unique_ptr<Allocator> m_allocator;
 		
 		std::unique_ptr<SwapChain> m_SwapChain;
 		std::unique_ptr<GraphicsPipeline> m_graphicsPipeline;

@@ -45,6 +45,7 @@ project "Alalba_VK"
 		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.VMA}",
+		"%{IncludeDir.stb}",
 	}
 
 	links

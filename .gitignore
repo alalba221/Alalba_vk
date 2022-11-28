@@ -1,0 +1,18 @@
+# Visual Studio files and folder
+.vs/
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+**.csproj
+**.nsight-gfxproj
+**.DotSettings
+**.user
+
+# Binaries
+**/bin/
+vendor/bin/premake/
+Alalba_VK/vendor/mono/bin
+Alalba_VK/vendor/assimp/bin
+bin-int/
+obj/

@@ -102,10 +102,10 @@ namespace Alalba {
 	void Camera::MouseZoom(float delta)
 	{
 		m_Distance -= delta * m_ZoomSpeed;
-		if (m_Distance < 0.0f)
+		if (m_Distance < 1.0f)
 		{
 			m_FocalPoint += GetForwardDirection();
-			m_Distance = 0.0f;
+			m_Distance = 1.0f;
 		}
 	}
 

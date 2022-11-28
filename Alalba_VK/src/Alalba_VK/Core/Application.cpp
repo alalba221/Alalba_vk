@@ -38,10 +38,7 @@ namespace Alalba
 			.AddExtension("VK_KHR_deferred_host_operations")
 			.Build();
 
-		m_allocator = vk::Allocator::Builder(*m_vulkanDevice.get(), *m_vulkanInstance.get())
-			.Build();
-		
-		m_renderer.reset(new vk::VulkanRenderer(*m_vulkanDevice.get(), *m_allocator.get()));
+		m_renderer.reset(new vk::VulkanRenderer(*m_vulkanDevice.get()));
 	}
 
 	void Application::OnInit()
@@ -53,7 +50,8 @@ namespace Alalba
 	void Application::OnShutdown()
 	{
 		m_mesh->Clean();
-		m_allocator->Clean();
+
+		Mesh::Allocator()->Clean();
 		m_vulkanDevice->Clean();
 	}
 

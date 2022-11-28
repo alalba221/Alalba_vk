@@ -39,8 +39,7 @@ namespace Alalba{
 
 		const vk::Instance& GetVulkanInstance() const { return *m_vulkanInstance.get(); }
 		const vk::Device& GetDevice() const { return *m_vulkanDevice.get(); }
-		vk::Allocator& GetAllocator()const { return *m_allocator.get(); }
-
+		
 		const vk::VulkanRenderer& GetRenderer() const { return *m_renderer.get(); }
 
 	private:
@@ -55,7 +54,6 @@ namespace Alalba{
 		std::unique_ptr<vk::Instance> m_vulkanInstance;
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
-		std::unique_ptr<vk::Allocator> m_allocator;
 		std::unique_ptr<vk::VulkanRenderer> m_renderer;
 		
 		std::unique_ptr<Mesh> m_mesh;
