@@ -64,7 +64,6 @@ namespace vk
 		}
 
 		return allocation;
-
 	}
 	void Allocator::DestroyImage(VkImage image, VmaAllocation allocation)
 	{

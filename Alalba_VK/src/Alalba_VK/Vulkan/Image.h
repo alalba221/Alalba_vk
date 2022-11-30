@@ -6,6 +6,8 @@ namespace vk
 {
 	class Device;
 	class Allocator;
+	class Queue;
+	class CommandPool;
 
 	class Image
 	{
@@ -34,6 +36,9 @@ namespace vk
 			VkImageUsageFlags m_usageFlags;
 			VkImageTiling m_tilling;
 			std::string m_tag;
+
+		private:
+
 		};
 
 	public:
@@ -46,7 +51,9 @@ namespace vk
 		const VkImageType& GetType() const { return m_imageType; };
 		const VkExtent3D& GetExtent() const { return m_extent; }
 		const VkFormat& GetFormat() const { return m_format; };
-
+		// TO GPU 
+		void CopyImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
+		
 		~Image() { Clean(); };
 		void Clean();
 
@@ -59,5 +66,8 @@ namespace vk
 		VkFormat m_format;
 		VkImageUsageFlags m_usageFlags;
 		VmaAllocation m_allocation;
+		VkImageLayout m_currentlLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	private:
+		void TransitionImageLayout(const CommandPool& cmdPool, const Queue& q, VkImageLayout newLayout);
 	};
 }

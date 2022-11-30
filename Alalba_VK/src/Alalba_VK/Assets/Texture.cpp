@@ -21,6 +21,8 @@ namespace Alalba
 		int width, height, channels;
 		m_imageData = stbi_load(m_filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
+		VkDeviceSize  imageSize = width * height * channels;
+
 		// Create Image Object on GPU
 		m_image = vk::Image::Builder(Application::Get().GetDevice(), *s_allocator)
 			.SetTag("Texture Image Object")
@@ -31,8 +33,8 @@ namespace Alalba
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
 			.Build();
 
-
-
+		m_image->CopyImageFrom(m_imageData, imageSize,
+			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool());
 
 	}
 

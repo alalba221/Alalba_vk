@@ -42,7 +42,7 @@ namespace vk
 			const VmaMemoryUsage& vmaUsage,
 			const std::string& tag);
 
-		// to gpu
+		// TO GPU
 		void CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		~Buffer() { Clean(); }
 		void Clean();
