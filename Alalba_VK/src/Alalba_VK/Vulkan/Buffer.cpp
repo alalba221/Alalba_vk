@@ -28,7 +28,7 @@ namespace vk
 	void Buffer::CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 
-		std::unique_ptr<Buffer>m_stagingVectexBuffer = Buffer::Builder(m_device, m_allocator)
+		std::unique_ptr<Buffer>stagingBuffer = Buffer::Builder(m_device, m_allocator)
 			.SetTag("Staging Buffer")
 			.SetSize(sizeInByte)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
@@ -36,27 +36,14 @@ namespace vk
 			.Build();
 
 		// 2. copy data to staging buffer
-		void* data = m_stagingVectexBuffer->MapMemory();
+		void* data = stagingBuffer->MapMemory();
 		memcpy(data, src, (size_t)sizeInByte);
-		m_stagingVectexBuffer->UnMapMemory();
+		stagingBuffer->UnMapMemory();
 
 		// 3. copy staging buffer to vertex buffer: using command pool for graphics
-		std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
-			.SetTag("Command Buffers for Copy")
-			.SetSize(1)
-			.Allocate();
-
-		{
-			// recording command buffer
-			VkBufferCopy copyRegion = {};
-			copyRegion.size = sizeInByte;
-			m_copyCmdBuffer->BeginRecording(0);
-			VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer.get())[0];
-			vkCmdCopyBuffer(cmdbuffer, m_stagingVectexBuffer->Handle(), m_buffer, 1, &copyRegion);
-			m_copyCmdBuffer->EndRecording(0);
-			m_copyCmdBuffer->Flush(0, q);
-		}
-		m_stagingVectexBuffer->Clean();
+		MoveDataFromStagingBuffer(*stagingBuffer.get(), sizeInByte, q, cmdPool);
+		// 4. Clear Staging buffer
+		stagingBuffer->Clean();
 	}
 
 	void Buffer::Clean()
@@ -78,5 +65,20 @@ namespace vk
 	void Buffer::UnMapMemory()
 	{
 		vmaUnmapMemory(m_allocator.Handle(), m_allocation);
+	}
+	void Buffer::MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+	{
+		std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
+			.SetTag("Command Buffers for Copy Buffer: "+m_tag)
+			.SetSize(1)
+			.Allocate();
+		// recording command buffer
+		VkBufferCopy copyRegion = {};
+		copyRegion.size = sizeInByte;
+		copyCmdBuffer->BeginRecording(0);
+		VkCommandBuffer cmdbuffer = (*copyCmdBuffer.get())[0];
+		vkCmdCopyBuffer(cmdbuffer, stage.Handle(), m_buffer, 1, &copyRegion);
+		copyCmdBuffer->EndRecording(0);
+		copyCmdBuffer->Flush(0, q);
 	}
 }

@@ -8,6 +8,7 @@ namespace vk
 	class Allocator;
 	class Queue;
 	class CommandPool;
+	class Buffer;
 
 	class Image
 	{
@@ -69,5 +70,6 @@ namespace vk
 		VkImageLayout m_currentlLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	private:
 		void TransitionImageLayout(const CommandPool& cmdPool, const Queue& q, VkImageLayout newLayout);
+		void MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 	};
 }

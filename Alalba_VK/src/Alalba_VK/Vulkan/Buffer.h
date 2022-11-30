@@ -60,6 +60,9 @@ namespace vk
 		VkBufferUsageFlags m_usageFlags;
 		VmaAllocation m_allocation;
 		VmaMemoryUsage m_vmaUsage;
+
+	private:
+		void MoveDataFromStagingBuffer(const Buffer& stage ,uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 	};
 }
 

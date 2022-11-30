@@ -21,46 +21,21 @@ namespace vk
       .SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
       .Build();
 
-    // 2. copy data to staging buffer
+    // 2. Copy data to staging buffer
     void* data = stagingBuffer->MapMemory();
     memcpy(data, src, (size_t)sizeInByte);
     stagingBuffer->UnMapMemory();
 
     // 3. Layout transitions
     TransitionImageLayout(cmdPool, q, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    
     // 4. Copy staging buffer to image buffer: using command pool for graphics
-    {
-      std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
-      .SetTag("Command Buffers for Copy")
-      .SetSize(1)
-      .Allocate();
-      // recording command buffer
-      VkBufferImageCopy  region = {};
-      region.bufferOffset = 0;
-      region.bufferRowLength = 0;
-      region.bufferImageHeight = 0;
-
-      region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      region.imageSubresource.mipLevel = 0;
-      region.imageSubresource.baseArrayLayer = 0;
-      region.imageSubresource.layerCount = 1;
-
-      region.imageOffset = { 0, 0, 0 };
-      region.imageExtent = {
-          m_extent.width,
-          m_extent.height,
-          1
-      };
-      m_copyCmdBuffer->BeginRecording(0);
-      VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer.get())[0];
-      vkCmdCopyBufferToImage(cmdbuffer, stagingBuffer->Handle(), m_image,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-      m_copyCmdBuffer->EndRecording(0);
-      m_copyCmdBuffer->Flush(0, q);
-    }
+    MoveDataFromStagingBuffer(*stagingBuffer.get(), sizeInByte, q, cmdPool);
+    
     // 5. Layout transitions
     TransitionImageLayout(cmdPool, q, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
+    // 6. clear staging buffer
     stagingBuffer->Clean();
   }
 
@@ -183,5 +158,35 @@ namespace vk
     }
     m_currentlLayout = newLayout;
 
+  }
+  void Image::MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+  {
+    std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
+      .SetTag("Command Buffers for Copy Image: "+m_tag)
+      .SetSize(1)
+      .Allocate();
+    // recording command buffer
+    VkBufferImageCopy  region = {};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset = { 0, 0, 0 };
+    region.imageExtent = {
+        m_extent.width,
+        m_extent.height,
+        1
+    };
+    copyCmdBuffer->BeginRecording(0);
+    VkCommandBuffer cmdbuffer = (*copyCmdBuffer.get())[0];
+    vkCmdCopyBufferToImage(cmdbuffer, stage.Handle(), m_image,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    copyCmdBuffer->EndRecording(0);
+    copyCmdBuffer->Flush(0, q);
   }
 }
