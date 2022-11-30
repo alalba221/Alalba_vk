@@ -1,12 +1,15 @@
 #pragma once
-
 #include"stb_image.h"
 
 namespace vk
 {
 	class Image;
 	class ImageView;
+	class Allocator;
+}
 
+namespace Alalba
+{
 	class Texture final
 	{
 	public:
@@ -16,14 +19,20 @@ namespace vk
 		Texture(const std::string& filename);
 		Texture(const Texture&) = default;
 		Texture(Texture&&) = default;
-		~Texture() = default;
+		~Texture() { Clean(); };
 	
+		static vk::Allocator* Allocator() { return s_allocator; }
+		void Clean();
+
 	private:
-		std::unique_ptr<Image> m_image;
-		std::unique_ptr<ImageView> m_imageView;
+		std::unique_ptr<vk::Image> m_image;
+		std::unique_ptr<vk::ImageView> m_imageView;
 
 		unsigned char* m_imageData;
 		std::string m_filePath;
+
+		// Allocator for Image
+		static vk::Allocator* s_allocator;
 	};
 
 }

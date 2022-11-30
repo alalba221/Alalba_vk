@@ -5,10 +5,9 @@ namespace vk
 {
 	class Device;
 	class Instance;
-	// used by CopyDataToGPU
-	class Queue;
+
 	class Buffer;
-	class CommandPool;
+	class Image;
 
 	class Allocator
 	{
@@ -39,9 +38,7 @@ namespace vk
 
 		void DestroyImage(VkImage image, VmaAllocation allocation);
 		void DestroyBuffer(VkBuffer buffer, VmaAllocation allocation);
-		
-		void CopyDataToGPU(void* src, Buffer& dst, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
-
+			
 		~Allocator() {Clean(); };
 		void Clean();
 		

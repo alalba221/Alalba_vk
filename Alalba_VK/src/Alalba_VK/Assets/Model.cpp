@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "Model.h"
-
-#include "Alalba_VK/Vulkan/CommandBuffers.h"
+#include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Core/Application.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 namespace Alalba
@@ -30,8 +29,8 @@ namespace Alalba
 			Use graphic queue, since both compute and graphics q support transfer
 			m_copyCmdBuffer->Flush(0, Application::Get().GetDevice().GetTransferQ());
 		*/
-		s_allocator->CopyDataToGPU(
-			vertices.data(), *m_vertexBuffer.get(), vertexSize,
+		m_vertexBuffer->CopyDataFrom(
+			vertices.data(), vertexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool()
 		);
 
@@ -43,8 +42,8 @@ namespace Alalba
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
 			.Build();
 		
-		s_allocator->CopyDataToGPU(
-			indices.data(), *m_indexBuffer.get(), indexSize,
+		m_indexBuffer->CopyDataFrom(
+			indices.data(), indexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool()
 		);
 	}

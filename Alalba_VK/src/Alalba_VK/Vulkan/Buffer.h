@@ -1,10 +1,14 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
+
 namespace vk
 {
 	class Device;
 	class Allocator;
+	class CommandPool;
+	class Queue;
+
 	class Buffer
 	{
 	public:
@@ -37,6 +41,9 @@ namespace vk
 			const VkDeviceSize& size, const VkBufferUsageFlags& usageFlags,
 			const VmaMemoryUsage& vmaUsage,
 			const std::string& tag);
+
+		// to gpu
+		void CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		~Buffer() { Clean(); }
 		void Clean();
 

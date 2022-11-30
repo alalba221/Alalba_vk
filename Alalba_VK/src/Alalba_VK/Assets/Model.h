@@ -1,7 +1,13 @@
 #pragma once
-#include "Alalba_VK/Vulkan/Buffer.h"
+
 #include "Vertex.h"
- 
+
+namespace vk
+{
+  class Buffer;
+  class Allocator;
+}
+
 namespace Alalba
 {
   class Mesh

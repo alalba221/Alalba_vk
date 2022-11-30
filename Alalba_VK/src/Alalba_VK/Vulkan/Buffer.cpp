@@ -2,6 +2,7 @@
 #include "Buffer.h"
 #include "Device.h"
 #include "Allocator.h"
+#include "CommandBuffers.h"
 namespace vk
 {
 	Buffer::Buffer(const Device& device, Allocator& allocator, 
@@ -24,6 +25,40 @@ namespace vk
 		// const uint32_t* pQueueFamilyIndices;
 		m_allocation = m_allocator.AllocateBuffer(bufferInfo, m_vmaUsage, m_buffer, m_tag);
 	}
+	void Buffer::CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+	{
+		// 1. create staging buffer 
+		std::unique_ptr<Buffer>m_stagingVectexBuffer = Buffer::Builder(m_device, m_allocator)
+			.SetTag("Staging Buffer")
+			.SetSize(sizeInByte)
+			.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
+			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+			.Build();
+
+		// 2. copy data to staging buffer
+		void* data = m_stagingVectexBuffer->MapMemory();
+		memcpy(data, src, (size_t)sizeInByte);
+		m_stagingVectexBuffer->UnMapMemory();
+
+		// 3. copy staging buffer to vertex buffer: using command pool for graphics
+		std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
+			.SetTag("Command Buffers for Copy")
+			.SetSize(1)
+			.Allocate();
+
+		{
+			// recording command buffer
+			VkBufferCopy copyRegion = {};
+			copyRegion.size = sizeInByte;
+			m_copyCmdBuffer->BeginRecording(0);
+			VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer.get())[0];
+			vkCmdCopyBuffer(cmdbuffer, m_stagingVectexBuffer->Handle(), m_buffer, 1, &copyRegion);
+			m_copyCmdBuffer->EndRecording(0);
+			m_copyCmdBuffer->Flush(0, q);
+		}
+		m_stagingVectexBuffer->Clean();
+	}
+
 	void Buffer::Clean()
 	{
 		if (m_buffer != VK_NULL_HANDLE)

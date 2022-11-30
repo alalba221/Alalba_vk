@@ -37,7 +37,7 @@ namespace vk
 		// TODO: Tracking
 		VmaAllocationInfo allocInfo;
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
-		ALALBA_INFO("VulkanAllocator: {0} allocating image{1}; size = {2}", m_tag, imagetag, Utils::BytesToString(allocInfo.size));
+		ALALBA_INFO("VulkanAllocator: {0} allocating image: {1}; size = {2}", m_tag, imagetag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
 			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}", m_tag, Utils::BytesToString(s_totalAllocatedBytes));
@@ -57,7 +57,7 @@ namespace vk
 		VmaAllocationInfo allocInfo{};
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
 
-		ALALBA_INFO("VulkanAllocator: {0} allocating buffer{1}; size = {2}",m_tag, buffertag, Utils::BytesToString(allocInfo.size));
+		ALALBA_INFO("VulkanAllocator: {0} allocating buffer: {1}; size = {2}",m_tag, buffertag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
 			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}",m_tag, Utils::BytesToString(s_totalAllocatedBytes));
@@ -78,40 +78,6 @@ namespace vk
 		ALALBA_ASSERT(buffer);
 		ALALBA_ASSERT(allocation);
 		vmaDestroyBuffer(m_allocator, buffer, allocation);
-	}
-
-	void Allocator::CopyDataToGPU(void* src, Buffer& dst, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
-	{
-		// 1. create staging buffer 
-		std::unique_ptr<Buffer>m_stagingVectexBuffer = Buffer::Builder(m_device, *this)
-			.SetTag("Staging Buffer")
-			.SetSize(sizeInByte)
-			.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
-			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
-			.Build();
-		
-		// 2. copy data to staging buffer
-		void* data = m_stagingVectexBuffer->MapMemory();
-		memcpy(data, src, (size_t)sizeInByte);
-		m_stagingVectexBuffer->UnMapMemory();
-
-		// 3. copy staging buffer to vertex buffer: using command pool for graphics
-		std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
-			.SetTag("Command Buffers for Copy")
-			.SetSize(1)
-			.Allocate();
-
-		{ 
-			// recording command buffer
-			VkBufferCopy copyRegion = {};
-			copyRegion.size = sizeInByte;
-			m_copyCmdBuffer->BeginRecording(0);
-			VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer.get())[0];
-			vkCmdCopyBuffer(cmdbuffer, m_stagingVectexBuffer->Handle(), dst.Handle(), 1, &copyRegion);
-			m_copyCmdBuffer->EndRecording(0);
-			m_copyCmdBuffer->Flush(0, q);
-		}
-		m_stagingVectexBuffer->Clean();
 	}
 
 	void Allocator::Clean()

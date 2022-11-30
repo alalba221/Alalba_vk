@@ -17,11 +17,12 @@ project "Sandbox"
       -- Why include GLFW: in the Windwo.h includes glfw. This is needed to be fixed
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.VulkanSDK}", 
-      "%{IncludeDir.VMA}",
+        "%{IncludeDir.VMA}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.tinyobj}",
 
-      "%{IncludeDir.GLFW}",
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.stb}",
    }
 
     links
