@@ -13,7 +13,6 @@ namespace vk
 		const VkFormat& format, const VkImageViewType viewType, const std::string& tag)
 		:m_device(device), m_vkImage(vkImage), m_subresourceflags(subresourceflags), m_format(format), m_viewType(viewType), m_tag(tag)
 	{
-		
 		// create info	
 		ALALBA_INFO("	Create Image View: {0}",m_tag);
 		VkImageSubresourceRange subresourceRange{};

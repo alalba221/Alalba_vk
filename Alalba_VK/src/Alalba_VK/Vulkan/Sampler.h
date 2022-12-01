@@ -1,5 +1,10 @@
 #pragma once
-class Sampler
+#include<vulkan/vulkan.h>
+namespace vk
 {
-};
+	class Sampler
+	{
+	};
+}
+
 

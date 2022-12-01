@@ -72,7 +72,7 @@ namespace vk
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
-
+		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Pipeline layout")
 			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
@@ -156,19 +156,10 @@ namespace vk
 				.SetDescSetLayout(*m_globalDescSetLayout.get())
 				.Allocate()
 			);
-
+			// 0 : is bingding index to set layout
 			m_globalDescSets[i]->BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
 				.UpdateDescriptors();
 		}
-		
-
-		// test
-		//for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
-		//{
-		//	void* data = m_allocator.MapMemory(m_globalUniformbuffers[i]->GetAllocation());
-		//	datas.push_back(data);
-		//}
-
 	}
 	void VulkanRenderer::Shutdown()
 	{
@@ -293,6 +284,7 @@ namespace vk
 
 	 // test 
 		std::vector<VkDescriptorSet>DescSets;
+		// Important: the order of pushing back determine the set==xx in shader
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
 		vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipelineLayout->Handle(), 0, 1, DescSets.data(), 0, nullptr);

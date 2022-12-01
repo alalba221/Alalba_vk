@@ -2,7 +2,7 @@
 #include "PipelineLayout.h"
 #include "Device.h"
 #include "DescriptorSetLayout.h"
-
+// pipeline layout  = descriptor set layout + push constant
 namespace vk
 {
 	PipelineLayout::Builder& PipelineLayout::Builder::AddPushConstant()

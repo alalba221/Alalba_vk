@@ -36,10 +36,18 @@ namespace Alalba
 		m_image->CopyImageFrom(m_imageData, imageSize,
 			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool());
 
+		// image view
+		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
+			.SetFormat(VK_FORMAT_R8G8B8A8_SRGB)
+			.SetTag("Texture ImageView")
+			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
+			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
+			.Build();
 	}
 
 	void Texture::Clean()
 	{
 		m_image->Clean();
+		m_imageView->Clean();
 	}
 }
