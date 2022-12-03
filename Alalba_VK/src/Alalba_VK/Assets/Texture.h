@@ -5,6 +5,7 @@ namespace vk
 {
 	class Image;
 	class ImageView;
+	class Sampler;
 	class Allocator;
 }
 
@@ -27,6 +28,7 @@ namespace Alalba
 	private:
 		std::unique_ptr<vk::Image> m_image;
 		std::unique_ptr<vk::ImageView> m_imageView;
+		std::unique_ptr<vk::Sampler> m_sampler;
 
 		unsigned char* m_imageData;
 		std::string m_filePath;

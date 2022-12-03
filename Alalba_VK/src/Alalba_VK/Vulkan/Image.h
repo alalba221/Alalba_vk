@@ -37,9 +37,6 @@ namespace vk
 			VkImageUsageFlags m_usageFlags;
 			VkImageTiling m_tilling;
 			std::string m_tag;
-
-		private:
-
 		};
 
 	public:

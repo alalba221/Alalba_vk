@@ -23,6 +23,9 @@
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 
+// test sampler
+#include"Sampler.h"
+
 namespace Alalba
 {
 	class Mesh;
@@ -116,7 +119,6 @@ namespace vk
 		}
 
 		uint32_t m_currentFrame = 0;
-
 	};
 }
 

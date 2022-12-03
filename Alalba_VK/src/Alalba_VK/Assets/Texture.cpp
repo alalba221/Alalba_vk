@@ -3,6 +3,7 @@
 
 #include "Alalba_VK/Vulkan/Image.h"
 #include "Alalba_VK/Vulkan/ImageView.h"
+#include "Alalba_VK/Vulkan/Sampler.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 #include "Alalba_VK/Core/Application.h"
 
@@ -43,11 +44,20 @@ namespace Alalba
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
 			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
 			.Build();
+
+	// sampler
+		m_sampler = vk::Sampler::Builder(Application::Get().GetDevice())
+			.SetTag("Texture Sampler")
+			.SetFilter(VK_FILTER_LINEAR)
+			.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
+			.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_REPEAT)
+			.Build();
 	}
 
 	void Texture::Clean()
 	{
 		m_image->Clean();
 		m_imageView->Clean();
+		m_sampler->Clean();
 	}
 }

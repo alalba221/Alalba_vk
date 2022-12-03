@@ -101,7 +101,7 @@ namespace vk
 		vkGetPhysicalDeviceProperties(device, &m_properties);
 		vkGetPhysicalDeviceFeatures(device, &m_features);
 		return m_properties.deviceType == gpuType &&
-			m_features.geometryShader && m_queueFamilies.IsComplete();
+			m_features.geometryShader && m_features.samplerAnisotropy && m_queueFamilies.IsComplete();
 	}
 	PhysicalDevice::QueueFamilies PhysicalDevice::FindRequestedQFamilies(const VkPhysicalDevice& device, const uint32_t requestedQFamilies)
 	{
