@@ -23,9 +23,6 @@
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 
-// test sampler
-#include"Sampler.h"
-
 namespace Alalba
 {
 	class Mesh;

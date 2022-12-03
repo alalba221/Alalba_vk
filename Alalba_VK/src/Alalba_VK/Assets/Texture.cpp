@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "Texture.h"
 
+#include"Alalba_VK/Vulkan/Sampler.h"
 #include "Alalba_VK/Vulkan/Image.h"
 #include "Alalba_VK/Vulkan/ImageView.h"
-#include "Alalba_VK/Vulkan/Sampler.h"
+
 #include "Alalba_VK/Vulkan/Allocator.h"
 #include "Alalba_VK/Core/Application.h"
 
@@ -52,6 +53,9 @@ namespace Alalba
 			.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
 			.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_REPEAT)
 			.Build();
+		/*p_sampler = new vk::Sampler(Application::Get().GetDevice(),
+			VK_FILTER_LINEAR, VK_SAMPLER_MIPMAP_MODE_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, "test"*/
+		//);
 	}
 
 	void Texture::Clean()
@@ -59,5 +63,6 @@ namespace Alalba
 		m_image->Clean();
 		m_imageView->Clean();
 		m_sampler->Clean();
+		//p_sampler->Clean();
 	}
 }

@@ -160,6 +160,7 @@ namespace vk
 			m_globalDescSets[i]->BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
 				.UpdateDescriptors();
 		}
+
 	}
 	void VulkanRenderer::Shutdown()
 	{
