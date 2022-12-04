@@ -41,8 +41,6 @@ namespace Alalba{
 
 		const vk::Instance& GetVulkanInstance() const { return *m_vulkanInstance.get(); }
 		const vk::Device& GetDevice() const { return *m_vulkanDevice.get(); }
-		
-		const vk::VulkanRenderer& GetRenderer() const { return *m_renderer.get(); }
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
@@ -56,13 +54,7 @@ namespace Alalba{
 		std::unique_ptr<vk::Instance> m_vulkanInstance;
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
-		std::unique_ptr<vk::VulkanRenderer> m_renderer;
-		
-		// TODO: combine mesh texture material into a Scene class
-		std::unique_ptr<Mesh> m_mesh;
-		std::unique_ptr<Texture> m_testTexture;
 
-		//Ref<Scene> m_Scene;
 		Ref<Camera> m_Camera;
 	};
 

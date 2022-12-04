@@ -37,24 +37,22 @@ namespace Alalba
 			.AddExtension("VK_KHR_acceleration_structure")
 			.AddExtension("VK_KHR_deferred_host_operations")
 			.Build();
-
-		m_renderer.reset(new vk::VulkanRenderer(*m_vulkanDevice.get()));
 	}
 
 	void Application::OnInit()
 	{
-		m_testTexture.reset(new Texture("textures/awesomeface.png"));
-		m_renderer->Init(*m_testTexture.get());
 		
 	}
 
 	void Application::OnShutdown()
 	{
-		m_mesh->Clean();
-		
+
 		Texture::CommandPool()->Clean();
+		Texture::Allocator()->Clean();
+		
 		Mesh::Allocator()->Clean();
-		//m_vulkanDevice->Clean();
+		Mesh::CommandPool()->Clean();
+		m_vulkanDevice->Clean();
 	}
 
 	Application::~Application()
@@ -68,12 +66,9 @@ namespace Alalba
 
 		while(m_Running)
 		{
-			m_renderer->DrawFrame(*m_mesh.get());
+			OnUpdate();
 			m_Window->OnUpdate();
-			//m_Camera->Update();
-			
 		}
-		m_renderer->Shutdown();
 		OnShutdown();
 	}
 

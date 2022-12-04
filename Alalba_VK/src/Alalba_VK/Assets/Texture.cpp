@@ -44,6 +44,7 @@ namespace Alalba
 
 		m_image->CopyImageFrom(m_imageData, imageSize,
 			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool);
+		stbi_image_free(m_imageData);
 
 		// image view
 		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
@@ -60,9 +61,6 @@ namespace Alalba
 			.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
 			.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_REPEAT)
 			.Build();
-		/*p_sampler = new vk::Sampler(Application::Get().GetDevice(),
-			VK_FILTER_LINEAR, VK_SAMPLER_MIPMAP_MODE_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, "test"*/
-		//);
 	}
 
 	void Texture::Clean()

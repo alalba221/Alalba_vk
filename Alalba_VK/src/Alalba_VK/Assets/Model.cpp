@@ -3,15 +3,22 @@
 #include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Core/Application.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
+#include "Alalba_VK/Vulkan/CommandPool.h"
 namespace Alalba
 {
 	vk::Allocator* Mesh::s_allocator = nullptr;
-	//vk::Allocator* Mesh::s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Mesh Allocator");
+	vk::CommandPool* Mesh::s_commandPool = nullptr;
+
 	Mesh::Mesh()
 	{
 		if (s_allocator == nullptr)
 			s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Mesh Allocator");
-
+		if (s_commandPool == nullptr)
+			s_commandPool = new vk::CommandPool(Application::Get().GetDevice(),
+				Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value(),
+				VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+				"Model CommandPool");
+		
 		uint32_t vertexSize = sizeof(vertices[0]) * vertices.size();
 		uint32_t indexSize = sizeof(indices[0]) * indices.size();
 	
@@ -31,7 +38,7 @@ namespace Alalba
 		*/
 		m_vertexBuffer->CopyDataFrom(
 			vertices.data(), vertexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool()
+			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool
 		);
 
 		// Index buffer
@@ -44,7 +51,7 @@ namespace Alalba
 		
 		m_indexBuffer->CopyDataFrom(
 			indices.data(), indexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool()
+			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool
 		);
 	}
 

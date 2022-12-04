@@ -289,14 +289,13 @@ namespace vk
 		scissor.extent = m_SwapChain->GetExtent();
 		vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
-	 // test 
+/// test 
 		std::vector<VkDescriptorSet>DescSets;
 		// Important: the order of pushing back determine the set==xx in shader
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
 		vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipelineLayout->Handle(), 0, 1, DescSets.data(), 0, nullptr);
-		
-		
+				
 		// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
 		// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
 		// 

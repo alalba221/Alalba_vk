@@ -19,27 +19,39 @@ public:
 	{
 		
 	}
+
+	virtual void OnUpdate() override
+	{
+		m_renderer->DrawFrame(*m_mesh.get());
+	}
+
 	virtual void OnInit() override
 	{
 		ALALBA_INFO("Hello from sandbox OnInit");
 
 		m_Camera.reset(new Alalba::Camera(glm::perspectiveFov(glm::radians(40.0f), 1280.0f, 720.0f, 0.1f, 3000.0f)));
 
-
 		// TODO: As a seperate system, the renderer should not be initialized in the application's OnInit () function
-		Alalba::Application::OnInit();
+		//Alalba::Application::OnInit();
 		m_mesh.reset(new Alalba::Mesh());
+		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
+		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
+		m_renderer->Init(*m_testTexture.get());
+		
 	}
 
 	virtual void OnShutdown() override
 	{
+		m_mesh->Clean();
 		m_testTexture->Clean();
-		Alalba::Texture::Allocator()->Clean();
+		m_renderer->Shutdown();
 		Alalba::Application::OnShutdown();
 	}
 
 private:
-
+	std::unique_ptr<vk::VulkanRenderer> m_renderer;
+	std::unique_ptr<Alalba::Texture> m_testTexture;
+	std::unique_ptr<Alalba::Mesh> m_mesh;
 };	
 
 

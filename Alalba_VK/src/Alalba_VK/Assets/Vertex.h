@@ -46,7 +46,6 @@ namespace Alalba
       attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
       attribute_descriptions[0].offset = offsetof(VertexPostition, position);
 
-      // varying blending
       attribute_descriptions[1].binding = 0;
       attribute_descriptions[1].location = 1;
       attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
