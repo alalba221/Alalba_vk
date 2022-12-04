@@ -4,13 +4,14 @@
 #include"Alalba_VK/Vulkan/Sampler.h"
 #include "Alalba_VK/Vulkan/Image.h"
 #include "Alalba_VK/Vulkan/ImageView.h"
-
+#include "Alalba_VK/Vulkan/CommandPool.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 #include "Alalba_VK/Core/Application.h"
 
 namespace Alalba
 {
 	vk::Allocator* Texture::s_allocator = nullptr;
+	vk::CommandPool* Texture::s_commandPool = nullptr;
 
 	Texture::Texture(const std::string& filename)
 		:m_filePath(filename)
@@ -18,6 +19,12 @@ namespace Alalba
 		ALALBA_INFO("loading texture image from {0}", m_filePath);
 		if (s_allocator == nullptr)
 			s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Texture Allocator");
+		
+		if (s_commandPool == nullptr)
+			s_commandPool = new vk::CommandPool(Application::Get().GetDevice(), 
+				Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value(), 
+				VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+				"Texture CommandPool");
 
 		// loading an image
 		int width, height, channels;
@@ -36,7 +43,7 @@ namespace Alalba
 			.Build();
 
 		m_image->CopyImageFrom(m_imageData, imageSize,
-			Application::Get().GetDevice().GetGraphicsQ(), Application::Get().GetRenderer().GetCommandPool());
+			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool);
 
 		// image view
 		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())

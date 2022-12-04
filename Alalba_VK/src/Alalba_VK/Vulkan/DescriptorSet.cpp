@@ -4,8 +4,8 @@
 #include "DescriptorPool.h"
 #include "DescriptorSetLayout.h"
 #include "Buffer.h"
-#include "Image.h"
-
+#include "Sampler.h"
+#include "ImageView.h"
 namespace vk
 {
 	DescriptorSet::Allocator& DescriptorSet::Allocator::SetDescSetLayout(const DescriptorSetLayout& descLayout)
@@ -45,7 +45,7 @@ namespace vk
 
 	DescriptorSet& DescriptorSet::BindDescriptor(VkDescriptorType type, uint32_t binding, const Buffer& buffer, VkDeviceSize offset, VkDeviceSize range)
 	{
-		m_descriptorInfo[binding] = { buffer.Handle(),offset,range };
+		m_bufferDescInfo[binding] = { buffer.Handle(),offset,range };
 		
 		VkWriteDescriptorSet descriptorWrite = {};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -54,10 +54,27 @@ namespace vk
 		descriptorWrite.dstArrayElement = 0;
 		descriptorWrite.descriptorType = type;
 		descriptorWrite.descriptorCount = 1;
-		descriptorWrite.pBufferInfo = &m_descriptorInfo[binding];
+		descriptorWrite.pBufferInfo = &m_bufferDescInfo[binding];
 
 		m_writes[binding] = descriptorWrite;
 		return *this;
+	}
+	DescriptorSet& DescriptorSet::BindDescriptor(VkDescriptorType type, uint32_t binding, const Sampler& sampler, const ImageView& imageView, VkImageLayout imageLayout)
+	{
+		m_imageDescInfo[binding] = { sampler.Handle(), imageView.Handle(), imageLayout};
+
+		VkWriteDescriptorSet descriptorWrite = {};
+		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrite.dstSet = m_descriptorSet;
+		descriptorWrite.dstBinding = binding;
+		descriptorWrite.dstArrayElement = 0;
+		descriptorWrite.descriptorType = type;
+		descriptorWrite.descriptorCount = 1;
+		descriptorWrite.pImageInfo = &m_imageDescInfo[binding];
+
+		m_writes[binding] = descriptorWrite;
+		return *this;
+
 	}
 	void DescriptorSet::UpdateDescriptors()
 	{

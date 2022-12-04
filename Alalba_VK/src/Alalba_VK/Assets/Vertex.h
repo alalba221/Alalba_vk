@@ -14,6 +14,7 @@ namespace Alalba
     {
       glm::vec3 position;
       glm::vec3 color;
+      glm::vec2 uv;
     };
 
     static std::array<VkVertexInputBindingDescription, 1> GetBindingDescriptions()
@@ -35,9 +36,9 @@ namespace Alalba
       return binding_descriptions;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+    static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
     {
-      std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions{};
+      std::array<VkVertexInputAttributeDescription, 3> attribute_descriptions{};
 
       // position
       attribute_descriptions[0].binding = 0;
@@ -50,6 +51,11 @@ namespace Alalba
       attribute_descriptions[1].location = 1;
       attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
       attribute_descriptions[1].offset = offsetof(VertexPostition, color);
+
+      attribute_descriptions[2].binding = 0;
+      attribute_descriptions[2].location = 2;
+      attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+      attribute_descriptions[2].offset = offsetof(VertexPostition, uv);
 
       //attribute_descriptions[2].binding = 1;
       //attribute_descriptions[2].location = 2;

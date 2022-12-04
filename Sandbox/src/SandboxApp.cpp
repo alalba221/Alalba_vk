@@ -28,22 +28,17 @@ public:
 
 		// TODO: As a seperate system, the renderer should not be initialized in the application's OnInit () function
 		Alalba::Application::OnInit();
-		//auto models = Alalba::SceneList::CornellBox(m_Camera);
-		//m_Scene.reset(new Alalba::Scene(std::move(models)));
-		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
+		m_mesh.reset(new Alalba::Mesh());
 	}
 
 	virtual void OnShutdown() override
 	{
-		
 		m_testTexture->Clean();
 		Alalba::Texture::Allocator()->Clean();
 		Alalba::Application::OnShutdown();
 	}
 
 private:
-	//std::unique_ptr<Alalba::Model> m_Model;
-	std::unique_ptr<Alalba::Texture> m_testTexture;
 
 };	
 

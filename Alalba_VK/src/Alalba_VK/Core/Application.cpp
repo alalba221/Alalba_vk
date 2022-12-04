@@ -43,16 +43,18 @@ namespace Alalba
 
 	void Application::OnInit()
 	{
-		m_renderer->Init();
-		m_mesh.reset(new Mesh());
+		m_testTexture.reset(new Texture("textures/awesomeface.png"));
+		m_renderer->Init(*m_testTexture.get());
+		
 	}
 
 	void Application::OnShutdown()
 	{
 		m_mesh->Clean();
-
+		
+		Texture::CommandPool()->Clean();
 		Mesh::Allocator()->Clean();
-		m_vulkanDevice->Clean();
+		//m_vulkanDevice->Clean();
 	}
 
 	Application::~Application()

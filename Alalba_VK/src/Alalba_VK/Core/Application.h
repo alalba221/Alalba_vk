@@ -16,6 +16,8 @@
 
 #include "Alalba_VK/Vulkan/VulkanRenderer.h"
 #include "Alalba_VK/Assets/Model.h"
+#include "Alalba_VK/Assets/Texture.h"
+
 namespace Alalba{
 
 	class Application
@@ -56,7 +58,9 @@ namespace Alalba{
 		std::unique_ptr<vk::Device> m_vulkanDevice;
 		std::unique_ptr<vk::VulkanRenderer> m_renderer;
 		
+		// TODO: combine mesh texture material into a Scene class
 		std::unique_ptr<Mesh> m_mesh;
+		std::unique_ptr<Texture> m_testTexture;
 
 		//Ref<Scene> m_Scene;
 		Ref<Camera> m_Camera;

@@ -6,11 +6,14 @@
 // https://stackoverflow.com/questions/6012157/is-stdunique-ptrt-required-to-know-the-full-definition-of-t
 // TODO:  All the sperate system using unique pointers should include the header function instead of forward declaration
 #include "Alalba_VK/Vulkan/Sampler.h"
+
+namespace vk
 {
 	class Image;
 	class ImageView;
 //	class Sampler;
 	class Allocator;
+	class CommandPool;
 }
 
 namespace Alalba
@@ -27,7 +30,13 @@ namespace Alalba
 		~Texture() { Clean(); };
 	
 		static vk::Allocator* Allocator() { return s_allocator; }
+		static vk::CommandPool* CommandPool() { return s_commandPool; }
 		void Clean();
+
+		const vk::Image& GetImage() const { return *m_image.get(); }
+		const vk::ImageView& GetImageView() const { return *m_imageView.get(); }
+		const vk::Sampler& GetSampler() const { return *m_sampler.get(); }
+
 
 	private:
 		std::unique_ptr<vk::Image> m_image;
@@ -39,6 +48,7 @@ namespace Alalba
 
 		// Allocator for Image
 		static vk::Allocator* s_allocator;
+		static vk::CommandPool* s_commandPool;
 	};
 
 }

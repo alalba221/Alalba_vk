@@ -9,7 +9,7 @@
 namespace vk
 {
 
-	void VulkanRenderer::Init()
+	void VulkanRenderer::Init(const Alalba::Texture& texture)
 	{
 		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
 		
@@ -70,6 +70,7 @@ namespace vk
 		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
 			// 0 : is bingding index to set layout
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
@@ -137,6 +138,7 @@ namespace vk
 			.SetTag("Descriptor Pool")
 			.SetMaxSets(m_SwapChain->GetImgCount())
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_SwapChain->GetImgCount())
 			.Build();
 		// test
 		
@@ -150,6 +152,7 @@ namespace vk
 				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
 				.Build()
 			);
+
 			m_globalDescSets.push_back(
 				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
 				.SetTag("Global Set " + std::to_string(i))
@@ -157,10 +160,13 @@ namespace vk
 				.Allocate()
 			);
 			// 0 : is bingding index to set layout
-			m_globalDescSets[i]->BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
+			m_globalDescSets[i]->
+				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
+				// TODO: ImageView and Layout should not be fixed 
+				.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+					texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
 				.UpdateDescriptors();
 		}
-
 	}
 	void VulkanRenderer::Shutdown()
 	{

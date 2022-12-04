@@ -23,8 +23,11 @@
 #include "DescriptorPool.h"
 #include "DescriptorSet.h"
 
+// 
+#include "Alalba_VK/Assets/Texture.h"
+
 namespace Alalba
-{
+{	
 	class Mesh;
 };
 namespace vk
@@ -50,7 +53,8 @@ namespace vk
 		// cmdBufferIndex =  imageIndex
 		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Mesh& mesh);
 		void DrawFrame(const Alalba::Mesh& mesh);
-		void Init();
+
+		void Init(const Alalba::Texture& texture);
 
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
 

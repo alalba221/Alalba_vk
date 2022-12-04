@@ -55,6 +55,8 @@ namespace vk
 		~Image() { Clean(); };
 		void Clean();
 
+	 VkImageLayout Layout() const { return m_currentlLayout; }
+
 	private:
 		VULKAN_HANDLE(VkImage, m_image);
 		const class Device& m_device;

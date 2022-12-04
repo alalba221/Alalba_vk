@@ -6,8 +6,8 @@ namespace vk
 	class DescriptorPool;
 	class DescriptorSetLayout;
 	class Buffer;
-	class Image;
-	
+	class Sampler;
+	class ImageView;
 
 	class DescriptorSet
 	{
@@ -49,6 +49,7 @@ namespace vk
 
 		// for descriptor
 		DescriptorSet& BindDescriptor(VkDescriptorType type, uint32_t binding, const Buffer& buffer, VkDeviceSize offset, VkDeviceSize range);
+		DescriptorSet& BindDescriptor(VkDescriptorType type, uint32_t binding, const Sampler& sampler, const ImageView& imageView, VkImageLayout imageLayout);
 		//void Bind(const Image& image, VkDeviceSize offset, VkDeviceSize range);
 
 		void UpdateDescriptors();
@@ -62,6 +63,7 @@ namespace vk
 		const DescriptorSetLayout* m_descLayout;
 
 		std::unordered_map<uint32_t, VkWriteDescriptorSet> m_writes;
-		std::unordered_map<uint32_t, VkDescriptorBufferInfo> m_descriptorInfo;
+		std::unordered_map<uint32_t, VkDescriptorBufferInfo> m_bufferDescInfo;
+		std::unordered_map<uint32_t, VkDescriptorImageInfo> m_imageDescInfo;
 	};
 }
