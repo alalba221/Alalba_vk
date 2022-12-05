@@ -66,19 +66,16 @@ namespace vk
 		depthAttachment.initialLayout = depthATCHLoadOp == VK_ATTACHMENT_LOAD_OP_CLEAR ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		//std::array<VkAttachmentDescription, 2> attachments =
+		
+
+		//std::array<VkAttachmentDescription, 1> attachments =
 		//{
-		//	colorAttachment,
-		//	depthAttachment
+		//	colorAttachment
+		//	//depthAttachment
 		//};
 
-		std::array<VkAttachmentDescription, 1> attachments =
-		{
-			colorAttachment
-			//depthAttachment
-		};
-
-		/*Now that our main image target is defined, we need to add a subpass that will render into it. This goes right after defining the attachment*/
+		/*Now that our main image target is defined, we need to add a subpass that will render into it. 
+		This goes right after defining the attachment*/
 		/*UNDEFINED -> RenderPass Begins -> Subpass 0 begins (Transition to Attachment Optimal) ->
 		Subpass 0 renders -> Subpass 0 ends -> Renderpass Ends (Transitions to Present Source)*/
 		VkAttachmentReference colorAttachmentRef = {};
@@ -93,8 +90,8 @@ namespace vk
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment =nullptr;
-		// subpass.pDepthStencilAttachment = &depthAttachmentRef;
+		//subpass.pDepthStencilAttachment =nullptr;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 		subpass.inputAttachmentCount = 0;				// optional
 		subpass.pInputAttachments = nullptr;		// optional
 		subpass.preserveAttachmentCount = 0;		// optional
@@ -109,7 +106,11 @@ namespace vk
 		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-
+		std::array<VkAttachmentDescription, 2> attachments =
+		{
+			colorAttachment,
+			depthAttachment
+		};
 		VkRenderPassCreateInfo renderPassCI{};
     renderPassCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassCI.pNext = nullptr;

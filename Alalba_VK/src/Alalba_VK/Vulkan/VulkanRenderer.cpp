@@ -12,7 +12,13 @@ namespace vk
 	void VulkanRenderer::Init(const Alalba::Texture& texture)
 	{
 		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
-		
+	
+		m_cmdPool4Graphics = CommandPool::Builder(m_device)
+			.SetTag("Renderer CmdPool")
+			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+			.SetQFamily(Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value())
+			.Build();
+
 		m_SwapChain = SwapChain::Builder(m_device, Alalba::Application::Get().GetSurface())
 			.SetPresentMode(VK_PRESENT_MODE_MAILBOX_KHR)
 			.SetImgSharingMode(VK_SHARING_MODE_EXCLUSIVE)
@@ -32,18 +38,6 @@ namespace vk
 			.SetShaderStageBits(VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build();
 
-		m_renderPass = RenderPass::Builder(m_device)
-			.SetColorFormat(m_SwapChain->GetFormat())
-			.SetDepthFormat(m_device.FindSupportedFormat(
-				{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-				VK_IMAGE_TILING_OPTIMAL,
-				VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-			)) // this should be compatible with framebuffer
-			.SetColorATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
-			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
-			.Build();
-		
-
 		// depth image and image views are not in use right now
 		m_depthImage = Image::Builder(m_device, *m_allocator.get())
 			.SetTag("DepthImage")
@@ -57,12 +51,22 @@ namespace vk
 			.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
 			.SetImgExtent(VkExtent3D{ m_SwapChain->GetExtent().width, m_SwapChain->GetExtent().height,1 })
 			.Build();
+		
+		m_depthImage->TransitionImageLayout(*m_cmdPool4Graphics.get(),m_device.GetGraphicsQ(), 
+			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		m_depthImageView = ImageView::Builder(m_device, *m_depthImage.get())
 			.SetTag("depthImageView")
 			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
 			.SetFormat(m_depthImage->GetFormat())
+			.Build();
+
+		m_renderPass = RenderPass::Builder(m_device)
+			.SetColorFormat(m_SwapChain->GetFormat())
+			.SetDepthFormat(m_depthImage->GetFormat()) // this should be compatible with framebuffer
+			.SetColorATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
+			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
 			.Build();
 
 		/// test 
@@ -97,15 +101,9 @@ namespace vk
 				.SetTag(tag)
 				.SetWidthHeight(m_SwapChain->GetExtent().width, m_SwapChain->GetExtent().height)
 				.AddAttachment(m_SwapChain->GetImageView(i))
-				//.AddAttachment(*m_depthImageView.get())
+				.AddAttachment(*m_depthImageView.get())
 				.Build());
 		}
-
-		m_cmdPool4Graphics = CommandPool::Builder(m_device)
-			.SetTag("GraphicsCmdPool")
-			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value())
-			.Build();
 
 		m_cmdBuffers = CommandBuffers::Allocator(m_device, *m_cmdPool4Graphics.get())
 			.SetTag("CmdBuffers4Graphics")
@@ -239,6 +237,7 @@ namespace vk
 		{
 			std::vector<const ImageView*> attachments;
 			attachments.push_back(&(m_SwapChain->GetImageView(i)));
+			attachments.push_back(m_depthImageView.get());
 		
 			m_framebuffers[i].reset(new FrameBuffer(
 				m_device,*m_renderPass.get(),
@@ -253,7 +252,7 @@ namespace vk
 		
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 0.0f, 1 };
+		clearValues[1].depthStencil = { 1.0f,  };// depth from 0 to 1 in vulkan
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

@@ -30,6 +30,14 @@ project "Sandbox"
         "Alalba_VK"
     }
 
+    defines
+	{
+
+		"GLM_FORCE_DEPTH_ZERO_TO_ONE",
+		"GLM_FORCE_RADIANS",
+		--"VMA_IMPLEMENTATION",
+		""
+	}
    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
    objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
 

@@ -15,7 +15,7 @@ namespace vk
 			Builder(const Device& device) : m_device(device) {};
 			Builder& SetTag(const std::string& tag) { m_tag = tag; return *this; }
 			Builder& SetFilter(VkFilter filter) { m_filter = filter; return *this; }
-			Builder& SetMipmapMode(VkSamplerMipmapMode mipmapMode) { m_mimpmapMode = m_mimpmapMode; return *this; }
+			Builder& SetMipmapMode(VkSamplerMipmapMode mipmapMode) { m_mimpmapMode = mipmapMode; return *this; }
 			Builder& SetAddressMode(VkSamplerAddressMode addressMode) { m_addressMode = addressMode; return *this; }
 
 			std::unique_ptr <Sampler> Build() const

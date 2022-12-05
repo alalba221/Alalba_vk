@@ -23,7 +23,7 @@ namespace vk
 		{
 			imgVattachments.push_back(attch->Handle());
 		}
-
+			
 		VkFramebufferCreateInfo CI{};
 		CI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		CI.pNext = nullptr;

@@ -54,8 +54,9 @@ namespace vk
 		
 		~Image() { Clean(); };
 		void Clean();
-
-	 VkImageLayout Layout() const { return m_currentlLayout; }
+		// used by depth image so move it from private to public
+		void TransitionImageLayout(const CommandPool& cmdPool, const Queue& q, VkImageLayout newLayout);
+		VkImageLayout Layout() const { return m_currentlLayout; }
 
 	private:
 		VULKAN_HANDLE(VkImage, m_image);
@@ -67,8 +68,12 @@ namespace vk
 		VkImageUsageFlags m_usageFlags;
 		VmaAllocation m_allocation;
 		VkImageLayout m_currentlLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
 	private:
-		void TransitionImageLayout(const CommandPool& cmdPool, const Queue& q, VkImageLayout newLayout);
+		bool HasStencilComponent() 
+		{
+			return m_format == VK_FORMAT_D32_SFLOAT_S8_UINT || m_format == VK_FORMAT_D24_UNORM_S8_UINT;
+		}
 		void MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 	};
 }

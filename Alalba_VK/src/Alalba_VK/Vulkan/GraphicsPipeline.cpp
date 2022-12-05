@@ -97,8 +97,8 @@ namespace vk
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencil.pNext = nullptr;
     // VkPipelineDepthStencilStateCreateFlags    flags;
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthTestEnable = VK_TRUE; // depth
+    depthStencil.depthWriteEnable = VK_TRUE;// depth
     depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.minDepthBounds = 0.0f; // Optional
@@ -152,15 +152,15 @@ namespace vk
     CI.stageCount = shaderStageCIs.size();
     CI.pStages= shaderStageCIs.data();
     
-    ///***// will set after finish modeling part
+    /// TODO: ***// will set after finish modeling part
     CI.pVertexInputState = &vertexInputInfo;
     CI.pInputAssemblyState = &inputAssembly;
     CI.pTessellationState = nullptr;
     CI.pViewportState = &viewportState;
     CI.pRasterizationState = &rasterizer;
     CI.pMultisampleState = &multisampling;
-    //CI.pDepthStencilState = &depthStencil;
-    CI.pDepthStencilState = nullptr;
+    CI.pDepthStencilState = &depthStencil;
+    //CI.pDepthStencilState = nullptr;
     CI.pColorBlendState = &colorBlendingState;
     CI.pDynamicState = &dynamicState;
     

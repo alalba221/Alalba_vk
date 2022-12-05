@@ -123,5 +123,7 @@ namespace vk
 				return format;
 			}
 		}
+
+		ALALBA_ASSERT("failed to find supported format!")
 	}
 }
