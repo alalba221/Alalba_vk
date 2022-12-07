@@ -1,17 +1,17 @@
 #pragma once
-#include "SwapChain.h"
-#include "ShaderModule.h"
-#include "Image.h"
-#include "ImageView.h"
-#include "GraphicsPipeline.h"
-#include "FrameBuffer.h"
-#include "RenderPass.h"
-#include "PipelineLayout.h"
-#include "CommandPool.h"
-#include "CommandBuffers.h"
-#include "Fence.h"
-#include "Semaphore.h"
-#include "Buffer.h"
+#include "Alalba_VK/Vulkan/SwapChain.h"
+#include "Alalba_VK/Vulkan/ShaderModule.h"
+#include "Alalba_VK/Vulkan/Image.h"
+#include "Alalba_VK/Vulkan/ImageView.h"
+#include "Alalba_VK/Vulkan/GraphicsPipeline.h"
+#include "Alalba_VK/Vulkan/FrameBuffer.h"
+#include "Alalba_VK/Vulkan/RenderPass.h"
+#include "Alalba_VK/Vulkan/PipelineLayout.h"
+#include "Alalba_VK/Vulkan/CommandPool.h"
+#include "Alalba_VK/Vulkan/CommandBuffers.h"
+#include "Alalba_VK/Vulkan/Fence.h"
+#include "Alalba_VK/Vulkan/Semaphore.h"
+#include "Alalba_VK/Vulkan/Buffer.h"
 
 // test
 #include "glm/glm.hpp"
@@ -19,9 +19,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-#include "DescriptorSetLayout.h"
-#include "DescriptorPool.h"
-#include "DescriptorSet.h"
+#include "Alalba_VK/Vulkan/DescriptorSetLayout.h"
+#include "Alalba_VK/Vulkan/DescriptorPool.h"
+#include "Alalba_VK/Vulkan/DescriptorSet.h"
 
 // 
 #include "Alalba_VK/Assets/Texture.h"
@@ -86,9 +86,13 @@ namespace vk
 
 		// uniform buffer
 		//test 
-		std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
 		std::unique_ptr<DescriptorPool> m_globalDescPool;
+
+		std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
 		std::vector<std::unique_ptr<DescriptorSet>> m_globalDescSets;
+
+		std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
+		std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
 		
 		struct UniformBufferObject {
 			glm::mat4 model;

@@ -27,7 +27,7 @@ namespace Alalba
 		Texture(const std::string& filename);
 		Texture(const Texture&) = default;
 		Texture(Texture&&) = default;
-		~Texture() { Clean(); };
+		~Texture() { };
 	
 		static vk::Allocator* Allocator() { return s_allocator; }
 		static vk::CommandPool* CommandPool() { return s_commandPool; }

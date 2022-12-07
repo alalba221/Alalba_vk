@@ -33,6 +33,7 @@ public:
 
 		m_mesh.reset(new Alalba::Mesh());
 		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
+		
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
 		m_renderer->Init(*m_testTexture.get());
 		
@@ -40,8 +41,10 @@ public:
 
 	virtual void OnShutdown() override
 	{
-		m_mesh->Clean();
+		// should shutdown renderer first, as mesh and textures are being used by renderer
+		Alalba::Application::Get().GetDevice().WaitIdle();
 		m_testTexture->Clean();
+		m_mesh->Clean();
 		m_renderer->Shutdown();
 		Alalba::Application::OnShutdown();
 	}

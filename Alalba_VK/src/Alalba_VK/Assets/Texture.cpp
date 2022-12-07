@@ -65,6 +65,7 @@ namespace Alalba
 
 	void Texture::Clean()
 	{
+		//vkDeviceWaitIdle(Application::Get().GetDevice().Handle());
 		m_image->Clean();
 		m_imageView->Clean();
 		m_sampler->Clean();

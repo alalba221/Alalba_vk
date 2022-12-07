@@ -14,7 +14,7 @@
 #include "Alalba_VK/Vulkan/CommandPool.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
 
-#include "Alalba_VK/Vulkan/VulkanRenderer.h"
+#include "VulkanRenderer.h"
 #include "Alalba_VK/Assets/Model.h"
 #include "Alalba_VK/Assets/Texture.h"
 

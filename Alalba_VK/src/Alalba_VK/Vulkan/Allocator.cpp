@@ -67,8 +67,8 @@ namespace vk
 	}
 	void Allocator::DestroyImage(VkImage image, VmaAllocation allocation)
 	{
-		ALALBA_ASSERT(image);
-		ALALBA_ASSERT(allocation);
+		ALALBA_ASSERT(image, "No image");
+		ALALBA_ASSERT(allocation,"No allocator");
 		vmaDestroyImage(m_allocator, image, allocation);
 	}
 

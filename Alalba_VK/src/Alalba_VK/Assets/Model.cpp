@@ -57,6 +57,7 @@ namespace Alalba
 
 	void Mesh::Clean()
 	{
+		//vkDeviceWaitIdle(Application::Get().GetDevice().Handle());
 		m_vertexBuffer->Clean();
 		m_indexBuffer->Clean();
 	}

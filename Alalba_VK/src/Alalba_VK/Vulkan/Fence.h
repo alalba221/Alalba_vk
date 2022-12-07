@@ -26,8 +26,8 @@ namespace vk
 		Fence(const Device& device, const bool signaled, const std::string& tag );
 		~Fence() { Clean(); };
 		void Clean();
-		// void Reset();
-		// void Wait(uint64_t timeout) const;
+		void Reset();
+		void Wait(uint64_t timeout) const;
 
 	private:
 		VULKAN_HANDLE(VkFence, m_fence);

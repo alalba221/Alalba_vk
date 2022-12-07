@@ -32,7 +32,9 @@ namespace vk
 		const Queue& GetGraphicsQ() const { return *(m_grapicsQ.get()); }
 		const Queue& GetComputeQ()	const { return *(m_computeQ.get()); }
 		const Queue& GetTransferQ() const { return *(m_transferQ.get()); }
-	
+		
+		void WaitIdle() const;
+
 		//const DescriptorSetLayout& GetDescriptorSetLayout(uint32_t index) const;
 
 		//const SwapChain& GetSwapChain() const { return *m_SwapChain.get(); }

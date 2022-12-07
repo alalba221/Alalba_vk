@@ -100,6 +100,11 @@ namespace vk
 		}
 	}
 
+	void Device::WaitIdle() const
+	{
+		vkDeviceWaitIdle(m_device);
+	}
+
 	//const DescriptorSetLayout& Device::GetDescriptorSetLayout(uint32_t index) const
 	//{
 	//	if (index < m_descSetLayouts.size())

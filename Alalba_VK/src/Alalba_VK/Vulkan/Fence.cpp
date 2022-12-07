@@ -24,4 +24,16 @@ namespace vk
 			m_fence = VK_NULL_HANDLE;
 		}
 	}
+	void Fence::Reset()
+	{
+		VkResult err = vkResetFences(m_device.Handle(), 1, &m_fence);
+		ALALBA_ASSERT(err == VK_SUCCESS);
+	}
+
+	void Fence::Wait(uint64_t timeout) const
+	{
+		VkResult err = vkWaitForFences(m_device.Handle(), 1, &m_fence, VK_TRUE, timeout);
+		ALALBA_ASSERT(err == VK_SUCCESS);
+	}
+
 }

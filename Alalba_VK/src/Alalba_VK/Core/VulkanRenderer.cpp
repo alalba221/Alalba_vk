@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "VulkanRenderer.h"
-#include "Device.h"
-#include "Allocator.h"
+#include "Alalba_VK/Vulkan/Device.h"
+#include "Alalba_VK/Vulkan/Allocator.h"
 #include "Alalba_VK/Core/Application.h"
 
 #include "Alalba_VK/Assets/Vertex.h"
@@ -74,13 +74,20 @@ namespace vk
 		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
 			// 0 : is bingding index to set layout
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
+
+		test_textureSetLayout = DescriptorSetLayout::Builder(m_device)
+			// 0 : is bingding index to set layout
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.SetTag("Texture Descriptor Set Layout")
+			.Build();
+
 		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Pipeline layout")
 			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
+			.BindDescriptorSetLayout(*test_textureSetLayout.get())
 			.Build();
 
 		m_graphicsPipeline = GraphicsPipeline::Builder(m_device, *m_pipelineLayout.get(), *m_renderPass.get(),
@@ -134,7 +141,7 @@ namespace vk
 		// uniform buffer
 		m_globalDescPool = DescriptorPool::Builder(m_device)
 			.SetTag("Descriptor Pool")
-			.SetMaxSets(m_SwapChain->GetImgCount())
+			.SetMaxSets(m_SwapChain->GetImgCount()*2)
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_SwapChain->GetImgCount())
 			.Build();
@@ -153,7 +160,7 @@ namespace vk
 
 			m_globalDescSets.push_back(
 				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
-				.SetTag("Global Set " + std::to_string(i))
+				.SetTag("Global Descritor Set " + std::to_string(i))
 				.SetDescSetLayout(*m_globalDescSetLayout.get())
 				.Allocate()
 			);
@@ -161,14 +168,25 @@ namespace vk
 			m_globalDescSets[i]->
 				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
 				// TODO: ImageView and Layout should not be fixed 
-				.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+				.UpdateDescriptors();
+
+
+			test_textureDescSets.push_back(
+				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
+				.SetTag("Texture Descritor Set " + std::to_string(i))
+				.SetDescSetLayout(*test_textureSetLayout.get())
+				.Allocate()
+			);
+			// 0 : is bingding index to set layout
+			test_textureDescSets[i]->
+				BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
 					texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
 				.UpdateDescriptors();
 		}
 	}
 	void VulkanRenderer::Shutdown()
 	{
-		vkDeviceWaitIdle(m_device.Handle());
+		m_device.WaitIdle();
 		m_pipelineLayout->Clean();
 		m_graphicsPipeline->Clean();
 		m_SwapChain->Clean();
@@ -196,14 +214,15 @@ namespace vk
 		}
 
 		m_globalDescSetLayout->Clean();
-		
+		test_textureSetLayout->Clean();
+
 		m_globalDescPool->Clean();
 
 		m_allocator->Clean();
 	}
 	void VulkanRenderer::RecreateSwapChainAndFramebuffers()
 	{
-		vkDeviceWaitIdle(m_device.Handle());
+		m_device.WaitIdle();
 		// clean old framebuffers , depth image , depthimage view and swapchain
 		for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
 		{
@@ -292,8 +311,10 @@ namespace vk
 		std::vector<VkDescriptorSet>DescSets;
 		// Important: the order of pushing back determine the set==xx in shader
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
+		DescSets.push_back(test_textureDescSets[cmdBufferIndex]->Handle());
+		
 		vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			m_pipelineLayout->Handle(), 0, 1, DescSets.data(), 0, nullptr);
+			m_pipelineLayout->Handle(), 0, DescSets.size(), DescSets.data(), 0, nullptr);
 				
 		// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
 		// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
@@ -306,9 +327,8 @@ namespace vk
 
 	void VulkanRenderer::DrawFrame(const const Alalba::Mesh& mesh)
 	{
-		VkFence inflightFence = m_inFlightFences[m_currentFrame]->Handle();
-		vkWaitForFences(m_device.Handle(), 1, &inflightFence, VK_TRUE, UINT64_MAX);
-		
+
+		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
 
 		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(m_device.Handle(), m_SwapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &imageIndex);
@@ -330,7 +350,7 @@ namespace vk
 ///////////////////////////////////////////////////////////
 		updateUniformBuffer(m_currentFrame);
 //////////////////////////////////////////////////////////////
-		vkResetFences(m_device.Handle(), 1, &inflightFence);
+		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
 		EncodeCommand(m_currentFrame, imageIndex,mesh);
 		
@@ -352,7 +372,7 @@ namespace vk
 		submitInfo.pCommandBuffers = commandBuffers;
 		VkResult err;
 		err = vkQueueSubmit(m_device.GetGraphicsQ().Handle(),
-			1, &submitInfo, inflightFence);
+			1, &submitInfo, m_inFlightFences[m_currentFrame]->Handle());
 		ALALBA_ASSERT(err == VK_SUCCESS, "Q submit failed");
 
 		// present
