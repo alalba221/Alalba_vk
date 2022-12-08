@@ -4,8 +4,8 @@
 #include "CommandPool.h"
 namespace vk
 {
-	CommandBuffers::CommandBuffers(const Device& device, const CommandPool& cmdPool, const uint32_t count, const std::string& tag)
-		:m_device(device),m_cmdPool(cmdPool),m_tag(tag)
+	CommandBuffers::CommandBuffers(const Device& device, const CommandPool& cmdPool, const uint32_t count, bool oneTimeSubmit, const std::string& tag)
+		:m_device(device),m_cmdPool(cmdPool), m_oneTimeSubmit(oneTimeSubmit),m_tag(tag)
 	{
 		ALALBA_INFO("Allocate Command Buffers: {0}, size: {1}", m_tag, count);
 		VkCommandBufferAllocateInfo AI{};
@@ -24,7 +24,7 @@ namespace vk
 		//ALALBA_INFO("Record Command Buffers: {0}, {1}", m_tag, index);
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+		beginInfo.flags = m_oneTimeSubmit? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT:VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 		beginInfo.pInheritanceInfo = nullptr; // Optional
 
 		VkResult err = vkBeginCommandBuffer(m_cmdBuffers[index], &beginInfo);

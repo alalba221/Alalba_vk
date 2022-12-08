@@ -141,6 +141,7 @@ namespace vk
 
     std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
       .SetTag("Command Buffers for Layout Transition")
+      .OneTimeSubmit(true)
       .SetSize(1)
       .Allocate();
     {
@@ -163,6 +164,7 @@ namespace vk
   {
     std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
       .SetTag("Command Buffers for Copy Image: "+m_tag)
+      .OneTimeSubmit(true)
       .SetSize(1)
       .Allocate();
     // recording command buffer

@@ -114,6 +114,7 @@ namespace vk
 
 		m_cmdBuffers = CommandBuffers::Allocator(m_device, *m_cmdPool4Graphics.get())
 			.SetTag("CmdBuffers4Graphics")
+			.OneTimeSubmit(false)
 			.SetSize(3) // one for each image in swapchain
 			.Allocate();
 
@@ -267,11 +268,11 @@ namespace vk
 	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Mesh& mesh)
 	{
 		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
-		cmdBuffers.BeginRecording(cmdBufferIndex);
 		
+
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f,  };// depth from 0 to 1 in vulkan
+		clearValues[1].depthStencil = { 1.0f, };// depth from 0 to 1 in vulkan
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -282,16 +283,11 @@ namespace vk
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
-
-		VkBuffer vertexBuffers[] = { mesh.GetVertexbuffer().Handle()};
+		VkBuffer vertexBuffers[] = { mesh.GetVertexbuffer().Handle() };
 		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(cmdBuffers[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
 
 		VkBuffer indexBuffer = mesh.GetIndexbuffer().Handle();
 		VkDeviceSize offset = 0;
-		vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;
@@ -300,28 +296,39 @@ namespace vk
 		viewport.height = static_cast<float>(m_SwapChain->GetExtent().height);
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
-		vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
-		vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
-/// test 
+		/// test 
 		std::vector<VkDescriptorSet>DescSets;
 		// Important: the order of pushing back determine the set==xx in shader
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
 		DescSets.push_back(test_textureDescSets[cmdBufferIndex]->Handle());
-		
-		vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-			m_pipelineLayout->Handle(), 0, DescSets.size(), DescSets.data(), 0, nullptr);
-				
-		// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
-		// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
-		// 
-		vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
-		vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
 
+		cmdBuffers.BeginRecording(cmdBufferIndex);
+		{
+			vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
+
+			vkCmdBindVertexBuffers(cmdBuffers[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
+
+			vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
+
+			vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
+
+			vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
+
+			vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_pipelineLayout->Handle(), 0, DescSets.size(), DescSets.data(), 0, nullptr);
+
+			// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
+			// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
+			// 
+			vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
+			vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
+		}
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
@@ -333,16 +340,13 @@ namespace vk
 		uint32_t imageIndex;
 		VkResult result = vkAcquireNextImageKHR(m_device.Handle(), m_SwapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &imageIndex);
 		
-		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-			RecreateSwapChainAndFramebuffers();
-			return;
-		}
-		else if (result == VK_SUBOPTIMAL_KHR)
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
 		{
 			RecreateSwapChainAndFramebuffers();
 			return;
 		}
-		else {
+		else 
+		{
 			ALALBA_ASSERT(result == VK_SUCCESS, "Acquire Next Image Failed");
 		}
 
@@ -353,7 +357,6 @@ namespace vk
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
 		EncodeCommand(m_currentFrame, imageIndex,mesh);
-		
 
 		// submit
 		VkCommandBuffer commandBuffers[]{ (*m_cmdBuffers.get())[m_currentFrame] };
@@ -388,10 +391,12 @@ namespace vk
 		presentInfo.pResults = nullptr; // Optional
 
 		result = vkQueuePresentKHR(m_device.GetGraphicsQ().Handle(), &presentInfo);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
+		{
 			RecreateSwapChainAndFramebuffers();
 		}
-		else {
+		else 
+		{
 			ALALBA_ASSERT(result == VK_SUCCESS, "Queue Present Failed");
 		}
 		m_currentFrame = (m_currentFrame + 1) % m_SwapChain->GetImgCount();

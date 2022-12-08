@@ -70,6 +70,7 @@ namespace vk
 	{
 		std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
 			.SetTag("Command Buffers for Copy Buffer: "+m_tag)
+			.OneTimeSubmit(true)
 			.SetSize(1)
 			.Allocate();
 		// recording command buffer
