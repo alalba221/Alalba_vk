@@ -31,8 +31,8 @@ public:
 
 		m_Camera.reset(new Alalba::Camera(glm::perspectiveFov(glm::radians(40.0f), 1280.0f, 720.0f, 0.1f, 3000.0f)));
 
-		m_mesh.reset(new Alalba::Mesh());
-		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
+		m_mesh.reset(new Alalba::Mesh("models/room.obj"));
+		m_testTexture.reset(new Alalba::Texture("textures/room.png"));
 		
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
 		m_renderer->Init(*m_testTexture.get());

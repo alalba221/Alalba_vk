@@ -28,7 +28,6 @@ namespace vk
 
     // 3. Layout transitions
     TransitionImageLayout(cmdPool, q, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    
     // 4. Copy staging buffer to image buffer: using command pool for graphics
     MoveDataFromStagingBuffer(*stagingBuffer.get(), sizeInByte, q, cmdPool);
     

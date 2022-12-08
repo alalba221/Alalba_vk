@@ -9,8 +9,9 @@ namespace Alalba
 	vk::Allocator* Mesh::s_allocator = nullptr;
 	vk::CommandPool* Mesh::s_commandPool = nullptr;
 
-	Mesh::Mesh()
+	Mesh::Mesh(const std::string file)
 	{
+		// Static members
 		if (s_allocator == nullptr)
 			s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Mesh Allocator");
 		if (s_commandPool == nullptr)
@@ -19,8 +20,11 @@ namespace Alalba
 				VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
 				"Model CommandPool");
 		
-		uint32_t vertexSize = sizeof(vertices[0]) * vertices.size();
-		uint32_t indexSize = sizeof(indices[0]) * indices.size();
+		// 
+		LoadModel(file);
+
+		uint32_t vertexSize = sizeof(m_vertices[0]) * m_vertices.size();
+		uint32_t indexSize = sizeof(m_indices[0]) * m_indices.size();
 	
 		// Vertex buffer
 		// should has its own allocator
@@ -37,7 +41,7 @@ namespace Alalba
 			m_copyCmdBuffer->Flush(0, Application::Get().GetDevice().GetTransferQ());
 		*/
 		m_vertexBuffer->CopyDataFrom(
-			vertices.data(), vertexSize,
+			m_vertices.data(), vertexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool
 		);
 
@@ -50,7 +54,7 @@ namespace Alalba
 			.Build();
 		
 		m_indexBuffer->CopyDataFrom(
-			indices.data(), indexSize,
+			m_indices.data(), indexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool
 		);
 	}
@@ -60,5 +64,46 @@ namespace Alalba
 		//vkDeviceWaitIdle(Application::Get().GetDevice().Handle());
 		m_vertexBuffer->Clean();
 		m_indexBuffer->Clean();
+	}
+	void Mesh::LoadModel(const std::string& file)
+	{
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
+
+		tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, file.c_str());
+		if (!warn.empty()) {
+			ALALBA_FATAL("WARN: {0}",warn);
+		}
+		ALALBA_ASSERT(err.empty(), err);
+
+		std::unordered_map<MeshVertex, uint32_t> uniqueVertices{};
+
+		for (const auto& shape : shapes) 
+		{
+			for (const auto& index : shape.mesh.indices) {
+				MeshVertex vertex{};
+
+				vertex.position = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+				vertex.color = { 1.0f, 1.0f, 1.0f };
+				vertex.uv = 
+				{
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				if (uniqueVertices.count(vertex) == 0) {
+					uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
+					m_vertices.push_back(vertex);
+				}
+				m_indices.push_back(uniqueVertices[vertex]);
+			}
+		}
+
 	}
 }

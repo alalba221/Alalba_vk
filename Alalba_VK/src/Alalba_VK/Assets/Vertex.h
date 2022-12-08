@@ -6,16 +6,25 @@
 /* reference*/
 // https://github.com/BoomingTech/Piccolo/blob/main/engine/source/runtime/function/render/render_mesh.h
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+using namespace Alalba;
+
+
 namespace Alalba
 {
 
   struct MeshVertex {
-    struct VertexPostition
-    {
-      glm::vec3 position;
-      glm::vec3 color;
-      glm::vec2 uv;
-    };
+
+    glm::vec3 position;
+    glm::vec3 color;
+    glm::vec2 uv;
+
+    bool operator==(const MeshVertex& other) const {
+      return position == other.position && color == other.color && uv == other.uv;
+    }
+
+
 
     static std::array<VkVertexInputBindingDescription, 1> GetBindingDescriptions()
     {
@@ -23,7 +32,7 @@ namespace Alalba
 
       // position
       binding_descriptions[0].binding = 0;
-      binding_descriptions[0].stride = sizeof(VertexPostition);
+      binding_descriptions[0].stride = sizeof(MeshVertex);
       binding_descriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
       // varying blending
       //binding_descriptions[1].binding = 1;
@@ -44,17 +53,17 @@ namespace Alalba
       attribute_descriptions[0].binding = 0;
       attribute_descriptions[0].location = 0;
       attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-      attribute_descriptions[0].offset = offsetof(VertexPostition, position);
+      attribute_descriptions[0].offset = offsetof(MeshVertex, position);
 
       attribute_descriptions[1].binding = 0;
       attribute_descriptions[1].location = 1;
       attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-      attribute_descriptions[1].offset = offsetof(VertexPostition, color);
+      attribute_descriptions[1].offset = offsetof(MeshVertex, color);
 
       attribute_descriptions[2].binding = 0;
       attribute_descriptions[2].location = 2;
       attribute_descriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-      attribute_descriptions[2].offset = offsetof(VertexPostition, uv);
+      attribute_descriptions[2].offset = offsetof(MeshVertex, uv);
 
       //attribute_descriptions[2].binding = 1;
       //attribute_descriptions[2].location = 2;
@@ -71,4 +80,14 @@ namespace Alalba
     }
   };
 
+}
+
+namespace std {
+  template<> struct hash<Alalba::MeshVertex> {
+    size_t operator()(Alalba::MeshVertex const& vertex) const {
+      return ((hash<glm::vec3>()(vertex.position) ^
+        (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
+        (hash<glm::vec2>()(vertex.uv) << 1);
+    }
+  };
 }
