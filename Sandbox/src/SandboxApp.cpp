@@ -22,14 +22,17 @@ public:
 
 	virtual void OnUpdate() override
 	{
-		m_renderer->DrawFrame(*m_mesh.get());
+		m_camera->Update();
+		//m_mesh->test_UpdateModelMatrix();
+
+		m_renderer->DrawFrame(*m_mesh.get(), *m_camera.get());
 	}
 
 	virtual void OnInit() override
 	{
 		ALALBA_INFO("Hello from sandbox OnInit");
 
-		m_Camera.reset(new Alalba::Camera(glm::perspectiveFov(glm::radians(40.0f), 1280.0f, 720.0f, 0.1f, 3000.0f)));
+		m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
 
 		m_mesh.reset(new Alalba::Mesh("models/room.obj"));
 		m_testTexture.reset(new Alalba::Texture("textures/room.png"));
@@ -53,6 +56,7 @@ private:
 	std::unique_ptr<vk::VulkanRenderer> m_renderer;
 	std::unique_ptr<Alalba::Texture> m_testTexture;
 	std::unique_ptr<Alalba::Mesh> m_mesh;
+	std::unique_ptr<Alalba::Camera> m_camera;
 };	
 
 

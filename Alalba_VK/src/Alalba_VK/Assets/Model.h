@@ -3,6 +3,12 @@
 #include "Vertex.h"
 #include "tiny_obj_loader.h"
 
+// test
+#include "glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <chrono>
+
 namespace vk
 {
   class Buffer;
@@ -27,6 +33,18 @@ namespace Alalba
     static vk::Allocator* Allocator() { return s_allocator; }
     static vk::CommandPool* CommandPool() { return s_commandPool; }
 
+    const glm::mat4 ModelMatrix() const{ return m_model; }
+    Mesh& SetModelMatirx(glm::mat4 model) { m_model = model; return *this; }
+
+
+    // testing usage 
+    void test_UpdateModelMatrix()
+    {
+      static auto startTime = std::chrono::high_resolution_clock::now();
+      auto currentTime = std::chrono::high_resolution_clock::now();
+      float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+      m_model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    }
 
   private:
     std::unique_ptr<vk::Buffer> m_vertexBuffer;
@@ -40,5 +58,9 @@ namespace Alalba
     // Allocator for Mesh
     static vk::Allocator* s_allocator;
     static vk::CommandPool* s_commandPool;
+
+    glm::mat4 m_model{1.0f};
+
+
   };
 }

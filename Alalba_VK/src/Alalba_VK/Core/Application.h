@@ -55,7 +55,6 @@ namespace Alalba{
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
 
-		Ref<Camera> m_Camera;
 	};
 
 	// to be defined in sandbox

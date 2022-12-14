@@ -6,6 +6,8 @@
 
 #include "Alalba_VK/Assets/Vertex.h"
 #include "Alalba_VK/Assets/Model.h"
+#include "Alalba_VK/Core/Camera.h"
+
 namespace vk
 {
 
@@ -332,7 +334,7 @@ namespace vk
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
-	void VulkanRenderer::DrawFrame(const const Alalba::Mesh& mesh)
+	void VulkanRenderer::DrawFrame(const Alalba::Mesh& mesh, const Alalba::Camera& camera)
 	{
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
@@ -351,9 +353,20 @@ namespace vk
 		}
 
 		// update camera
+		
+		// update uniform buffer
 ///////////////////////////////////////////////////////////
-		updateUniformBuffer(m_currentFrame);
-//////////////////////////////////////////////////////////////
+		// just need to update the data in the buffers, nothing to do with descriptors
+			UniformBufferObject ubo{};
+			ubo.model = mesh.ModelMatrix();
+			ubo.proj = camera.GetProjectionMatrix();
+			ubo.view = camera.GetViewMatrix();
+
+			void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
+			memcpy(data, &ubo, sizeof(ubo));
+			m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
+
+			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
 		EncodeCommand(m_currentFrame, imageIndex,mesh);
