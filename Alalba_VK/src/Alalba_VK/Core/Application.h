@@ -11,13 +11,11 @@
 #include "Alalba_VK/Vulkan/Surface.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 
-#include "Alalba_VK/Vulkan/CommandPool.h"
-#include "Alalba_VK/Vulkan/CommandBuffers.h"
-
-#include "VulkanRenderer.h"
 #include "Alalba_VK/Assets/Model.h"
 #include "Alalba_VK/Assets/Texture.h"
 
+#include "VulkanRenderer.h"
+#include "VulkanComputer.h"
 namespace Alalba{
 
 	class Application

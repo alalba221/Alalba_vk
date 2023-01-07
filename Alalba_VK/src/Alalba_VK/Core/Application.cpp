@@ -36,6 +36,8 @@ namespace Alalba
 			.AddExtension("VK_KHR_ray_tracing_pipeline")
 			.AddExtension("VK_KHR_acceleration_structure")
 			.AddExtension("VK_KHR_deferred_host_operations")
+// for debug computer shader
+			.AddExtension("VK_KHR_shader_non_semantic_info")
 			.Build();
 	}
 

@@ -26,6 +26,7 @@ public:
 		//m_mesh->test_UpdateModelMatrix();
 
 		m_renderer->DrawFrame(*m_mesh.get(), *m_camera.get());
+		m_computer->Execute();
 	}
 
 	virtual void OnInit() override
@@ -39,6 +40,9 @@ public:
 		
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
 		m_renderer->Init(*m_testTexture.get());
+
+		m_computer.reset(new vk::VulkanComputer(Alalba::Application::Get().GetDevice()));
+		m_computer->Init();
 		
 	}
 
@@ -49,11 +53,14 @@ public:
 		m_testTexture->Clean();
 		m_mesh->Clean();
 		m_renderer->Shutdown();
+		m_computer->Shutdown();
 		Alalba::Application::OnShutdown();
 	}
 
 private:
 	std::unique_ptr<vk::VulkanRenderer> m_renderer;
+	std::unique_ptr<vk::VulkanComputer> m_computer;
+
 	std::unique_ptr<Alalba::Texture> m_testTexture;
 	std::unique_ptr<Alalba::Mesh> m_mesh;
 	std::unique_ptr<Alalba::Camera> m_camera;

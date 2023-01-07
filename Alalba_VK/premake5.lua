@@ -58,8 +58,8 @@ project "Alalba_VK"
 
 	--https://datacadamia.com/lang/dos/argument#combinations
 	-- ~nx: name and extension, ~n: name, ~x: extension
-	
-	prebuildcommands [[for %%i in (src\Alalba_VK\Shaders\*.vert src\Alalba_VK\Shaders\*.frag ) do (C:\VulkanSDK\1.3.224.0\Bin\glslc.exe %%i -o "%%~dpi\%%~ni.spv")]]
+	prebuildcommands [[for %%i in (src\Alalba_VK\Shaders\*.vert src\Alalba_VK\Shaders\*.frag src\Alalba_VK\Shaders\*.comp ) do (C:\VulkanSDK\1.3.231.1\Bin\glslangvalidator.exe  --target-env vulkan1.3 -o "%%~dpi\%%~ni.spv" %%i )]]
+	-- prebuildcommands [[for %%i in (src\Alalba_VK\Shaders\*.vert src\Alalba_VK\Shaders\*.frag src\Alalba_VK\Shaders\*.comp ) do (C:\VulkanSDK\1.3.231.1\Bin\glslc.exe %%i -o "%%~dpi\%%~ni.spv")]]
 
 	-- filter "files: %{prj.location}/src/%{prj.name}/Shaders/*"
     -- buildcommands '"C:/VulkanSDK/1.3.224.0/Bin/glslc.exe" -V -o "%{file.directory}/%{file.name}.spv" "%{file.relpath}"'
