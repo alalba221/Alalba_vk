@@ -5,7 +5,7 @@
 #include "Alalba_VK/Core/Application.h"
 
 #include "Alalba_VK/Assets/Vertex.h"
-#include "Alalba_VK/Assets/Model.h"
+#include "Alalba_VK/Assets/Mesh.h"
 #include "Alalba_VK/Core/Camera.h"
 
 namespace vk
