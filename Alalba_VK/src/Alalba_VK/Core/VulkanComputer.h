@@ -9,11 +9,15 @@
 //#include "Alalba_VK/Vulkan/Semaphore.h"
 //#include "Alalba_VK/Vulkan/Buffer.h"
 //
-//#include "Alalba_VK/Vulkan/DescriptorSetLayout.h"
-//#include "Alalba_VK/Vulkan/DescriptorPool.h"
-//#include "Alalba_VK/Vulkan/DescriptorSet.h"
+#include "Alalba_VK/Vulkan/DescriptorSetLayout.h"
+#include "Alalba_VK/Vulkan/DescriptorPool.h"
+#include "Alalba_VK/Vulkan/DescriptorSet.h"
 
+#include "Alalba_VK/Assets/Texture.h"
+// in case it is useful
+#include "VulkanRenderer.h"
 
+#define TEX_DIM 1024
 namespace vk
 {
 	class Device;
@@ -33,11 +37,12 @@ namespace vk
 
 		void Shutdown();
 		VulkanComputer(const Device& device) :m_device(device) {};
-		void Init();
+		void Init(const std::string& computshader );
 		void Execute();
 
 		//const CommandPool& GetCommandPool() const { return *m_cmdPool4Compute.get(); }
-
+		const Alalba::Texture& GetTargetTexture() const { return *m_targetTexture.get(); }
+	
 	private:
 
 		const class Device& m_device;
@@ -50,6 +55,9 @@ namespace vk
 		std::unique_ptr<ComputePipeline> m_computePipeline;
 		std::unique_ptr<CommandPool> m_cmdPool4Compute;
 		std::unique_ptr<CommandBuffers> m_cmdBuffers;
+
+		// Target texture that is used to store compute shader calculations
+		std::unique_ptr<Alalba::Texture> m_targetTexture;
 
 	};
 

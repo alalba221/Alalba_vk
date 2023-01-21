@@ -52,8 +52,8 @@ namespace Alalba
 		Texture::CommandPool()->Clean();
 		Texture::Allocator()->Clean();
 		
-		Mesh::Allocator()->Clean();
-		Mesh::CommandPool()->Clean();
+		Model::Allocator()->Clean();
+		Model::CommandPool()->Clean();
 		m_vulkanDevice->Clean();
 	}
 

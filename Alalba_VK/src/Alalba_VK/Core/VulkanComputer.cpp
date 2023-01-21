@@ -3,9 +3,10 @@
 #include "Alalba_VK/Vulkan/Device.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 #include "Alalba_VK/Core/Application.h"
+
 namespace vk
 {
-	void VulkanComputer::Init()
+	void VulkanComputer::Init(const std::string& computshader)
 	{
 		
 		m_cmdPool4Compute = CommandPool::Builder(m_device)
@@ -23,7 +24,7 @@ namespace vk
 		m_computeShaderModule = ShaderModule::Builder(m_device)
 			// path relative to Sandbox
 			.SetTag("Compute Shader")
-			.SelectSpvFile("../Alalba_VK/src/Alalba_VK/Shaders/comp.spv")
+			.SelectSpvFile(computshader)
 			.SetShaderStageBits(VK_SHADER_STAGE_COMPUTE_BIT)
 			.Build();
 
@@ -35,6 +36,9 @@ namespace vk
 		m_computePipeline = ComputePipeline::Builder(m_device, *m_pipelineLayout.get(), *m_computeShaderModule.get())
 			.SetTag("Compute Pipeline")
 			.Build();
+
+		m_targetTexture.reset(new Alalba::Texture(TEX_DIM, TEX_DIM, VK_FORMAT_R8G8B8A8_UNORM));
+
 	}
 
 	///https://github.com/nvpro-samples/vk_mini_path_tracer/blob/main/checkpoints/6_compute_shader/main.cpp
@@ -73,6 +77,12 @@ namespace vk
 		VkSubmitInfo submitInfo = {};
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = commandBuffers;
+		// submitInfo.waitSemaphoreCount = 1;
+		// submitInfo.pWaitSemaphores = &graphics.semaphore;
+		// submitInfo.pWaitDstStageMask = &waitStageMask;
+		// submitInfo.signalSemaphoreCount = 1;
+		// submitInfo.pSignalSemaphores = &compute.semaphore;
+
 		VkResult err;
 		err = vkQueueSubmit(m_device.GetComputeQ().Handle(),
 			1, &submitInfo, VK_NULL_HANDLE);
@@ -86,6 +96,8 @@ namespace vk
 	{
 		m_device.WaitIdle();
 		
+		m_targetTexture->Clean();
+
 		m_pipelineLayout->Clean();
 		m_computeShaderModule->Clean();
 		m_computePipeline->Clean();

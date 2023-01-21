@@ -133,6 +133,15 @@ namespace vk
       sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
       destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     }
+    // for compute shader target texture
+    else if (m_currentlLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_GENERAL)
+    {
+      barrier.srcAccessMask = 0;
+      barrier.dstAccessMask = 0;
+
+      sourceStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+      destinationStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    }
     else
     {
       ALALBA_ASSERT("Unsupported layout");

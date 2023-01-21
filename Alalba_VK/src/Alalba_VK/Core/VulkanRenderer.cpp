@@ -5,13 +5,13 @@
 #include "Alalba_VK/Core/Application.h"
 
 #include "Alalba_VK/Assets/Vertex.h"
-#include "Alalba_VK/Assets/Mesh.h"
+#include "Alalba_VK/Assets/Model.h"
 #include "Alalba_VK/Core/Camera.h"
 
 namespace vk
 {
 
-	void VulkanRenderer::Init(const Alalba::Texture& texture)
+	void VulkanRenderer::Init(const std::string& vertshader, const std::string& fragshader, const Alalba::Texture& texture)
 	{
 		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
 	
@@ -29,14 +29,14 @@ namespace vk
 		m_vertShaderModule = ShaderModule::Builder(m_device)
 			// path relative to Sandbox
 			.SetTag("vertexShader")
-			.SelectSpvFile("../Alalba_VK/src/Alalba_VK/Shaders/vert.spv")
+			.SelectSpvFile(vertshader)
 			.SetShaderStageBits(VK_SHADER_STAGE_VERTEX_BIT)
 			.Build();
 
 		m_fragShaderModule = ShaderModule::Builder(m_device)
 			// path relative to Sandbox
 			.SetTag("fragShader")
-			.SelectSpvFile("../Alalba_VK/src/Alalba_VK/Shaders/frag.spv")
+			.SelectSpvFile(fragshader)
 			.SetShaderStageBits(VK_SHADER_STAGE_FRAGMENT_BIT)
 			.Build();
 
@@ -267,11 +267,10 @@ namespace vk
 				"resized Framebuffer"));
 		}
 	}
-	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Mesh& mesh)
+	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Model& mesh)
 	{
 		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
 		
-
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, };// depth from 0 to 1 in vulkan
@@ -302,6 +301,21 @@ namespace vk
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
+
+		//// Image memory barrier to make sure that compute shader 
+		//// writes are finished before sampling from the texture
+		//VkImageMemoryBarrier imageMemoryBarrier = {};
+		//imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		//// We won't be changing the layout of the image
+		//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+		//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+		//imageMemoryBarrier.image = textureComputeTarget.image;
+		//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		//imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		//imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
 
 		/// test 
 		std::vector<VkDescriptorSet>DescSets;
@@ -334,7 +348,7 @@ namespace vk
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
-	void VulkanRenderer::DrawFrame(const Alalba::Mesh& mesh, const Alalba::Camera& camera)
+	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Camera& camera)
 	{
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
@@ -371,7 +385,7 @@ namespace vk
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
 		EncodeCommand(m_currentFrame, imageIndex,mesh);
 
-		// submit
+		// TODO: abstract to a new submit method
 		VkCommandBuffer commandBuffers[]{ (*m_cmdBuffers.get())[m_currentFrame] };
 		VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame]->Handle() };
 		VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame]->Handle() };
@@ -391,7 +405,8 @@ namespace vk
 			1, &submitInfo, m_inFlightFences[m_currentFrame]->Handle());
 		ALALBA_ASSERT(err == VK_SUCCESS, "Q submit failed");
 
-		// present
+		
+		// TODO: abstract to a new present method
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;

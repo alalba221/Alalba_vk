@@ -25,7 +25,7 @@
 
 namespace Alalba
 {	
-	class Mesh;
+	class Model;
 	class Camera;
 };
 namespace vk
@@ -49,10 +49,10 @@ namespace vk
 		VulkanRenderer(const Device& device) :m_device(device){};
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
 		// cmdBufferIndex =  imageIndex
-		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Mesh& mesh);
-		void DrawFrame(const Alalba::Mesh& mesh, const Alalba::Camera& camera);
+		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Model& mesh);
+		void DrawFrame(const Alalba::Model& mesh, const Alalba::Camera& camera);
 
-		void Init(const Alalba::Texture& texture);
+		void Init(const std::string& vertshader, const std::string& fragshader,const Alalba::Texture& texture);
 
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
 

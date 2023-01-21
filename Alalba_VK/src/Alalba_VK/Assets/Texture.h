@@ -25,12 +25,16 @@ namespace Alalba
 		Texture& operator = (Texture&&) = delete;
 
 		Texture(const std::string& filename);
+		Texture(uint32_t height, uint32_t width, VkFormat format);
+
 		Texture(const Texture&) = default;
 		Texture(Texture&&) = default;
 		~Texture() { };
 	
 		static vk::Allocator* Allocator() { return s_allocator; }
 		static vk::CommandPool* CommandPool() { return s_commandPool; }
+		static vk::CommandPool* ComputeCommandPool() { return s_computeCmdPool; }
+
 		void Clean();
 
 		const vk::Image& GetImage() const { return *m_image.get(); }
@@ -49,6 +53,8 @@ namespace Alalba
 		// Allocator for Image
 		static vk::Allocator* s_allocator;
 		static vk::CommandPool* s_commandPool;
+		static vk::CommandPool* s_computeCmdPool;
+
 	};
 
 }

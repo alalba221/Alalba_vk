@@ -35,15 +35,15 @@ public:
 
 		m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
 
-		m_mesh.reset(new Alalba::Mesh("models/room.obj"));
-		m_testTexture.reset(new Alalba::Texture("textures/room.png"));
+		m_mesh.reset(Alalba::Model::Create("models/quad.obj"));
+		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
 		
-		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		m_renderer->Init(*m_testTexture.get());
-
 		m_computer.reset(new vk::VulkanComputer(Alalba::Application::Get().GetDevice()));
-		m_computer->Init();
-		
+		m_computer->Init("Shaders/comp.spv");
+
+		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
+		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv", *m_testTexture.get());
+
 	}
 
 	virtual void OnShutdown() override
@@ -62,7 +62,7 @@ private:
 	std::unique_ptr<vk::VulkanComputer> m_computer;
 
 	std::unique_ptr<Alalba::Texture> m_testTexture;
-	std::unique_ptr<Alalba::Mesh> m_mesh;
+	std::unique_ptr<Alalba::Model> m_mesh;
 	std::unique_ptr<Alalba::Camera> m_camera;
 };	
 

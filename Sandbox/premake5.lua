@@ -24,7 +24,7 @@ project "Sandbox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.stb}",
    }
-
+   prebuildcommands [[for %%i in (Shaders\*.vert Shaders\*.frag Shaders\*.comp ) do (C:\VulkanSDK\1.3.236.0\Bin\glslangvalidator.exe  --target-env vulkan1.3 -o "%%~dpi\%%~ni.spv" %%i )]]
     links
     {
         "Alalba_VK"
