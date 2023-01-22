@@ -11,7 +11,7 @@
 namespace vk
 {
 
-	void VulkanRenderer::Init(const std::string& vertshader, const std::string& fragshader, const Alalba::Texture& texture)
+	void VulkanRenderer::Init(const std::string& vertshader, const std::string& fragshader)
 	{
 		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
 	
@@ -181,10 +181,10 @@ namespace vk
 				.Allocate()
 			);
 			// 0 : is bingding index to set layout
-			test_textureDescSets[i]->
-				BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-					texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
-				.UpdateDescriptors();
+			//test_textureDescSets[i]->
+			//	BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
+			//		texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
+			//	.UpdateDescriptors();
 		}
 	}
 	void VulkanRenderer::Shutdown()
@@ -267,7 +267,8 @@ namespace vk
 				"resized Framebuffer"));
 		}
 	}
-	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Model& mesh)
+	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Model& mesh, 
+		const Alalba::Texture& texture)
 	{
 		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
 		
@@ -309,15 +310,19 @@ namespace vk
 		//// We won't be changing the layout of the image
 		//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
 		//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-		//imageMemoryBarrier.image = textureComputeTarget.image;
+		//imageMemoryBarrier.image = texture.GetImage().Handle();
 		//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 		//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
 		//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		//imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		//imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-
 		/// test 
+		test_textureDescSets[cmdBufferIndex]->
+			BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
+				texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
+			.UpdateDescriptors();
+
 		std::vector<VkDescriptorSet>DescSets;
 		// Important: the order of pushing back determine the set==xx in shader
 		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
@@ -348,7 +353,7 @@ namespace vk
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
-	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Camera& camera)
+	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera)
 	{
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
@@ -383,7 +388,7 @@ namespace vk
 			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
-		EncodeCommand(m_currentFrame, imageIndex,mesh);
+		EncodeCommand(m_currentFrame, imageIndex,mesh, texture);
 
 		// TODO: abstract to a new submit method
 		VkCommandBuffer commandBuffers[]{ (*m_cmdBuffers.get())[m_currentFrame] };

@@ -49,10 +49,12 @@ namespace vk
 		VulkanRenderer(const Device& device) :m_device(device){};
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
 		// cmdBufferIndex =  imageIndex
-		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Model& mesh);
-		void DrawFrame(const Alalba::Model& mesh, const Alalba::Camera& camera);
+		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Model& mesh,
+			const Alalba::Texture& texture);
 
-		void Init(const std::string& vertshader, const std::string& fragshader,const Alalba::Texture& texture);
+		void DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera);
+
+		void Init(const std::string& vertshader, const std::string& fragshader);
 
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
 
@@ -91,6 +93,9 @@ namespace vk
 
 		std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
 		std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
+
+		// computer shader
+		std::shared_ptr<Alalba::Texture> m_texture;
 		
 		struct UniformBufferObject {
 			glm::mat4 model;

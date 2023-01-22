@@ -21,6 +21,7 @@ namespace Alalba
 	class Texture final
 	{
 	public:
+
 		Texture& operator = (const Texture&) = delete;
 		Texture& operator = (Texture&&) = delete;
 

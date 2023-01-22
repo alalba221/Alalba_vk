@@ -25,7 +25,7 @@ public:
 		m_camera->Update();
 		//m_mesh->test_UpdateModelMatrix();
 
-		m_renderer->DrawFrame(*m_mesh.get(), *m_camera.get());
+		m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
 		m_computer->Execute();
 	}
 
@@ -38,11 +38,11 @@ public:
 		m_mesh.reset(Alalba::Model::Create("models/quad.obj"));
 		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
 		
+		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
+		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv");
+
 		m_computer.reset(new vk::VulkanComputer(Alalba::Application::Get().GetDevice()));
 		m_computer->Init("Shaders/comp.spv");
-
-		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv", *m_testTexture.get());
 
 	}
 
