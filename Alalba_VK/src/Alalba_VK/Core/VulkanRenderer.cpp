@@ -141,7 +141,8 @@ namespace vk
 				);
 		}
 		
-		// uniform buffer
+		// uniform buffers
+
 		m_globalDescPool = DescriptorPool::Builder(m_device)
 			.SetTag("Descriptor Pool")
 			.SetMaxSets(m_SwapChain->GetImgCount()*2)
@@ -167,24 +168,13 @@ namespace vk
 				.SetDescSetLayout(*m_globalDescSetLayout.get())
 				.Allocate()
 			);
-			// 0 : is bingding index to set layout
-			m_globalDescSets[i]->
-				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(UniformBufferObject))
-				// TODO: ImageView and Layout should not be fixed 
-				.UpdateDescriptors();
-
-
+			
 			test_textureDescSets.push_back(
 				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
 				.SetTag("Texture Descritor Set " + std::to_string(i))
 				.SetDescSetLayout(*test_textureSetLayout.get())
 				.Allocate()
 			);
-			// 0 : is bingding index to set layout
-			//test_textureDescSets[i]->
-			//	BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-			//		texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
-			//	.UpdateDescriptors();
 		}
 	}
 	void VulkanRenderer::Shutdown()
@@ -303,21 +293,27 @@ namespace vk
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
 
-		//// Image memory barrier to make sure that compute shader 
-		//// writes are finished before sampling from the texture
-		//VkImageMemoryBarrier imageMemoryBarrier = {};
-		//imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		//// We won't be changing the layout of the image
-		//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-		//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-		//imageMemoryBarrier.image = texture.GetImage().Handle();
-		//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-		//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		//imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		//imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		// Image memory barrier to make sure that compute shader 
+		// writes are finished before sampling from the texture
+		VkImageMemoryBarrier imageMemoryBarrier = {};
+		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		// We won't be changing the layout of the image
+		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+		imageMemoryBarrier.image = texture.GetImage().Handle();
+		imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-		/// test 
+		/// TODO: write a method for setting up descriptor sets and call this method before the draw function
+		// 0 : is bingding index to set layout
+		m_globalDescSets[cmdBufferIndex]->
+			BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[cmdBufferIndex].get(), 0, sizeof(UniformBufferObject))
+			// TODO: ImageView and Layout should not be fixed 
+			.UpdateDescriptors();
+
 		test_textureDescSets[cmdBufferIndex]->
 			BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
 				texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
@@ -330,6 +326,15 @@ namespace vk
 
 		cmdBuffers.BeginRecording(cmdBufferIndex);
 		{
+			vkCmdPipelineBarrier(
+				cmdBuffers[cmdBufferIndex],
+				VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &imageMemoryBarrier);
+
 			vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 

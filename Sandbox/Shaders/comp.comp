@@ -18,21 +18,21 @@ layout (binding = 0, rgba8) uniform image2D resultImage;
 
 void main()
 {
-  const uvec2 resolution = uvec2(1024, 1024);
-
-  const uvec2 pixel = gl_GlobalInvocationID.xy;
-
-  if((pixel.x >= resolution.x) || (pixel.y >= resolution.y))
-  {
-    return;
-  }
-
-  // Create a vector of 3 floats with a different color per pixel.
-  const vec3 pixelColor = vec3(float(pixel.x) / resolution.x,  // Red
-                               float(pixel.y) / resolution.y,  // Green
-                               0.0);                           // Blue
+// const uvec2 resolution = uvec2(1024, 1024);
+//
+//  const uvec2 pixel = gl_GlobalInvocationID.xy;
+//
+//  if((pixel.x >= resolution.x) || (pixel.y >= resolution.y))
+//  {
+//    return;
+//  }
+//
+//  // Create a vector of 3 floats with a different color per pixel.
+//  const vec3 pixelColor = vec3(float(pixel.x) / resolution.x,  // Red
+//                               float(pixel.y) / resolution.y,  // Green
+//                               0.0);                           // Blue
 	vec4 res = vec4(
-		pixelColor,
+		1.0,0.0,0.0,
 		1.0);
 	imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), res);
 }

@@ -25,8 +25,9 @@ public:
 		m_camera->Update();
 		//m_mesh->test_UpdateModelMatrix();
 
-		m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
+		//m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
 		m_computer->Execute();
+		m_renderer->DrawFrame(*m_mesh.get(), m_computer->GetTargetTexture(), *m_camera.get());
 	}
 
 	virtual void OnInit() override

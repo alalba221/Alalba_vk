@@ -42,7 +42,6 @@ namespace vk
 
 		//const CommandPool& GetCommandPool() const { return *m_cmdPool4Compute.get(); }
 		const Alalba::Texture& GetTargetTexture() const { return *m_targetTexture.get(); }
-	
 	private:
 
 		const class Device& m_device;
@@ -55,6 +54,11 @@ namespace vk
 		std::unique_ptr<ComputePipeline> m_computePipeline;
 		std::unique_ptr<CommandPool> m_cmdPool4Compute;
 		std::unique_ptr<CommandBuffers> m_cmdBuffers;
+
+
+		std::unique_ptr<DescriptorPool> m_descPool;
+		std::unique_ptr<DescriptorSetLayout >m_descSetLayout;
+		std::vector<std::unique_ptr<DescriptorSet>> m_descSets;
 
 		// Target texture that is used to store compute shader calculations
 		std::unique_ptr<Alalba::Texture> m_targetTexture;

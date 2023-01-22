@@ -94,8 +94,6 @@ namespace vk
 		std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
 		std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
 
-		// computer shader
-		std::shared_ptr<Alalba::Texture> m_texture;
 		
 		struct UniformBufferObject {
 			glm::mat4 model;

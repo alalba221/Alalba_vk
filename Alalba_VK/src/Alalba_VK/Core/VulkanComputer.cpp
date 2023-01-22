@@ -29,16 +29,43 @@ namespace vk
 			.Build();
 
 		// TODO: set descriptor layout and pipeline layout 
+		
+		// 1. descriptor set layout
+		m_descSetLayout = DescriptorSetLayout::Builder(m_device)
+			.SetTag(" Compute Desc set layout")
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_COMPUTE_BIT)
+			.Build();
+		// 2. pipeline layout
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Compute pipelline layout")
+			.BindDescriptorSetLayout(*m_descSetLayout.get())
 			.Build();
-		// 
+		// 3 .pipeline
 		m_computePipeline = ComputePipeline::Builder(m_device, *m_pipelineLayout.get(), *m_computeShaderModule.get())
 			.SetTag("Compute Pipeline")
 			.Build();
 
-		m_targetTexture.reset(new Alalba::Texture(TEX_DIM, TEX_DIM, VK_FORMAT_R8G8B8A8_UNORM));
+		// 4. descriptor pool
+		m_descPool = DescriptorPool::Builder(m_device)
+			.SetTag("Compute descriptor pool")
+			.SetMaxSets(1)
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,1)
+			.Build();
+		// 5. descriptor sets
+		m_descSets.push_back(
+			DescriptorSet::Allocator(m_device, *m_descPool.get())
+			.SetTag("computer Descritor Set ")
+			.SetDescSetLayout(*m_descSetLayout.get())
+			.Allocate()
+		);
+		// 6. set up descrptor set
+		m_targetTexture.reset(new Alalba::Texture(1024, 1024, VK_FORMAT_R8G8B8A8_UNORM));
+		m_descSets[0]->
+			BindDescriptor(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 0,
+				m_targetTexture->GetSampler(), m_targetTexture->GetImageView(), m_targetTexture->GetImage().Layout())
+			.UpdateDescriptors();
 
+		
 	}
 
 	///https://github.com/nvpro-samples/vk_mini_path_tracer/blob/main/checkpoints/6_compute_shader/main.cpp
@@ -49,6 +76,12 @@ namespace vk
 		
 		cmdBuffers.BeginRecording(0);
 		{
+
+			// Flush the queue if we're rebuilding the command buffer after a 
+			// pipeline change to ensure it's not currently in use
+			// Wait for the GPU to finish
+			vkQueueWaitIdle(m_device.GetComputeQ().Handle());
+
 			vkCmdBindPipeline(cmdBuffers[0], VK_PIPELINE_BIND_POINT_COMPUTE, m_computePipeline->Handle());
 			// Run the compute shader with one workgroup for now
 			vkCmdDispatch(cmdBuffers[0], 1, 1, 1);
@@ -87,9 +120,6 @@ namespace vk
 		err = vkQueueSubmit(m_device.GetComputeQ().Handle(),
 			1, &submitInfo, VK_NULL_HANDLE);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Compute Q submit failed");
-
-		// Wait for the GPU to finish
-		vkQueueWaitIdle(m_device.GetComputeQ().Handle());
 	}
 
 	void VulkanComputer::Shutdown()
@@ -104,6 +134,11 @@ namespace vk
 		
 		m_cmdBuffers->Clean();
 		m_cmdPool4Compute->Clean();
+
+		m_descSetLayout->Clean();
+		m_descSetLayout->Clean();
+
+		m_descPool->Clean();
 	}
 
 }
