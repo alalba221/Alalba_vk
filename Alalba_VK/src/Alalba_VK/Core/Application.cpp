@@ -48,8 +48,10 @@ namespace Alalba
 
 	void Application::OnShutdown()
 	{
-
+		//TODO: Texture and Model shouldn't have their own command pool
 		Texture::CommandPool()->Clean();
+		Texture::ComputeCommandPool()->Clean();
+		
 		Texture::Allocator()->Clean();
 		
 		Model::Allocator()->Clean();

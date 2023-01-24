@@ -134,14 +134,11 @@ namespace vk
 		m_computePipeline->Clean();
 		
 		m_cmdBuffers->Clean();
+		m_fence->Clean();
 		m_cmdPool4Compute->Clean();
 
 		m_descSetLayout->Clean();
-		m_descSetLayout->Clean();
-
 		m_descPool->Clean();
-
-		m_fence->Clean();
 	}
 
 }
