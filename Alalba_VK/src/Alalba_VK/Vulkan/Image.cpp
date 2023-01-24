@@ -8,7 +8,8 @@ namespace vk
 {
   std::unique_ptr<Image>Image::Builder::Build()const
   {
-    return std::make_unique<Image>(m_device, m_allocator, m_imageType, m_usageFlags, m_extent, m_format, m_tilling,m_tag);
+    return std::make_unique<Image>(m_device, m_allocator, m_imageType, m_usageFlags, m_extent, m_format, m_tilling,
+      m_sharingMode,m_tag);
   }
 
   void Image::CopyImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
@@ -41,6 +42,7 @@ namespace vk
 	Image::Image(const Device& device, Allocator& allocator,
     const VkImageType imageType, 
     const VkImageUsageFlags usageFlags, const VkExtent3D entent, const VkFormat format, const VkImageTiling tilling,
+    const VkSharingMode& sharingMode,
     const std::string& tag)
 		:m_device(device),m_allocator(allocator), m_imageType(imageType), m_usageFlags(usageFlags), m_extent(entent), m_format(format), m_tag(tag)
 	{
@@ -59,7 +61,21 @@ namespace vk
     createinfo.arrayLayers = 1;
     createinfo.samples = VK_SAMPLE_COUNT_1_BIT; 
     createinfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    createinfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createinfo.sharingMode = sharingMode;
+    
+    /// TODO: 
+    // If compute and graphics queue family indices differ, we create an image that can be shared between them
+    // This can result in worse performance than exclusive sharing mode, but save some synchronization to keep the sample simple
+    std::vector<uint32_t> queueFamilyIndices;
+    if (sharingMode == VK_SHARING_MODE_CONCURRENT)
+    {
+      queueFamilyIndices = {
+        m_device.GetGraphicsQ().GetFamily(),
+        m_device.GetComputeQ().GetFamily()
+      };
+      createinfo.queueFamilyIndexCount = queueFamilyIndices.size();
+      createinfo.pQueueFamilyIndices = queueFamilyIndices.data();
+    }
     // createinfo.queueFamilyIndexCount = 
     // createinfo.pQueueFamilyIndices = 
     // createinfo.flags =
@@ -138,6 +154,11 @@ namespace vk
     {
       barrier.srcAccessMask = 0;
       barrier.dstAccessMask = 0;
+      
+      barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      barrier.subresourceRange.baseMipLevel = 0;
+      barrier.subresourceRange.levelCount = 1;
+      barrier.subresourceRange.layerCount = 1;
 
       sourceStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
       destinationStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;

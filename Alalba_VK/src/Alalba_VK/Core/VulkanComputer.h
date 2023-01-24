@@ -5,7 +5,7 @@
 
 #include "Alalba_VK/Vulkan/CommandPool.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
-//#include "Alalba_VK/Vulkan/Fence.h"
+#include "Alalba_VK/Vulkan/Fence.h"
 //#include "Alalba_VK/Vulkan/Semaphore.h"
 //#include "Alalba_VK/Vulkan/Buffer.h"
 //
@@ -63,6 +63,7 @@ namespace vk
 		// Target texture that is used to store compute shader calculations
 		std::unique_ptr<Alalba::Texture> m_targetTexture;
 
+		std::unique_ptr<Fence> m_fence;
 	};
 
 }

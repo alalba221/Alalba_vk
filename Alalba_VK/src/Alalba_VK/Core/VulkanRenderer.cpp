@@ -18,7 +18,7 @@ namespace vk
 		m_cmdPool4Graphics = CommandPool::Builder(m_device)
 			.SetTag("Renderer CmdPool")
 			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value())
+			.SetQFamily(m_device.GetGraphicsQ().GetFamily())
 			.Build();
 
 		m_SwapChain = SwapChain::Builder(m_device, Alalba::Application::Get().GetSurface())
@@ -237,6 +237,7 @@ namespace vk
 				VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 			),
 			VK_IMAGE_TILING_OPTIMAL,
+			VK_SHARING_MODE_EXCLUSIVE,
 			"Recreated depth image"
 			));
 

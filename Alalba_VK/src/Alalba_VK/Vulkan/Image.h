@@ -24,6 +24,7 @@ namespace vk
 			Builder& SetImageFormat(const VkFormat format) { m_format = format; return*this; }
 			Builder& SetUsageFlags(const VkImageUsageFlags usageFlags) { m_usageFlags = usageFlags; return *this; }
 			Builder& SetImageTiling(const VkImageTiling tilling) { m_tilling = tilling; return *this; }
+			Builder& SetSharingMode(const VkSharingMode sharingMode) { m_sharingMode = sharingMode; return *this; }
 			std::unique_ptr<Image>Build()const;
 
 		private:
@@ -36,6 +37,7 @@ namespace vk
 			VkFormat m_format;
 			VkImageUsageFlags m_usageFlags;
 			VkImageTiling m_tilling;
+			VkSharingMode m_sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			std::string m_tag;
 		};
 
@@ -45,6 +47,7 @@ namespace vk
 		Image(const Device& device, Allocator& allocator,
 			const VkImageType imageType, 
 			const VkImageUsageFlags usageFlags, const VkExtent3D entent, const VkFormat format, const VkImageTiling tilling,
+			const VkSharingMode& sharingMode,
 			const std::string& tag);
 		const VkImageType& GetType() const { return m_imageType; };
 		const VkExtent3D& GetExtent() const { return m_extent; }

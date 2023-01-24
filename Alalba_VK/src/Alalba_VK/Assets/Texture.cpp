@@ -63,7 +63,7 @@ namespace Alalba
 			.Build();
 	}
 
-	// Used to create a target texture for compute shader
+	//TODO: Used to create a target texture for compute shader
 	Texture::Texture(uint32_t height, uint32_t width, VkFormat format)
 	{
 		// static member
@@ -86,6 +86,7 @@ namespace Alalba
 			.SetImageFormat(format)
 			.SetUsageFlags(VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT)
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+			.SetSharingMode(VK_SHARING_MODE_CONCURRENT)
 			.Build();
 		// Image layout transit 
 		m_image->TransitionImageLayout(*s_computeCmdPool, Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
