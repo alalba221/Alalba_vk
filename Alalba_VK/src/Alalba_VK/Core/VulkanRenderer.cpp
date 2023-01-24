@@ -11,8 +11,10 @@
 namespace vk
 {
 
-	void VulkanRenderer::Init(const std::string& vertshader, const std::string& fragshader)
+	void VulkanRenderer::Init(const std::string& vertshader, const std::string& fragshader, const bool quad)
 	{
+		m_quad = quad;
+
 		m_allocator.reset(new vk::Allocator(m_device, Alalba::Application::Get().GetVulkanInstance(), "Renderer Allocator"));
 	
 		m_cmdPool4Graphics = CommandPool::Builder(m_device)
@@ -383,10 +385,18 @@ namespace vk
 ///////////////////////////////////////////////////////////
 		// just need to update the data in the buffers, nothing to do with descriptors
 			UniformBufferObject ubo{};
-			ubo.model = mesh.ModelMatrix();
-			ubo.proj = camera.GetProjectionMatrix();
-			ubo.view = camera.GetViewMatrix();
-
+			if (m_quad == true)
+			{
+				ubo.model = glm::mat4(1.0f);
+				ubo.proj = glm::mat4(1.0f);
+				ubo.view = glm::mat4(1.0f);
+			}
+			else if (m_quad == false)
+			{
+				ubo.model = mesh.ModelMatrix();
+				ubo.proj = camera.GetProjectionMatrix();
+				ubo.view = camera.GetViewMatrix();
+			}
 			void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
 			memcpy(data, &ubo, sizeof(ubo));
 			m_globalUniformbuffers[m_currentFrame]->UnMapMemory();

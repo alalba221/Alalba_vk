@@ -54,7 +54,7 @@ namespace vk
 
 		void DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera);
 
-		void Init(const std::string& vertshader, const std::string& fragshader);
+		void Init(const std::string& vertshader, const std::string& fragshader, const bool quad = false);
 
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
 
@@ -104,6 +104,8 @@ namespace vk
 		std::vector< std::unique_ptr<Buffer> > m_globalUniformbuffers;
 	
 		uint32_t m_currentFrame = 0;
+
+		bool m_quad;
 	};
 }
 

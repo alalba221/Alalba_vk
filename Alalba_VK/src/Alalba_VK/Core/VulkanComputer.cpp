@@ -99,7 +99,7 @@ namespace vk
 			vkCmdBindDescriptorSets(cmdBuffers[0],
 				VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout->Handle(), 0, DescSets.size(), DescSets.data(), 0, nullptr);
 			// Run the compute shader with one workgroup for now
-			vkCmdDispatch(cmdBuffers[0], 1024/16, 1026/8, 1);
+			vkCmdDispatch(cmdBuffers[0], 1024/16, 1026/16, 1);
 		}
 		cmdBuffers.EndRecording(0);
 

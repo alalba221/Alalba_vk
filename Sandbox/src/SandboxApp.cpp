@@ -40,7 +40,7 @@ public:
 		m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
 		
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv");
+		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv",false);
 
 		m_computer.reset(new vk::VulkanComputer(Alalba::Application::Get().GetDevice()));
 		m_computer->Init("Shaders/comp.spv");
