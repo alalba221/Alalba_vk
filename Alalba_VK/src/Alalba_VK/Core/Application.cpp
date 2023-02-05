@@ -49,13 +49,18 @@ namespace Alalba
 	void Application::OnShutdown()
 	{
 		//TODO: Texture and Model shouldn't have their own command pool
-		Texture::CommandPool()->Clean();
-		Texture::ComputeCommandPool()->Clean();
+		if(Texture::CommandPool() != nullptr)
+			Texture::CommandPool()->Clean();
+		if(Texture::ComputeCommandPool() != nullptr)
+			Texture::ComputeCommandPool()->Clean();
+		if(Texture::Allocator() != nullptr)
+			Texture::Allocator()->Clean();
 		
-		Texture::Allocator()->Clean();
-		
-		Model::Allocator()->Clean();
-		Model::CommandPool()->Clean();
+		if(Model::Allocator() != nullptr)
+			Model::Allocator()->Clean();
+		if(Model::CommandPool() != nullptr)
+			Model::CommandPool()->Clean();
+
 		m_vulkanDevice->Clean();
 	}
 

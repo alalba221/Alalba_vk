@@ -42,7 +42,6 @@ namespace Alalba
 		const vk::ImageView& GetImageView() const { return *m_imageView.get(); }
 		const vk::Sampler& GetSampler() const { return *m_sampler.get(); }
 
-
 	private:
 		std::unique_ptr<vk::Image> m_image;
 		std::unique_ptr<vk::ImageView> m_imageView;

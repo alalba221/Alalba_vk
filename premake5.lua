@@ -5,8 +5,8 @@ workspace "Alalba_VK"
    architecture "x64"
    configurations { "Debug", "Release", "Dist" }
    targetdir "build"
-   startproject "Sandbox"
-
+ --  startproject "Sandbox"
+   startproject "DPA8090"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 
@@ -18,3 +18,4 @@ group ""
 
 include "Alalba_VK"
 include "Sandbox"
+include "DPA8090"

@@ -1,8 +1,15 @@
 #version 460
-
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout (binding = 0, rgba8) uniform image2D resultImage;
+
+
+float Circle(vec2 p, float r)
+{
+	return length(p)-r;
+}
+
+
 
 void main()
 {
@@ -19,12 +26,13 @@ void main()
 	float c = length(uv);
 
 	vec4 res;
-	if(c<0.3)
+	
+	if(Circle(uv,0.3)<0.)
 	{
-		res = vec4(1.0,0.0,0.0,1.0);
+		res = vec4(1.0,0.,0.,1.);
 	}
 	else{
-		res = vec4(0.0,0.0,0.0,1.0);
+		res = vec4(0.0,0.,1.,1.);
 	}
 
 	imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), res);
