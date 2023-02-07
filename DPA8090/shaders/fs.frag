@@ -1,13 +1,15 @@
-#version 450
+#version 410
 
+// Demonstrate Blinn-Phong shading model here.
 
-layout(location = 0) in vec3 Normal;
-layout(location = 1) in vec2 fragTexCoord;
+// Inputs from application.
+// Generally, "in" like the eye and normal vectors for things that change frequently,
+// and "uniform" for things that change less often (think scene versus vertices).  
 
-layout(location = 0) out vec4 outColor;
+in vec3 position_eye, normal_eye;
+uniform mat4 view_mat;
 
-layout(set = 1, binding = 0) uniform sampler2D texSampler;
-
+// This light setup would usually be passed in from the application.
 
 vec3 light_position_world  = vec3 (10.0, 25.0, 10.0);
 vec3 Ls = vec3 (1.0, 1.0, 1.0);    // neutral, full specular color of light
@@ -22,8 +24,11 @@ vec3 Ka = vec3 (1.0, 1.0, 1.0);    // fully reflect ambient light
 
 float specular_exponent = 400.0;   // specular 'power' -- controls "roll-off"
 
-void main() 
-{
-    //outColor = vec4(texture(texSampler,fragTexCoord).rgb,1.0);
-    outColor = vec4 (Kd, 1.0);
+// Shader programs can also designate outputs -- in this case the final pixel color to draw.
+out vec4 fragment_color;           // color of surface to draw in this case
+
+void main () {
+
+  fragment_color = vec4 (Kd, 1.0);
+
 }

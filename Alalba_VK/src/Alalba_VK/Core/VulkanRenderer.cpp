@@ -77,7 +77,7 @@ namespace vk
 		// descriptor set layout
 		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
 			// 0 : is bingding index to set layout
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT| VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 
@@ -407,12 +407,14 @@ namespace vk
 				ubo.model = glm::mat4(1.0f);
 				ubo.proj = glm::mat4(1.0f);
 				ubo.view = glm::mat4(1.0f);
+				ubo.position = camera.GetPosition();
 			}
 			else if (m_quad == false)
 			{
 				ubo.model = mesh.ModelMatrix();
 				ubo.proj = camera.GetProjectionMatrix();
 				ubo.view = camera.GetViewMatrix();
+				ubo.position = camera.GetPosition();
 			}
 			void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
 			memcpy(data, &ubo, sizeof(ubo));
