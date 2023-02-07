@@ -35,7 +35,7 @@ public:
 
 		 m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
 
-		 m_mesh.reset(Alalba::Model::Create("models/room.obj"));
+		 m_mesh.reset(Alalba::Model::Create("models/teapot.obj"));
 		 m_testTexture.reset(new Alalba::Texture("textures/white.png"));
 		
 		 m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
