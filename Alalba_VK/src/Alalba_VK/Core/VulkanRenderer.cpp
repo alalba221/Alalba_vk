@@ -296,8 +296,9 @@ namespace vk
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
 
-		// Image memory barrier to make sure that compute shader 
-		// writes are finished before sampling from the texture
+		//// Image memory barrier to make sure that compute shader 
+		//// writes are finished before sampling from the texture
+
 		VkImageMemoryBarrier imageMemoryBarrier = {};
 		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 		// We won't be changing the layout of the image
@@ -329,15 +330,31 @@ namespace vk
 
 		cmdBuffers.BeginRecording(cmdBufferIndex);
 		{
-			vkCmdPipelineBarrier(
-				cmdBuffers[cmdBufferIndex],
-				VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-				0,
-				0, nullptr,
-				0, nullptr,
-				1, &imageMemoryBarrier);
-
+			//// Image memory barrier to make sure that compute shader 
+			//// writes are finished before sampling from the texture
+			/// If no compute or ray tracing pipeline, then no need to add a barrier
+			if (m_quad)
+			{
+				VkImageMemoryBarrier imageMemoryBarrier = {};
+				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				// We won't be changing the layout of the image
+				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+				imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+				imageMemoryBarrier.image = texture.GetImage().Handle();
+				imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+				imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+				imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+				imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				vkCmdPipelineBarrier(
+					cmdBuffers[cmdBufferIndex],
+					VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					0,
+					0, nullptr,
+					0, nullptr,
+					1, &imageMemoryBarrier);
+			};
 			vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 

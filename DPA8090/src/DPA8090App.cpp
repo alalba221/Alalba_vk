@@ -22,28 +22,24 @@ public:
 
 	virtual void OnUpdate() override
 	{
-		// m_camera->Update();
-		// //m_mesh->test_UpdateModelMatrix();
+		 m_camera->Update();
+		 //m_mesh->test_UpdateModelMatrix();
 
-		// //m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
-		// m_computer->Execute();
-		// m_renderer->DrawFrame(*m_mesh.get(), m_computer->GetTargetTexture(), *m_camera.get());
+		 m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
+
 	}
 
 	virtual void OnInit() override
 	{
 		ALALBA_INFO("Hello from dpa8090 OnInit");
 
-		// m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
+		 m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
 
-		// m_mesh.reset(Alalba::Model::Create("models/quad.obj"));
-		// m_testTexture.reset(new Alalba::Texture("textures/awesomeface.png"));
+		 m_mesh.reset(Alalba::Model::Create("models/room.obj"));
+		 m_testTexture.reset(new Alalba::Texture("textures/white.png"));
 		
-		// m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		// m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv",false);
-
-		// m_computer.reset(new vk::VulkanComputer(Alalba::Application::Get().GetDevice()));
-		// m_computer->Init("Shaders/comp.spv");
+		 m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
+		 m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv",false);
 
 	}
 
@@ -51,10 +47,9 @@ public:
 	{
 		// should shutdown renderer first, as mesh and textures are being used by renderer
 		Alalba::Application::Get().GetDevice().WaitIdle();
-		// m_testTexture->Clean();
-		// m_mesh->Clean();
-		// m_renderer->Shutdown();
-		// m_computer->Shutdown();
+		m_testTexture->Clean();
+		m_mesh->Clean();
+		m_renderer->Shutdown();
 		Alalba::Application::OnShutdown();
 	}
 
