@@ -29,6 +29,6 @@ out vec4 fragment_color;           // color of surface to draw in this case
 
 void main () {
 
-  fragment_color = vec4 (Kd, 1.0);
+        fragment_color = vec4 (Kd, 1.0);
 
 }

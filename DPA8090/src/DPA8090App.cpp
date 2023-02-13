@@ -39,7 +39,7 @@ public:
 		 m_testTexture.reset(new Alalba::Texture("textures/white.png"));
 		
 		 m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		 m_renderer->Init("Shaders/vert.spv", "Shaders/phong.spv",false);
+		 m_renderer->Init("Shaders/vert.spv", "Shaders/disney.spv",false);
 
 	}
 
