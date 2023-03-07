@@ -362,8 +362,8 @@ namespace vk
 
 			vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
 
+			// Dynamic states in pipeline
 			vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
-
 			vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
 			vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,

@@ -44,6 +44,7 @@ namespace vk
 		const class Device& m_device;
 		const class PipelineLayout& m_layout;
 		const class ShaderModule& m_computeShader;
+
 	};
 }
 
