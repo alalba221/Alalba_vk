@@ -94,8 +94,13 @@ namespace vk
 			.BindDescriptorSetLayout(*test_textureSetLayout.get())
 			.Build();
 
+		// pipeline cache
+		m_pipelineCache = PipelineCache::Builder(m_device)
+			.SetTag("Rendering PipelineCache")
+			.Build();
+		// build pipeline with pipeline cache
 		m_graphicsPipeline = GraphicsPipeline::Builder(m_device, *m_pipelineLayout.get(), *m_renderPass.get(),
-			*m_vertShaderModule.get(), *m_fragShaderModule.get())
+			*m_vertShaderModule.get(), *m_fragShaderModule.get(), *m_pipelineCache.get())
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
 			.SetBackCulling(false)
@@ -184,6 +189,8 @@ namespace vk
 		m_device.WaitIdle();
 		m_pipelineLayout->Clean();
 		m_graphicsPipeline->Clean();
+		m_pipelineCache->Clean();
+
 		m_SwapChain->Clean();
 
 		m_vertShaderModule->Clean();

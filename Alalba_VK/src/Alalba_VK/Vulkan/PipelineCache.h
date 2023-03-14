@@ -12,6 +12,10 @@ namespace vk
 		public:
 			Builder(const Device& device) : m_device(device) {};
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
+			std::unique_ptr<PipelineCache> Build() const 
+			{
+				return std::make_unique<PipelineCache>(m_device, m_tag);
+			}
 
 		private:
 			const class Device& m_device;
@@ -23,7 +27,8 @@ namespace vk
 		VULKAN_NON_COPIABLE(PipelineCache);
 
 		PipelineCache(const Device& device, const std::string& tag);
-
+		~PipelineCache() { Clean(); };
+		void Clean();
 
 	private:
 		VULKAN_HANDLE(VkPipelineCache, m_pipelineCache);

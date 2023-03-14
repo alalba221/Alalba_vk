@@ -4,16 +4,17 @@
 #include "ShaderModule.h"
 #include "PipelineLayout.h"
 #include "RenderPass.h"
+#include "PipelineCache.h"
 #include"Alalba_VK/Assets/Vertex.h"
 namespace vk
 {
 	GraphicsPipeline::GraphicsPipeline(const Device& device, const PipelineLayout& layout, const RenderPass& renderpass,
-    const ShaderModule& vertex, const ShaderModule& fragment,
+    const ShaderModule& vertex, const ShaderModule& fragment, const PipelineCache& pipelineCache,
     const VkPrimitiveTopology topology,
     const VkPolygonMode polygonMode,
     const bool backculling,
     const float viewportWidth, const float viewportHight, const VkExtent2D scirrorExtent)
-		: m_device(device), m_layout(layout),m_renderpass(renderpass),m_vertShader(vertex),m_fragShader(fragment)
+		: m_device(device), m_layout(layout),m_renderpass(renderpass),m_vertShader(vertex),m_fragShader(fragment), m_pipelineCache(pipelineCache)
 	{
     ALALBA_INFO("Create Graphics Pipeline");
 		///***** shader stage
@@ -171,7 +172,7 @@ namespace vk
     CI.basePipelineIndex = -1;
 
 		VkResult err;
-    err = vkCreateGraphicsPipelines(m_device.Handle(), nullptr, 1, &CI, nullptr, &m_pipeline);
+    err = vkCreateGraphicsPipelines(m_device.Handle(), m_pipelineCache.Handle(), 1, &CI, nullptr, &m_pipeline);
     ALALBA_ASSERT(err == VK_SUCCESS, "Create Graphics Pipeline failed");
 	}
 

@@ -6,6 +6,7 @@ namespace vk
 	class ShaderModule;
 	class PipelineLayout;
 	class RenderPass;
+	class PipelineCache;
 
 	class GraphicsPipeline
 	{
@@ -14,19 +15,21 @@ namespace vk
 		{
 		public:
 			Builder(const Device& device, const PipelineLayout& layout, const RenderPass& renderpass,
-				const ShaderModule& vertex, const ShaderModule& fragment)
-				:m_device(device), m_layout(layout),m_renderpass(renderpass), m_vertShader(vertex), m_fragShader(fragment) {};
-			
+				const ShaderModule& vertex, const ShaderModule& fragment, const PipelineCache& pipelineCache)
+				:m_device(device), m_layout(layout),m_renderpass(renderpass), m_vertShader(vertex), m_fragShader(fragment),
+			m_pipelineCache(pipelineCache){};
+				
 			Builder& SetAssemblyTopology(VkPrimitiveTopology topology) { m_topology = topology; return *this; };
 			Builder& SetPolygonMode(VkPolygonMode polygonMode) { m_polygonMode = polygonMode; return *this; };
 			Builder& SetBackCulling(bool backcull) { m_backcull = backcull; return *this; }
 			Builder& SetViewPortWidth(float width) { m_viewportWidth = width; return *this; };
 			Builder& SetViewPortHeight(float height) { m_viewportHeight = height; return *this; };
 			Builder& SetScirrorExtent(VkExtent2D scirrorExtent) { m_scirrorExtent = scirrorExtent; return *this; };
+			
 
 			std::unique_ptr<GraphicsPipeline> Build() const
 			{
-				return std::make_unique<GraphicsPipeline>(m_device, m_layout, m_renderpass,m_vertShader, m_fragShader,
+				return std::make_unique<GraphicsPipeline>(m_device, m_layout, m_renderpass,m_vertShader, m_fragShader, m_pipelineCache,
 					m_topology, m_polygonMode, m_backcull
 					, m_viewportWidth, m_viewportHeight, m_scirrorExtent);
 			};
@@ -37,6 +40,8 @@ namespace vk
 			const class RenderPass& m_renderpass;
 			const class ShaderModule& m_vertShader;
 			const class ShaderModule& m_fragShader;
+			const class PipelineCache& m_pipelineCache;
+
 			
 			VkPrimitiveTopology m_topology{};
 			VkPolygonMode m_polygonMode{};
@@ -50,7 +55,7 @@ namespace vk
 	public:
 		VULKAN_NON_COPIABLE(GraphicsPipeline);
 		GraphicsPipeline(const Device& device, const PipelineLayout& layout, const RenderPass& renderpass,
-			const ShaderModule& vertex, const ShaderModule& fragment,
+			const ShaderModule& vertex, const ShaderModule& fragment, const PipelineCache& pipelineCache,
 			const VkPrimitiveTopology topology,
 			const VkPolygonMode polygonMode,
 			const bool backculling,
@@ -67,5 +72,7 @@ namespace vk
 		const class RenderPass& m_renderpass;
 		const class ShaderModule& m_fragShader;
 		const class ShaderModule& m_vertShader;
+		const class PipelineCache& m_pipelineCache;
+
 	};
 }

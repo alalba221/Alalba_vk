@@ -12,6 +12,8 @@
 #include "Alalba_VK/Vulkan/Fence.h"
 #include "Alalba_VK/Vulkan/Semaphore.h"
 #include "Alalba_VK/Vulkan/Buffer.h"
+#include "Alalba_VK/Vulkan/PipelineCache.h"
+
 
 // test
 #include <glm/glm.hpp>
@@ -83,6 +85,8 @@ namespace vk
 		std::vector<std::unique_ptr<Fence>> m_inFlightFences;
 		std::vector<std::unique_ptr<Semaphore>> m_imageAvailableSemaphores;
 		std::vector<std::unique_ptr<Semaphore>> m_renderFinishedSemaphores;
+
+		std::unique_ptr<PipelineCache> m_pipelineCache;
 
 		// uniform buffer
 		//test 

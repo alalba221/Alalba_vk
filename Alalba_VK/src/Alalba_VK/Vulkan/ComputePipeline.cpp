@@ -3,11 +3,12 @@
 #include "Device.h"
 #include "PipelineLayout.h"
 #include "ShaderModule.h"
+#include "PipelineCache.h"
 
 namespace vk
 {
-	ComputePipeline::ComputePipeline(const Device& device, const PipelineLayout& layout, const ShaderModule& computeShader, const std::string tag)
-		:m_device(device), m_layout(layout), m_computeShader(computeShader),m_tag(tag)
+	ComputePipeline::ComputePipeline(const Device& device, const PipelineLayout& layout, const PipelineCache& pipelineCache, const ShaderModule& computeShader, const std::string tag)
+		:m_device(device), m_layout(layout), m_pipelineCache(pipelineCache), m_computeShader(computeShader), m_tag(tag)
 	{
 		ALALBA_INFO("Create Compute Pipeline: {0}", m_tag);
 		 
@@ -21,7 +22,7 @@ namespace vk
 		//CI.basePipelineIndex;
 
 		VkResult err;
-		err = vkCreateComputePipelines(m_device.Handle(), nullptr, 1, &CI, nullptr, &m_pipeline);
+		err = vkCreateComputePipelines(m_device.Handle(), m_pipelineCache.Handle(), 1, &CI, nullptr, &m_pipeline);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create Compute Pipeline failed");
 	}
 	void ComputePipeline::Clean()

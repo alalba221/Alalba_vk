@@ -27,8 +27,11 @@ namespace vk
 			.SetShaderStageBits(VK_SHADER_STAGE_COMPUTE_BIT)
 			.Build();
 
-		// TODO: set descriptor layout and pipeline layout 
-		
+		m_pipelineCache = PipelineCache::Builder(m_device)
+			.SetTag("Computing PipelineCache")
+			.Build();
+
+		/// Set descriptor layout and pipeline layout 
 		// 1. descriptor set layout
 		m_descSetLayout = DescriptorSetLayout::Builder(m_device)
 			.SetTag(" Compute Desc set layout")
@@ -40,7 +43,7 @@ namespace vk
 			.BindDescriptorSetLayout(*m_descSetLayout.get())
 			.Build();
 		// 3 .pipeline
-		m_computePipeline = ComputePipeline::Builder(m_device, *m_pipelineLayout.get(), *m_computeShaderModule.get())
+		m_computePipeline = ComputePipeline::Builder(m_device, *m_pipelineLayout.get(), *m_computeShaderModule.get(), *m_pipelineCache.get())
 			.SetTag("Compute Pipeline")
 			.Build();
 
@@ -139,6 +142,8 @@ namespace vk
 
 		m_descSetLayout->Clean();
 		m_descPool->Clean();
+
+		m_pipelineCache->Clean();
 	}
 
 }
