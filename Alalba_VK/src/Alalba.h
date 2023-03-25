@@ -22,4 +22,6 @@
 #include "Alalba_VK/Assets/Model.h"
 #include "Alalba_VK/Assets/Texture.h"
 #include "Alalba_VK/Core/Camera.h"
+
+#include "Alalba_VK/Core/UI.h"
 //#include "Alalba_VK/Core/SceneList.h"

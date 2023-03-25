@@ -47,12 +47,14 @@ project "Alalba_VK"
 		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.tinyobj}",
 		"%{IncludeDir.VMA}",
-		"%{IncludeDir.stb}",
+		"%{IncludeDir.stb}", 
+		"%{IncludeDir.ImGui}",
 	}
 
 	links
 	{
 		"GLFW",
+		"ImGui",
 		"%{Library.Vulkan}",
 	}
 

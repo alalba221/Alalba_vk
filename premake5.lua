@@ -12,7 +12,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 include "Alalba_VK/vendor/GLFW"
-
+include "Alalba_VK/vendor/imgui-docking"
 group ""
 
 

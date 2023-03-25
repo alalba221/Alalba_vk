@@ -11,6 +11,7 @@ IncludeDir["spdlog"] = "%{wks.location}/Alalba_VK/vendor/spdlog/include"
 IncludeDir["Assimp"] = "%{wks.location}/Alalba_VK/vendor/assimp/include"
 IncludeDir["tinyobj"] = "%{wks.location}/Alalba_VK/vendor/tiny_obj_loader"
 IncludeDir["stb"] = "%{wks.location}/Alalba_VK/vendor/stb/include"
+IncludeDir["ImGui"] = "%{wks.location}/Alalba_VK/vendor/imgui-docking"
 
 
 LibraryDir = {}

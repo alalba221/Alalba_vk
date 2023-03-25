@@ -24,9 +24,9 @@ public:
 	{
 		 m_camera->Update();
 		 //m_mesh->test_UpdateModelMatrix();
-
+		 // m_UI->Draw();
 		 m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
-
+		 
 	}
 
 	virtual void OnInit() override
@@ -41,6 +41,7 @@ public:
 		 m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
 		 m_renderer->Init("Shaders/vert.spv", "Shaders/disney.spv",false);
 
+		 // m_UI.reset(new Alalba::UI(*m_renderer.get(), Alalba::Application::Get().GetWindow()));
 	}
 
 	virtual void OnShutdown() override
@@ -60,6 +61,8 @@ private:
 	std::unique_ptr<Alalba::Texture> m_testTexture;
 	std::unique_ptr<Alalba::Model> m_mesh;
 	std::unique_ptr<Alalba::Camera> m_camera;
+
+	std::unique_ptr<Alalba::UI> m_UI;
 };	
 
 
