@@ -58,10 +58,13 @@ namespace vk
 
 		void Init(const std::string& vertshader, const std::string& fragshader, const bool quad = false);
 
+		const PipelineCache& GetPipelineCache() const { return *m_pipelineCache.get(); }
+
+		// FOR ImGUI
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
-		const Device& GetDevice() const { return m_device; }
 		const SwapChain& GetSwapChain() const { return *m_SwapChain.get(); }
-		const RenderPass& GetRenderPass() const { return *m_renderPass.get(); }
+		const Image& GetDepthImage() const { return *m_depthImage.get(); }
+
 
 	private:
 		

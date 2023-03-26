@@ -1,7 +1,11 @@
 #pragma once
+#include "Alalba_VK/Core/Application.h"
 
-#include "Alalba_VK/Core/VulkanRenderer.h"
-#include "Alalba_VK/Core/Window.h"
+namespace vk
+{
+	class DescriptorPool;
+	class RenderPass;
+}
 namespace Alalba
 {
 	class UI
@@ -14,7 +18,7 @@ namespace Alalba
 
 	private:
 		std::unique_ptr<vk::DescriptorPool> m_descriptorPool;
-
+		std::unique_ptr<vk::RenderPass> m_renderPass;
 	};
 }
 

@@ -15,6 +15,7 @@ namespace vk
 			Builder& SetDepthFormat(const VkFormat depthFormat);
 			Builder& SetColorATCHLoadOP(const VkAttachmentLoadOp colorATCHLoadOp);
 			Builder& SetDepthATCHLoadOP(const VkAttachmentLoadOp depthATCHLoadOp);
+			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
 			std::unique_ptr<RenderPass> Build() const;
 
 		private:
@@ -23,7 +24,7 @@ namespace vk
 			VkAttachmentLoadOp m_depthATCHLoadOp{};
 			VkFormat m_colorFormat{};
 			VkFormat m_depthFormat{};
-
+			std::string m_tag;
 		};
 
 	public:
@@ -31,7 +32,8 @@ namespace vk
 		RenderPass(const Device& device, 
 			const VkFormat colorForamt, const VkFormat depthFormat,
 			const VkAttachmentLoadOp colorATCHLoadOp,
-			const VkAttachmentLoadOp depthATCHLoadOp
+			const VkAttachmentLoadOp depthATCHLoadOp,
+			const std::string tag
 		);
 		~RenderPass() { Clean(); };
 		void Clean();

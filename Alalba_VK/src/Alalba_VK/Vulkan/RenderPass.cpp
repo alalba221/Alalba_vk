@@ -28,17 +28,18 @@ namespace vk
 	}
 	std::unique_ptr<RenderPass> RenderPass::Builder::Build() const
 	{
-		return std::make_unique<RenderPass>(m_device, m_colorFormat, m_depthFormat, m_colorATCHLoadOp, m_depthATCHLoadOp);
+		return std::make_unique<RenderPass>(m_device, m_colorFormat, m_depthFormat, m_colorATCHLoadOp, m_depthATCHLoadOp,m_tag);
 	}
 
 
 	RenderPass::RenderPass(const Device& device,
 		const VkFormat colorForamt, const VkFormat depthFormat,
 		const VkAttachmentLoadOp colorATCHLoadOp,
-		const VkAttachmentLoadOp depthATCHLoadOp)
-		:m_device(device)
+		const VkAttachmentLoadOp depthATCHLoadOp,
+		const std::string tag)
+		:m_device(device), m_tag(tag)
 	{
-		ALALBA_INFO("Create Render Pass");
+		ALALBA_INFO("Create Render Pass: {0}", m_tag);
 		/// Attachment description
 		VkAttachmentDescription colorAttachment = {};
 		colorAttachment.format = colorForamt;//swapChain.Format();

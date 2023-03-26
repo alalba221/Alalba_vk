@@ -4,22 +4,15 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_vulkan.h"
 
-#include "Application.h"
+
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
 namespace Alalba
 {
-	void CheckVulkanResultCallback(const VkResult err)
-	{
-		if (err != VK_SUCCESS)
-		{
-			ALALBA_ASSERT("ImGui Vulkan error ");
-		}
-	}
-
+	
 	UI::UI(const vk::VulkanRenderer& renderer, const Window& window)
 	{
 		// the size of the pool is very oversize, but it's copied from imgui demo itself.
-		m_descriptorPool = vk::DescriptorPool::Builder(renderer.GetDevice())
+		m_descriptorPool = vk::DescriptorPool::Builder(Application::Get().GetDevice())
 			.SetTag("Descriptor Pool")
 			.SetMaxSets(11*1000)
 			.AddPoolSize( VK_DESCRIPTOR_TYPE_SAMPLER, 1000 )
@@ -35,15 +28,29 @@ namespace Alalba
 			.AddPoolSize( VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 )
 			.Build();
 
+		//  specific render pass dedicated to Dear ImGui
+		m_renderPass = vk::RenderPass::Builder(Application::Get().GetDevice())
+			.SetTag("Imgui renderpass")
+			.SetColorFormat(renderer.GetSwapChain().GetFormat())
+			.SetDepthFormat(renderer.GetDepthImage().GetFormat()) // this should be compatible with framebuffer
+			.SetColorATCHLoadOP(VK_ATTACHMENT_LOAD_OP_LOAD)
+			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_LOAD)
+			.Build();
+
 		// Initialise ImGui
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+		// Setup Dear ImGui style
+		ImGui::StyleColorsDark();
+		//ImGui::StyleColorsClassic();
 		
 		// Initialise ImGui GLFW adapter
-		if (!ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)window.GetNativeWindow(), true))
-		{
-			ALALBA_ASSERT("Failed to initialise ImGui GLFW adapter");
-		}
+		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)window.GetNativeWindow(), true);
+
 
 		// Initialise ImGui Vulkan adapter
 		ImGui_ImplVulkan_InitInfo vulkanInit = {};
@@ -52,14 +59,14 @@ namespace Alalba
 		vulkanInit.Device = Application::Get().GetDevice().Handle();
 		vulkanInit.QueueFamily = Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value();
 		vulkanInit.Queue = Application::Get().GetDevice().GetGraphicsQ().Handle();
-		vulkanInit.PipelineCache = nullptr;
+		vulkanInit.PipelineCache = renderer.GetPipelineCache().Handle();
 		vulkanInit.DescriptorPool = m_descriptorPool->Handle();
 		vulkanInit.MinImageCount = renderer.GetSwapChain().GetImgCount();
 		vulkanInit.ImageCount = renderer.GetSwapChain().GetImgCount();
 		vulkanInit.Allocator = nullptr;
-		vulkanInit.CheckVkResultFn = CheckVulkanResultCallback;
+		//vulkanInit.CheckVkResultFn = CheckVulkanResultCallback;
 
-		if (!ImGui_ImplVulkan_Init(&vulkanInit, renderer.GetRenderPass().Handle()))
+		if (!ImGui_ImplVulkan_Init(&vulkanInit, m_renderPass->Handle()))
 		{
 			ALALBA_ASSERT("Failed to initialise ImGui vulkan adapter");
 		}
@@ -78,7 +85,7 @@ namespace Alalba
 		CmdBuffer->EndRecording(0);
 
 		CmdBuffer->Flush(0, Application::Get().GetDevice().GetGraphicsQ());
-	
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 	void UI::Draw()
 	{
