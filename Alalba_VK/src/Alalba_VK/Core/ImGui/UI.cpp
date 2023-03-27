@@ -10,6 +10,7 @@ namespace Alalba
 {
 	
 	UI::UI(const vk::VulkanRenderer& renderer, const Window& window)
+		:m_renderer(renderer)
 	{
 		// the size of the pool is very oversize, but it's copied from imgui demo itself.
 		m_descriptorPool = vk::DescriptorPool::Builder(Application::Get().GetDevice())
@@ -31,8 +32,8 @@ namespace Alalba
 		//  specific render pass dedicated to Dear ImGui
 		m_renderPass = vk::RenderPass::Builder(Application::Get().GetDevice())
 			.SetTag("Imgui renderpass")
-			.SetColorFormat(renderer.GetSwapChain().GetFormat())
-			.SetDepthFormat(renderer.GetDepthImage().GetFormat()) // this should be compatible with framebuffer
+			.SetColorFormat(m_renderer.GetSwapChain().GetFormat())
+			.SetDepthFormat(m_renderer.GetDepthImage().GetFormat()) // this should be compatible with framebuffer
 			.SetColorATCHLoadOP(VK_ATTACHMENT_LOAD_OP_LOAD)
 			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_LOAD)
 			.Build();
@@ -59,10 +60,10 @@ namespace Alalba
 		vulkanInit.Device = Application::Get().GetDevice().Handle();
 		vulkanInit.QueueFamily = Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value();
 		vulkanInit.Queue = Application::Get().GetDevice().GetGraphicsQ().Handle();
-		vulkanInit.PipelineCache = renderer.GetPipelineCache().Handle();
+		vulkanInit.PipelineCache = m_renderer.GetPipelineCache().Handle();
 		vulkanInit.DescriptorPool = m_descriptorPool->Handle();
-		vulkanInit.MinImageCount = renderer.GetSwapChain().GetImgCount();
-		vulkanInit.ImageCount = renderer.GetSwapChain().GetImgCount();
+		vulkanInit.MinImageCount = m_renderer.GetSwapChain().GetImgCount();
+		vulkanInit.ImageCount = m_renderer.GetSwapChain().GetImgCount();
 		vulkanInit.Allocator = nullptr;
 		//vulkanInit.CheckVkResultFn = CheckVulkanResultCallback;
 
@@ -87,16 +88,35 @@ namespace Alalba
 		CmdBuffer->Flush(0, Application::Get().GetDevice().GetGraphicsQ());
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
-	void UI::Draw()
+	void UI::RenderCommand(const uint32_t frameBufferIndex) const
 	{
 		//// Start the Dear ImGui frame
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = m_renderPass->Handle();
+		renderPassInfo.framebuffer = m_renderer.GetFramebuffer(frameBufferIndex).Handle();
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = m_renderer.GetSwapChain().GetExtent();
+		renderPassInfo.clearValueCount = 0;
+		renderPassInfo.pClearValues = nullptr;
+
 		
 		ImGui::ShowDemoWindow();
 		ImGui::Render();
 
-
+		vkCmdBeginRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_renderer.GetCommandBuffers()[frameBufferIndex]);
+		vkCmdEndRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex]);
+	}
+	void UI::Clean()
+	{
+		m_renderPass->Clean();
+		m_descriptorPool->Clean();
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 }

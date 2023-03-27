@@ -24,11 +24,13 @@
 
 // 
 #include "Alalba_VK/Assets/Texture.h"
+#include "Alalba_VK/Core/ImGui/UI.h"
 
 namespace Alalba
 {	
 	class Model;
 	class Camera;
+	class UI;
 };
 namespace vk
 {
@@ -52,18 +54,20 @@ namespace vk
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
 		// cmdBufferIndex =  imageIndex
 		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Model& mesh,
-			const Alalba::Texture& texture);
+			const Alalba::Texture& texture, const Alalba::UI& ui);
 
-		void DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera);
+		void DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera, const Alalba::UI& ui);
 
 		void Init(const std::string& vertshader, const std::string& fragshader, const bool quad = false);
 
 		const PipelineCache& GetPipelineCache() const { return *m_pipelineCache.get(); }
 
-		// FOR ImGUI
+		// For ImGUI
 		const CommandPool& GetCommandPool() const { return *m_cmdPool4Graphics.get(); }
 		const SwapChain& GetSwapChain() const { return *m_SwapChain.get(); }
 		const Image& GetDepthImage() const { return *m_depthImage.get(); }
+		const FrameBuffer& GetFrameBuffer(uint32_t frameBufferIndex) const { return *m_framebuffers[frameBufferIndex].get(); }
+		const CommandBuffers& GetCommandBuffers() const { return *m_cmdBuffers.get(); }
 
 
 	private:

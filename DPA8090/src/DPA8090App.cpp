@@ -24,8 +24,7 @@ public:
 	{
 		 m_camera->Update();
 		 //m_mesh->test_UpdateModelMatrix();
-		 m_UI->Draw();
-		 m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get());
+		 m_renderer->DrawFrame(*m_mesh.get(), *m_testTexture.get(), *m_camera.get(), *m_UI.get());
 		 
 	}
 
@@ -50,19 +49,21 @@ public:
 		Alalba::Application::Get().GetDevice().WaitIdle();
 		m_testTexture->Clean();
 		m_mesh->Clean();
+		m_UI->Clean();
 		m_renderer->Shutdown();
 		Alalba::Application::OnShutdown();
 	}
 
 private:
 	std::unique_ptr<vk::VulkanRenderer> m_renderer;
+	std::unique_ptr<Alalba::UI> m_UI;
 	std::unique_ptr<vk::VulkanComputer> m_computer;
 
 	std::unique_ptr<Alalba::Texture> m_testTexture;
 	std::unique_ptr<Alalba::Model> m_mesh;
 	std::unique_ptr<Alalba::Camera> m_camera;
 
-	std::unique_ptr<Alalba::UI> m_UI;
+	
 };	
 
 

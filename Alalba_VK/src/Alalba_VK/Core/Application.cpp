@@ -60,7 +60,7 @@ namespace Alalba
 			Model::Allocator()->Clean();
 		if(Model::CommandPool() != nullptr)
 			Model::CommandPool()->Clean();
-
+		
 		m_vulkanDevice->Clean();
 	}
 

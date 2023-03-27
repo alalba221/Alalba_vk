@@ -268,7 +268,7 @@ namespace vk
 		}
 	}
 	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Model& mesh, 
-		const Alalba::Texture& texture)
+		const Alalba::Texture& texture, const Alalba::UI& ui)
 	{
 		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
 		
@@ -381,11 +381,14 @@ namespace vk
 			// 
 			vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
 			vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
+
+			// draw UI
+			ui.RenderCommand(cmdBufferIndex);
 		}
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
-	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera)
+	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera, const Alalba::UI& ui)
 	{
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
@@ -430,7 +433,7 @@ namespace vk
 			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
-		EncodeCommand(m_currentFrame, imageIndex,mesh, texture);
+		EncodeCommand(m_currentFrame, imageIndex,mesh, texture, ui);
 
 		// TODO: abstract to a new submit method
 		VkCommandBuffer commandBuffers[]{ (*m_cmdBuffers.get())[m_currentFrame] };
