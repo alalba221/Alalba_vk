@@ -80,17 +80,11 @@ namespace vk
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 
-		//test_textureSetLayout = DescriptorSetLayout::Builder(m_device)
-		//	// 0 : is bingding index to set layout
-		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-		//	.SetTag("Texture Descriptor Set Layout")
-		//	.Build();
-
 		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Pipeline layout")
 			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
-			.BindDescriptorSetLayout(ObjModel::GetDescLayout())
+			.BindDescriptorSetLayout(*ObjModel::GetDescLayout())
 			.Build();
 
 		// pipeline cache
@@ -174,12 +168,6 @@ namespace vk
 				.SetDescSetLayout(*m_globalDescSetLayout.get())
 				.Allocate()
 			);
-			//test_textureDescSets.push_back(
-			//	DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
-			//	.SetTag("Texture Descritor Set " + std::to_string(i))
-			//	.SetDescSetLayout(*test_textureSetLayout.get())
-			//	.Allocate()
-			//);
 		}
 	}
 	void VulkanRenderer::Shutdown()

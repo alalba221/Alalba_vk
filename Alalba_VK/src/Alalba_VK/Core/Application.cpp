@@ -48,7 +48,7 @@ namespace Alalba
 
 	void Application::OnShutdown()
 	{
-		//TODO: Texture and Model shouldn't have their own command pool
+		//TODO: Texture shouldn't have their own command pool
 		if(Texture::CommandPool() != nullptr)
 			Texture::CommandPool()->Clean();
 		if(Texture::ComputeCommandPool() != nullptr)

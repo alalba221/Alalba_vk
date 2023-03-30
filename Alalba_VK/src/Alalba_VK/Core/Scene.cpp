@@ -30,6 +30,9 @@ namespace Alalba
 			s_allocator->Clean();
 		if (s_commandPool != nullptr)
 			s_commandPool->Clean();
+
+		if (ObjModel::GetDescLayout() != nullptr)
+			ObjModel::GetDescLayout()->Clean();
 	}
 	Scene& Scene::AddTexture(const std::string& file)
 	{

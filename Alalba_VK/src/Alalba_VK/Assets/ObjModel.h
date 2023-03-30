@@ -16,7 +16,7 @@ namespace Alalba
 		ObjModel(const Mesh& mesh, const Texture& texture);
 		~ObjModel() { Clean(); };
 		void Clean();
-		static inline vk::DescriptorSetLayout& GetDescLayout() { return *s_descLayout; }
+		static inline vk::DescriptorSetLayout* GetDescLayout() { return s_descLayout; }
 		const vk::DescriptorSet& GetDescSet() const { return *m_descSet.get(); }
 
 		const Mesh& GetMesh()const { return m_mesh; }

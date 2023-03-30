@@ -35,8 +35,6 @@ namespace Alalba
 	}
 	void ObjModel::Clean()
 	{
-		if(s_descLayout!=nullptr)
-			s_descLayout->Clean();
 		m_descriptorPool->Clean();
 	}
 }
