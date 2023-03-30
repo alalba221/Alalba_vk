@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model.h"
+#include "Geometry.h"
 
 #include "Vertex.h"
 #include "tiny_obj_loader.h"
@@ -13,11 +13,11 @@
 
 namespace Alalba
 {
-  class Mesh:public Model
+  class Mesh:public Geometry
   {
   public:
 
-    Mesh(const std::string file);
+    Mesh(const std::string& file);
     virtual void Clean() override;
     virtual const vk::Buffer& GetVertexbuffer() const override { return *m_vertexBuffer.get();}
     virtual const vk::Buffer& GetIndexbuffer() const override { return *m_indexBuffer.get(); }

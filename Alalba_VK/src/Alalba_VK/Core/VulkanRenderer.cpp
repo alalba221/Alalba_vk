@@ -5,7 +5,7 @@
 #include "Alalba_VK/Core/Application.h"
 
 #include "Alalba_VK/Assets/Vertex.h"
-#include "Alalba_VK/Assets/Model.h"
+#include "Alalba_VK/Assets/ObjModel.h"
 #include "Alalba_VK/Core/Camera.h"
 
 namespace vk
@@ -73,7 +73,6 @@ namespace vk
 			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
 			.Build();
 
-		/// test 
 		// descriptor set layout
 		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
 			// 0 : is bingding index to set layout
@@ -81,17 +80,17 @@ namespace vk
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 
-		test_textureSetLayout = DescriptorSetLayout::Builder(m_device)
-			// 0 : is bingding index to set layout
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			.SetTag("Texture Descriptor Set Layout")
-			.Build();
+		//test_textureSetLayout = DescriptorSetLayout::Builder(m_device)
+		//	// 0 : is bingding index to set layout
+		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.SetTag("Texture Descriptor Set Layout")
+		//	.Build();
 
 		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Pipeline layout")
 			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
-			.BindDescriptorSetLayout(*test_textureSetLayout.get())
+			.BindDescriptorSetLayout(ObjModel::GetDescLayout())
 			.Build();
 
 		// pipeline cache
@@ -175,13 +174,12 @@ namespace vk
 				.SetDescSetLayout(*m_globalDescSetLayout.get())
 				.Allocate()
 			);
-			
-			test_textureDescSets.push_back(
-				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
-				.SetTag("Texture Descritor Set " + std::to_string(i))
-				.SetDescSetLayout(*test_textureSetLayout.get())
-				.Allocate()
-			);
+			//test_textureDescSets.push_back(
+			//	DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
+			//	.SetTag("Texture Descritor Set " + std::to_string(i))
+			//	.SetDescSetLayout(*test_textureSetLayout.get())
+			//	.Allocate()
+			//);
 		}
 	}
 	void VulkanRenderer::Shutdown()
@@ -216,7 +214,7 @@ namespace vk
 		}
 
 		m_globalDescSetLayout->Clean();
-		test_textureSetLayout->Clean();
+		//test_textureSetLayout->Clean();
 
 		m_globalDescPool->Clean();
 
@@ -267,8 +265,7 @@ namespace vk
 				"resized Framebuffer"));
 		}
 	}
-	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Model& mesh, 
-		const Alalba::Texture& texture, const Alalba::UI& ui)
+	void VulkanRenderer::EncodeCommand(const uint32_t cmdBufferIndex,const uint32_t imageIndex, const Alalba::Scene& scene, const Alalba::UI& ui)
 	{
 		CommandBuffers&  cmdBuffers = (*m_cmdBuffers.get());
 		
@@ -285,12 +282,6 @@ namespace vk
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
-		VkBuffer vertexBuffers[] = { mesh.GetVertexbuffer().Handle() };
-		VkDeviceSize offsets[] = { 0 };
-
-		VkBuffer indexBuffer = mesh.GetIndexbuffer().Handle();
-		VkDeviceSize offset = 0;
-
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
@@ -303,20 +294,20 @@ namespace vk
 		scissor.offset = { 0, 0 };
 		scissor.extent = m_SwapChain->GetExtent();
 
-		//// Image memory barrier to make sure that compute shader 
-		//// writes are finished before sampling from the texture
+		////// Image memory barrier to make sure that compute shader 
+		////// writes are finished before sampling from the texture
 
-		VkImageMemoryBarrier imageMemoryBarrier = {};
-		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		// We won't be changing the layout of the image
-		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-		imageMemoryBarrier.image = texture.GetImage().Handle();
-		imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-		imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		//VkImageMemoryBarrier imageMemoryBarrier = {};
+		//imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		//// We won't be changing the layout of the image
+		//imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+		//imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+		//imageMemoryBarrier.image = texture.GetImage().Handle();
+		//imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		//imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+		//imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		//imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		//imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
 		/// TODO: write a method for setting up descriptor sets and call this method before the draw function
 		// 0 : is bingding index to set layout
@@ -325,61 +316,78 @@ namespace vk
 			// TODO: ImageView and Layout should not be fixed 
 			.UpdateDescriptors();
 
-		test_textureDescSets[cmdBufferIndex]->
-			BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-				texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
-			.UpdateDescriptors();
+		//test_textureDescSets[cmdBufferIndex]->
+		//	BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
+		//		texture.GetSampler(), texture.GetImageView(), texture.GetImage().Layout())
+		//	.UpdateDescriptors();
 
-		std::vector<VkDescriptorSet>DescSets;
-		// Important: the order of pushing back determine the set==xx in shader
-		DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
-		DescSets.push_back(test_textureDescSets[cmdBufferIndex]->Handle());
+		//std::vector<VkDescriptorSet>DescSets;
+		//// Important: the order of pushing back determine the set==xx in shader ( or command Buffer)
+		//DescSets.push_back(m_globalDescSets[cmdBufferIndex]->Handle());
+		//DescSets.push_back(test_textureDescSets[cmdBufferIndex]->Handle());
 
 		cmdBuffers.BeginRecording(cmdBufferIndex);
 		{
-			//// Image memory barrier to make sure that compute shader 
-			//// writes are finished before sampling from the texture
-			/// If no compute or ray tracing pipeline, then no need to add a barrier
-			if (m_quad)
-			{
-				VkImageMemoryBarrier imageMemoryBarrier = {};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				// We won't be changing the layout of the image
-				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-				imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-				imageMemoryBarrier.image = texture.GetImage().Handle();
-				imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-				imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				vkCmdPipelineBarrier(
-					cmdBuffers[cmdBufferIndex],
-					VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-					VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-					0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
-			};
+			////// Image memory barrier to make sure that compute shader 
+			////// writes are finished before sampling from the texture
+			///// If no compute or ray tracing pipeline, then no need to add a barrier
+			//if (m_quad)
+			//{
+			//	VkImageMemoryBarrier imageMemoryBarrier = {};
+			//	imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			//	// We won't be changing the layout of the image
+			//	imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+			//	imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+			//	imageMemoryBarrier.image = texture.GetImage().Handle();
+			//	imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			//	imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+			//	imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			//	imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			//	imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			//	vkCmdPipelineBarrier(
+			//		cmdBuffers[cmdBufferIndex],
+			//		VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+			//		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			//		0,
+			//		0, nullptr,
+			//		0, nullptr,
+			//		1, &imageMemoryBarrier);
+			//};
 			vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 
-			vkCmdBindVertexBuffers(cmdBuffers[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
-
-			vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
 
 			// Dynamic states in pipeline
 			vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
 			vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
+			// 0. bind global descriptor set
+			VkDescriptorSet glbset = m_globalDescSets[cmdBufferIndex]->Handle();
 			vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-				m_pipelineLayout->Handle(), 0, DescSets.size(), DescSets.data(), 0, nullptr);
+				m_pipelineLayout->Handle(), 0, 1, &glbset, 0, nullptr);
 
 			// Cherno: vkCmdDrawIndexed(commandBuffer, submesh.IndexCount, instanceCount, submesh.BaseIndex, submesh.BaseVertex, 0);
 			// Picolo : m_vk_cmd_draw_indexed(m_vulkan_rhi->m_current_command_buffer,mesh->mesh_index_count,current_instance_count,0,0,	0);
 			// 
-			vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mesh.GetIndexCount(), mesh.GetInstanceCount(), 0, 0, 0);
+			for (auto& model : scene.GetModels())
+			{
+				auto& mod = model.second;
+				// 1. bind model's descriptor set
+				VkDescriptorSet modset = mod->GetDescSet().Handle();
+				vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
+					m_pipelineLayout->Handle(), 1, 1, &modset, 0, nullptr);
+
+				
+				VkBuffer vertexBuffers[] = { mod->GetMesh().GetVertexbuffer().Handle()};
+				VkDeviceSize offsets[] = { 0 };
+				VkBuffer indexBuffer = mod->GetMesh().GetIndexbuffer().Handle();
+				VkDeviceSize offset = 0;
+				vkCmdBindVertexBuffers(cmdBuffers[cmdBufferIndex], 0, 1, vertexBuffers, offsets);
+				vkCmdBindIndexBuffer(cmdBuffers[cmdBufferIndex], indexBuffer, offset, VK_INDEX_TYPE_UINT32);
+				vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mod->GetMesh().GetIndexCount(), mod->GetMesh().GetInstanceCount(), 0, 0, 0);
+			}
+			
+
 			vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
 
 			// draw UI
@@ -388,7 +396,7 @@ namespace vk
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}
 
-	void VulkanRenderer::DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera, const Alalba::UI& ui)
+	void VulkanRenderer::DrawFrame(const Alalba::Scene& scene, const Alalba::Camera& camera, const Alalba::UI& ui)
 	{
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
@@ -421,7 +429,7 @@ namespace vk
 			}
 			else if (m_quad == false)
 			{
-				ubo.model = mesh.ModelMatrix();
+				ubo.model = glm::mat4(1.0f);
 				ubo.proj = camera.GetProjectionMatrix();
 				ubo.view = camera.GetViewMatrix();
 				ubo.position = camera.GetPosition();
@@ -433,7 +441,7 @@ namespace vk
 			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);
-		EncodeCommand(m_currentFrame, imageIndex,mesh, texture, ui);
+		EncodeCommand(m_currentFrame, imageIndex,scene, ui);
 
 		// TODO: abstract to a new submit method
 		VkCommandBuffer commandBuffers[]{ (*m_cmdBuffers.get())[m_currentFrame] };

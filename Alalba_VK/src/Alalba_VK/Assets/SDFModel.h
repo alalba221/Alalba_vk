@@ -1,8 +1,8 @@
 #pragma once
-#include "Model.h"
+#include "Geometry.h"
 namespace Alalba
 {
-	class SDFModel:public Model
+	class SDFModel:public Geometry
 	{
 	public:
 

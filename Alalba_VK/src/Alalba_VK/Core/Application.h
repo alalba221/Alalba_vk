@@ -11,7 +11,7 @@
 #include "Alalba_VK/Vulkan/Surface.h"
 #include "Alalba_VK/Vulkan/Allocator.h"
 
-#include "Alalba_VK/Assets/Mesh.h"
+#include "Alalba_VK/Assets/Geometry.h"
 #include "Alalba_VK/Assets/Texture.h"
 
 #include "VulkanRenderer.h"

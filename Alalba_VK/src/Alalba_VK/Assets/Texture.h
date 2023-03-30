@@ -6,7 +6,8 @@
 // https://stackoverflow.com/questions/6012157/is-stdunique-ptrt-required-to-know-the-full-definition-of-t
 // TODO:  All the sperate system using unique pointers should include the header function instead of forward declaration
 #include "Alalba_VK/Vulkan/Sampler.h"
-
+#include "Alalba_VK/Vulkan/Image.h"
+#include "Alalba_VK/Vulkan/ImageView.h"
 namespace vk
 {
 	class Image;

@@ -23,12 +23,12 @@
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
 
 // 
-#include "Alalba_VK/Assets/Texture.h"
+#include "Alalba_VK/Core/Scene.h"
 #include "Alalba_VK/Core/ImGui/UI.h"
 
 namespace Alalba
 {	
-	class Model;
+	//class Model;
 	class Camera;
 	class UI;
 };
@@ -53,10 +53,9 @@ namespace vk
 		VulkanRenderer(const Device& device) :m_device(device){};
 		const FrameBuffer& GetFramebuffer(uint32_t index) const { return *(m_framebuffers[index].get()); };
 		// cmdBufferIndex =  imageIndex
-		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Model& mesh,
-			const Alalba::Texture& texture, const Alalba::UI& ui);
+		void EncodeCommand(const uint32_t cmdBufferIndex, const uint32_t imageIndex, const Alalba::Scene& scene, const Alalba::UI& ui);
 
-		void DrawFrame(const Alalba::Model& mesh, const Alalba::Texture& texture, const Alalba::Camera& camera, const Alalba::UI& ui);
+		void DrawFrame(const Alalba::Scene& scene, const Alalba::Camera& camera, const Alalba::UI& ui);
 
 		void Init(const std::string& vertshader, const std::string& fragshader, const bool quad = false);
 
@@ -101,12 +100,11 @@ namespace vk
 		// uniform buffer
 		//test 
 		std::unique_ptr<DescriptorPool> m_globalDescPool;
-
 		std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
 		std::vector<std::unique_ptr<DescriptorSet>> m_globalDescSets;
 
-		std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
-		std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
+		//std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
+		//std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
 
 		
 		struct UniformBufferObject {

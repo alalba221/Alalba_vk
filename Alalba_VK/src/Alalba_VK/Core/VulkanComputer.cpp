@@ -87,7 +87,7 @@ namespace vk
 		CommandBuffers& cmdBuffers = (*m_cmdBuffers.get());
 		
 		std::vector<VkDescriptorSet>DescSets;
-		// Important: the order of pushing back determine the set==xx in shader
+		// Important: the order of pushing back determine the set==xx in shader (command buffer)
 		DescSets.push_back(m_descSets[0]->Handle());
 
 		cmdBuffers.BeginRecording(0);

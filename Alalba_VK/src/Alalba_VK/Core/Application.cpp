@@ -55,12 +55,7 @@ namespace Alalba
 			Texture::ComputeCommandPool()->Clean();
 		if(Texture::Allocator() != nullptr)
 			Texture::Allocator()->Clean();
-		
-		if(Model::Allocator() != nullptr)
-			Model::Allocator()->Clean();
-		if(Model::CommandPool() != nullptr)
-			Model::CommandPool()->Clean();
-		
+				
 		m_vulkanDevice->Clean();
 	}
 
