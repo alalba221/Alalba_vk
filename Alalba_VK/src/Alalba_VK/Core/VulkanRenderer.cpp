@@ -202,8 +202,6 @@ namespace vk
 		}
 
 		m_globalDescSetLayout->Clean();
-		//test_textureSetLayout->Clean();
-
 		m_globalDescPool->Clean();
 
 		m_allocator->Clean();
@@ -375,11 +373,12 @@ namespace vk
 				vkCmdDrawIndexed(cmdBuffers[cmdBufferIndex], mod->GetMesh().GetIndexCount(), mod->GetMesh().GetInstanceCount(), 0, 0, 0);
 			}
 			
-
-			vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
-
 			// draw UI
 			ui.RenderCommand(cmdBufferIndex);
+			vkCmdEndRenderPass(cmdBuffers[cmdBufferIndex]);
+
+			//// draw UI
+			//ui.RenderCommand(cmdBufferIndex);
 		}
 		cmdBuffers.EndRecording(cmdBufferIndex);
 	}

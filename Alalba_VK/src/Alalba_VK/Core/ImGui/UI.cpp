@@ -107,9 +107,9 @@ namespace Alalba
 		ImGui::ShowDemoWindow();
 		ImGui::Render();
 
-		vkCmdBeginRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		// vkCmdBeginRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), m_renderer.GetCommandBuffers()[frameBufferIndex]);
-		vkCmdEndRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex]);
+		// vkCmdEndRenderPass(m_renderer.GetCommandBuffers()[frameBufferIndex]);
 	}
 	void UI::Clean()
 	{
