@@ -6,6 +6,7 @@ namespace Alalba
 {
 	vk::Allocator* Scene::s_allocator = nullptr;
 	vk::CommandPool* Scene::s_commandPool = nullptr;
+
 	Scene::Scene()
 	{
 		// Static members
@@ -54,5 +55,10 @@ namespace Alalba
 		ALALBA_ASSERT(m_models.count(tag) == 0, "Model already exist");
 		m_models.insert(std::make_pair(tag, std::make_unique<ObjModel>(*m_meshes[mesh].get(), *m_textures[texture].get())));
 		return *this;
+	}
+	void Scene::UpdateGlobalUniform(const UniformBufferBase& uniform)
+	{
+		uniform_cpu.ptr = (void*)(uniform.GetBuffer());
+		uniform_cpu.size = uniform.GetBufferSize();
 	}
 }

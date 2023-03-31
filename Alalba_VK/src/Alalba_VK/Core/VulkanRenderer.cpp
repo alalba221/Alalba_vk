@@ -400,8 +400,6 @@ namespace vk
 		{
 			ALALBA_ASSERT(result == VK_SUCCESS, "Acquire Next Image Failed");
 		}
-
-		// update camera
 		
 		// update uniform buffer
 ///////////////////////////////////////////////////////////
@@ -409,22 +407,22 @@ namespace vk
 			UniformBufferObject ubo{};
 			if (m_quad == true)
 			{
-				ubo.model = glm::mat4(1.0f);
-				ubo.proj = glm::mat4(1.0f);
-				ubo.view = glm::mat4(1.0f);
-				ubo.position = camera.GetPosition();
+				//ubo.model = glm::mat4(1.0f);
+				//ubo.proj = glm::mat4(1.0f);
+				//ubo.view = glm::mat4(1.0f);
+				//ubo.position = camera.GetPosition();
 			}
 			else if (m_quad == false)
 			{
-				ubo.model = glm::mat4(1.0f);
-				ubo.proj = camera.GetProjectionMatrix();
-				ubo.view = camera.GetViewMatrix();
-				ubo.position = camera.GetPosition();
+				//ubo.model = glm::mat4(1.0f);
+				//ubo.proj = camera.GetProjectionMatrix();
+				//ubo.view = camera.GetViewMatrix();
+				//ubo.position = camera.GetPosition();
 			}
 			void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
-			memcpy(data, &ubo, sizeof(ubo));
+			//memcpy(data, &ubo, sizeof(ubo));
+			memcpy(data, scene.GetUniform().ptr, scene.GetUniform().size);
 			m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
-
 			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);

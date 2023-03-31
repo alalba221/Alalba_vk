@@ -24,6 +24,16 @@ public:
 	{
 		 m_camera->Update();
 		 
+		 //0. update global uniform (cam and light) from camera or UI
+		 Alalba::UniformBufferDeclaration<sizeof(glm::mat4) * 3 + sizeof(glm::vec3), 4> globalUniform;
+		 globalUniform.Push("meaningless", glm::mat4(1.0f));
+		 globalUniform.Push("ubo.meaningless", m_camera->GetViewMatrix());
+		 globalUniform.Push("ubo.meaningless", m_camera->GetProjectionMatrix());
+		 globalUniform.Push("ubo.meaningless", m_camera->GetPosition());
+		 //1. Global uniform passed to render by scene
+		 m_scene->UpdateGlobalUniform(globalUniform);
+
+		 //2. model's individual uniforms passed to render by model
 		 for (auto& mod : m_scene->GetModels())
 		 {
 
