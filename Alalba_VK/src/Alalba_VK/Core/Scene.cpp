@@ -56,7 +56,7 @@ namespace Alalba
 		m_models.insert(std::make_pair(tag, std::make_unique<ObjModel>(*m_meshes[mesh].get(), *m_textures[texture].get())));
 		return *this;
 	}
-	void Scene::UpdateGlobalUniform(const UniformBufferBase& uniform)
+	void Scene::UpdateGlobalUniform(const UniformBufferDeclaration& uniform)
 	{
 		uniform_cpu.ptr = (void*)(uniform.GetBuffer());
 		uniform_cpu.size = uniform.GetBufferSize();

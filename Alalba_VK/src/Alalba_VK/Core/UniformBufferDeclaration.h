@@ -22,26 +22,30 @@ namespace Alalba
 		std::string Name;
 	};
 
-	struct UniformBufferBase
-	{
-		virtual const byte* GetBuffer() const = 0;
-		virtual const UniformDecl* GetUniforms() const = 0;
-		virtual unsigned int GetUniformCount() const = 0;
-		virtual unsigned int GetBufferSize() const = 0;
-	};
 
-	template<unsigned int N, unsigned int U>
-	struct UniformBufferDeclaration : public UniformBufferBase
+
+	class UniformBufferDeclaration
 	{
-		byte Buffer[N];
-		UniformDecl Uniforms[U];
+	public:
+		UniformBufferDeclaration(uint32_t size) 
+		{
+			Buffer.resize(size);
+		};
+
+	private:
+		std::vector<byte> Buffer;
+		// byte Buffer[N];
+		std::vector<UniformDecl> Uniforms;
+		//UniformDecl Uniforms[U];
+
 		std::ptrdiff_t Cursor = 0;
-		int Index = 0;
-
-		virtual const byte* GetBuffer() const override { return Buffer; }
-		virtual const UniformDecl* GetUniforms() const override { return Uniforms; }
-		virtual unsigned int GetUniformCount() const { return U; }
-		virtual unsigned int GetBufferSize() const { return N; }
+		//int Index = 0;
+	public:
+		const byte* GetBuffer() const { return Buffer.data(); }
+		const UniformDecl* GetUniforms() const { return Uniforms.data(); }
+		unsigned int GetUniformCount() const { return Uniforms.size(); }
+		unsigned int GetBufferSize() const { return Buffer.size(); }
+	
 
 		template<typename T>
 		void Push(const std::string& name, const T& data) {}
@@ -49,30 +53,32 @@ namespace Alalba
 		/*template<>*/
 		void Push(const std::string& name, const float& data)
 		{
-			Uniforms[Index++] = { UniformType::Float, Cursor, name };
-			memcpy(Buffer + Cursor, &data, sizeof(float));
-			Cursor += sizeof(float);
+			glm::vec4 padded_data = glm::vec4(data, 0, 0, 0);
+			Uniforms.push_back( { UniformType::Float, Cursor, name } );
+			memcpy(Buffer.data() + Cursor, &padded_data, sizeof(glm::vec4));
+			Cursor += sizeof(glm::vec4);
 		}
 
 		void Push(const std::string& name, const glm::vec3& data)
 		{
-			Uniforms[Index++] = { UniformType::Float3, Cursor, name };
-			memcpy(Buffer + Cursor, glm::value_ptr(data), sizeof(glm::vec3));
-			Cursor += sizeof(glm::vec3);
+			glm::vec4 padded_data = glm::vec4(data, 0);
+			Uniforms.push_back({ UniformType::Float3, Cursor, name });
+			memcpy(Buffer.data() + Cursor, &padded_data, sizeof(glm::vec4));
+			Cursor += sizeof(glm::vec4);
 		}
 
 		//template<>
 		void Push(const std::string& name, const glm::vec4& data)
 		{
-			Uniforms[Index++] = { UniformType::Float4, Cursor, name };
-			memcpy(Buffer + Cursor, glm::value_ptr(data), sizeof(glm::vec4));
+			Uniforms.push_back({ UniformType::Float4, Cursor, name });
+			memcpy(Buffer.data() + Cursor, &data, sizeof(glm::vec4));
 			Cursor += sizeof(glm::vec4);
 		}
 
 		void Push(const std::string& name, const glm::mat4& data)
 		{
-			Uniforms[Index++] = { UniformType::Matrix4x4, Cursor, name };
-			memcpy(Buffer + Cursor, glm::value_ptr(data), sizeof(glm::mat4));
+			Uniforms.push_back({ UniformType::Matrix4x4, Cursor, name });
+			memcpy(Buffer.data() + Cursor, &data, sizeof(glm::mat4));
 			Cursor += sizeof(glm::mat4);
 		}
 	};

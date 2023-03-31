@@ -7,10 +7,10 @@ layout(location = 2) in vec2 fragTexCoord;
 layout(location = 0) out vec4 outColor;
 
 layout(set = 0, binding = 0) uniform  CameraBuffer{
-	mat4 model;
+	vec3 pos;
+  mat4 model;
 	mat4 view;
 	mat4 proj;
-  vec3 pos;
 } ubo;
 
 layout(set = 1, binding = 0) uniform sampler2D texSampler;
@@ -97,7 +97,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 void main() 
 {
   vec3 N = normalize(Normal);
-  vec3 V = normalize(ubo.pos - Position);
+  vec3 V = normalize(ubo.pos.xyz - Position);
 
   // calculate reflectance at normal incidence; if dia-electric (like plastic) use F0 
   // of 0.04 and if it's a metal, use the albedo color as F0 (metallic workflow)    

@@ -12,10 +12,10 @@ layout(location = 2) out vec2 fragTexCoord;
 
 
 layout(set = 0, binding = 0) uniform  CameraBuffer{
+	vec3 pos;
 	mat4 model;
 	mat4 view;
 	mat4 proj;
-	vec3 pos;
 } ubo;
 
 void main() {

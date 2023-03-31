@@ -30,7 +30,7 @@ namespace Alalba
 		const std::unordered_map<std::string, std::unique_ptr<ObjModel> >& GetModels()const { return m_models; }
 		
 		// TODO: move this transit function outof scene
-		void UpdateGlobalUniform(const UniformBufferBase& uniform);
+		void UpdateGlobalUniform(const UniformBufferDeclaration& uniform);
 		const UniformBufferCPU GetUniform()const { return uniform_cpu; };
 
 	private:
