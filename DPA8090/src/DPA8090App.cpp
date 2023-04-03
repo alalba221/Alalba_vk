@@ -51,7 +51,8 @@ public:
 		m_scene.reset(new Alalba::Scene());
 		
 		m_scene->AddMesh("models/cube.obj").AddMesh("models/teapot.obj").AddTexture("textures/awesomeface.png").AddTexture("textures/white.png");
-		m_scene->AddModel("TEST", "models/cube.obj", "textures/white.png").AddModel("TEST1", "models/teapot.obj", "textures/awesomeface.png");
+		
+		m_scene->AddModel("TEST", "cube", "white").AddModel("TEST1", "teapot", "awesomeface");
 
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
 		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv",false);

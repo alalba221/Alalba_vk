@@ -35,8 +35,8 @@ namespace Alalba
 	Scene& Scene::AddTexture(const std::string& file)
 	{
 		ALALBA_ASSERT(m_textures.count(file) == 0, "Texture already exist");
-		//m_textures.insert( std::make_pair(file,std::make_unique<Texture>(file)));
-		m_textures.insert(std::make_pair(file, std::make_unique<Texture>(*this, file)));
+		std::string tag = file.substr(file.rfind("/") + 1, file.rfind(".") - file.rfind("/") - 1);
+		m_textures.insert(std::make_pair(tag, std::make_unique<Texture>(*this, file)));
 		return *this;
 	}
 
@@ -44,7 +44,9 @@ namespace Alalba
 	{
 		ALALBA_ASSERT(m_meshes.count(file) == 0, "Mesh already exist");
 		//std::unique_ptr<Mesh> as = std::make_unique<Mesh>(file);
-		m_meshes.insert( std::make_pair(file,std::make_unique<Mesh>(*this,file)) );
+
+		std::string tag = file.substr(file.rfind("/")+1, file.rfind(".") - file.rfind("/")-1);
+		m_meshes.insert( std::make_pair(tag,std::make_unique<Mesh>(*this,file)) );
 		return *this;
 	}
 
