@@ -13,8 +13,6 @@ public:
 	{
 		
 	}
-
-
 	~DPA8090()
 	{
 		
@@ -52,11 +50,11 @@ public:
 		m_camera.reset(new Alalba::Camera(glm::perspective(glm::radians(45.0f), 1024.0f /720.f , 0.1f, 10.0f)));
 		m_scene.reset(new Alalba::Scene());
 		
-		m_scene->AddMesh("models/cube.obj").AddMesh("models/teapot.obj").AddTexture("textures/white.png").AddTexture("textures/awesomeface.png");
+		m_scene->AddMesh("models/cube.obj").AddMesh("models/teapot.obj").AddTexture("textures/awesomeface.png").AddTexture("textures/white.png");
 		m_scene->AddModel("TEST", "models/cube.obj", "textures/white.png").AddModel("TEST1", "models/teapot.obj", "textures/awesomeface.png");
 
 		m_renderer.reset(new vk::VulkanRenderer(Alalba::Application::Get().GetDevice()));
-		m_renderer->Init("Shaders/vert.spv", "Shaders/disney.spv",false);
+		m_renderer->Init("Shaders/vert.spv", "Shaders/frag.spv",false);
 
 		m_UI.reset(new Alalba::UI(*m_renderer.get(), Alalba::Application::Get().GetWindow()));
 	}
@@ -80,7 +78,6 @@ private:
 	std::unique_ptr < Alalba::Scene > m_scene;
 	std::unique_ptr<Alalba::Camera> m_camera;
 
-	
 };	
 
 

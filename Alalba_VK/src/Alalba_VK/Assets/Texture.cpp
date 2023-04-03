@@ -1,28 +1,21 @@
 #include "pch.h"
 #include "Texture.h"
 
-#include "Alalba_VK/Vulkan/CommandPool.h"
-#include "Alalba_VK/Vulkan/Allocator.h"
+
 #include "Alalba_VK/Core/Application.h"
+
+#include "Alalba_VK/Core/Scene.h"
+#include "Alalba_VK/Core/VulkanComputer.h"
 
 namespace Alalba
 {
-	vk::Allocator* Texture::s_allocator = nullptr;
-	vk::CommandPool* Texture::s_commandPool = nullptr;
+
 	vk::CommandPool* Texture::s_computeCmdPool = nullptr;
 
-	Texture::Texture(const std::string& filename)
+	Texture::Texture(const Scene& scene,const std::string& filename)
 		:m_filePath(filename)
 	{
 		ALALBA_INFO("loading texture image from {0}", m_filePath);
-		if (s_allocator == nullptr)
-			s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Texture Allocator");
-		
-		if (s_commandPool == nullptr)
-			s_commandPool = new vk::CommandPool(Application::Get().GetDevice(), 
-				Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value(), 
-				VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-				"Texture CommandPool");
 
 		// loading an image
 		int width, height, channels;
@@ -30,7 +23,7 @@ namespace Alalba
 
 		VkDeviceSize  imageSize = width * height * 4;
 		// Create Image Object on GPU
-		m_image = vk::Image::Builder(Application::Get().GetDevice(), *s_allocator)
+		m_image = vk::Image::Builder(Application::Get().GetDevice(), scene.GetAllocator())
 			.SetTag("Texture Image Object")
 			.SetImgType(VK_IMAGE_TYPE_2D)
 			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1})
@@ -40,7 +33,7 @@ namespace Alalba
 			.Build();
 
 		m_image->CopyImageFrom(m_imageData, imageSize,
-			Application::Get().GetDevice().GetGraphicsQ(), *s_commandPool);
+			Application::Get().GetDevice().GetGraphicsQ(), scene.GetCommandPool());
 		stbi_image_free(m_imageData);
 
 		// image view
@@ -61,22 +54,15 @@ namespace Alalba
 	}
 
 	//TODO: Used to create a target texture for compute shader
-	Texture::Texture(uint32_t height, uint32_t width, VkFormat format)
+	Texture::Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format)
 	{
 		// static member
 		ALALBA_INFO("Creating Target texture");
-		if (s_allocator == nullptr)
-			s_allocator = new vk::Allocator(Application::Get().GetDevice(), Alalba::Application::Get().GetVulkanInstance(), "Texture Allocator");
 
-		if (s_computeCmdPool == nullptr)
-			s_computeCmdPool = new vk::CommandPool(Application::Get().GetDevice(),
-				Alalba::Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().compute.value(),
-				VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-				"Texture CommandPool");
 		//
 		VkDeviceSize  imageSize = width * height * 4;
 		// Create Image Object on GPU
-		m_image = vk::Image::Builder(Application::Get().GetDevice(), *s_allocator)
+		m_image = vk::Image::Builder(Application::Get().GetDevice(), computer.GetAllocator())
 			.SetTag("Target Texture Image Object")
 			.SetImgType(VK_IMAGE_TYPE_2D)
 			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1 })
@@ -86,7 +72,7 @@ namespace Alalba
 			.SetSharingMode(VK_SHARING_MODE_CONCURRENT)
 			.Build();
 		// Image layout transit 
-		m_image->TransitionImageLayout(*s_computeCmdPool, Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
+		m_image->TransitionImageLayout(computer.GetCommandPool(), Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
 		
 		// image view
 		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())

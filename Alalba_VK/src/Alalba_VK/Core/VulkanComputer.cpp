@@ -61,11 +61,11 @@ namespace vk
 			.Allocate()
 		);
 		// 6. set up descrptor set
-		m_targetTexture.reset(new Alalba::Texture(1024, 1024, VK_FORMAT_R8G8B8A8_UNORM));
-		m_descSets[0]->
-			BindDescriptor(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 0,
-				m_targetTexture->GetSampler(), m_targetTexture->GetImageView(), m_targetTexture->GetImage().Layout())
-			.UpdateDescriptors();
+		//m_targetTexture.reset(new Alalba::Texture(1024, 1024, VK_FORMAT_R8G8B8A8_UNORM));
+		//m_descSets[0]->
+		//	BindDescriptor(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 0,
+		//		m_targetTexture->GetSampler(), m_targetTexture->GetImageView(), m_targetTexture->GetImage().Layout())
+		//	.UpdateDescriptors();
 		
 
 		/// Synchronization
@@ -130,7 +130,7 @@ namespace vk
 	{
 		m_device.WaitIdle();
 		
-		m_targetTexture->Clean();
+		// m_targetTexture->Clean();
 
 		m_pipelineLayout->Clean();
 		m_computeShaderModule->Clean();

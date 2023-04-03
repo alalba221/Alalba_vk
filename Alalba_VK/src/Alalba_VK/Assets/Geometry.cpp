@@ -10,7 +10,8 @@ namespace Alalba
 
 	Geometry* Geometry::Create(const std::string file)
 	{
-		return new Mesh(file);
+		//return new Mesh(file);
+		return nullptr;
 	}
 }
 

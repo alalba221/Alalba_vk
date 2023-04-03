@@ -33,19 +33,18 @@ namespace Alalba
 		void UpdateGlobalUniform(const UniformBufferDeclaration& uniform);
 		const UniformBufferCPU GetUniform()const { return uniform_cpu; };
 
+		vk::Allocator& GetAllocator() const { return *m_allocator.get(); }
+		const vk::CommandPool& GetCommandPool() const { return *m_cmdPool.get(); }
+		const vk::CommandPool& GetComputeoCmdPool() const { return *m_cmdPool.get(); }
+
 	private:
+		std::unique_ptr<vk::Allocator> m_allocator;
+		std::unique_ptr<vk::CommandPool> m_cmdPool;
+	
 		std::unordered_map<std::string, std::unique_ptr<ObjModel> > m_models;
 		std::unordered_map<std::string, std::unique_ptr<Texture> > m_textures;
 		std::unordered_map<std::string, std::unique_ptr<Mesh> > m_meshes;
 
 		UniformBufferCPU uniform_cpu;
-
-	public:
-		static vk::Allocator* Allocator() { return s_allocator; }
-		static vk::CommandPool* CommandPool() { return s_commandPool; }
-	private:
-		// Allocator for Mesh
-		static vk::Allocator* s_allocator;
-		static vk::CommandPool* s_commandPool;
 	};
 }

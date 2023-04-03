@@ -44,6 +44,9 @@ namespace vk
 
 		//const CommandPool& GetCommandPool() const { return *m_cmdPool4Compute.get(); }
 		const Alalba::Texture& GetTargetTexture() const { return *m_targetTexture.get(); }
+		const CommandPool& GetCommandPool() const { return *m_cmdPool4Compute.get(); }
+		Allocator& GetAllocator() const { return *m_allocator.get(); }
+
 	private:
 
 		const class Device& m_device;

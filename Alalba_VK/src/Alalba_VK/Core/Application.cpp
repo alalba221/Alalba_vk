@@ -47,15 +47,7 @@ namespace Alalba
 	}
 
 	void Application::OnShutdown()
-	{
-		//TODO: Texture shouldn't have their own command pool
-		if(Texture::CommandPool() != nullptr)
-			Texture::CommandPool()->Clean();
-		if(Texture::ComputeCommandPool() != nullptr)
-			Texture::ComputeCommandPool()->Clean();
-		if(Texture::Allocator() != nullptr)
-			Texture::Allocator()->Clean();
-				
+	{				
 		m_vulkanDevice->Clean();
 	}
 

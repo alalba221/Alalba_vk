@@ -13,12 +13,12 @@ namespace vk
 	class Image;
 	class ImageView;
 //	class Sampler;
-	class Allocator;
-	class CommandPool;
+	class VulkanComputer;
 }
 
 namespace Alalba
 {
+	class	Scene;
 	class Texture final
 	{
 	public:
@@ -26,15 +26,13 @@ namespace Alalba
 		Texture& operator = (const Texture&) = delete;
 		Texture& operator = (Texture&&) = delete;
 
-		Texture(const std::string& filename);
-		Texture(uint32_t height, uint32_t width, VkFormat format);
+		Texture(const Scene& scene, const std::string& filename);
+		Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format);
 
 		Texture(const Texture&) = default;
 		Texture(Texture&&) = default;
 		~Texture() { };
-	
-		static vk::Allocator* Allocator() { return s_allocator; }
-		static vk::CommandPool* CommandPool() { return s_commandPool; }
+
 		static vk::CommandPool* ComputeCommandPool() { return s_computeCmdPool; }
 
 		void Clean();
@@ -51,9 +49,7 @@ namespace Alalba
 		unsigned char* m_imageData;
 		std::string m_filePath;
 
-		// Allocator for Image
-		static vk::Allocator* s_allocator;
-		static vk::CommandPool* s_commandPool;
+		// Allocator for Target Image
 		static vk::CommandPool* s_computeCmdPool;
 
 	};

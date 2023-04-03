@@ -13,11 +13,13 @@
 
 namespace Alalba
 {
+  class Scene;
+
   class Mesh:public Geometry
   {
   public:
 
-    Mesh(const std::string& file);
+    Mesh(const Scene& secne,const std::string& file);
     virtual void Clean() override;
     virtual const vk::Buffer& GetVertexbuffer() const override { return *m_vertexBuffer.get();}
     virtual const vk::Buffer& GetIndexbuffer() const override { return *m_indexBuffer.get(); }
@@ -36,7 +38,5 @@ namespace Alalba
     void LoadModel(const std::string& file);
 
     glm::mat4 m_model{1.0f};
-
-
   };
 }
