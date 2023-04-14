@@ -97,25 +97,24 @@ namespace vk
 
 		std::unique_ptr<PipelineCache> m_pipelineCache;
 
-		// uniform buffer
-		//test 
-		std::unique_ptr<DescriptorPool> m_globalDescPool;
-		std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
-		std::vector<std::unique_ptr<DescriptorSet>> m_globalDescSets;
+		//// uniform buffer
+		////test 
+		//std::unique_ptr<DescriptorPool> m_globalDescPool;
+		//std::unique_ptr<DescriptorSetLayout >m_globalDescSetLayout;
+		//std::vector<std::unique_ptr<DescriptorSet>> m_globalDescSets;
 
-		//std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
-		//std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
+		////std::unique_ptr<DescriptorSetLayout >test_textureSetLayout;
+		////std::vector<std::unique_ptr<DescriptorSet>> test_textureDescSets;
 
-		
-		struct UniformBufferObject {
-			glm::vec4 position;
-			glm::mat4 model;
-			glm::mat4 view;
-			glm::mat4 proj;
-			
-		};
+		//
+		////struct UniformBufferObject {
+		////	glm::vec4 position;
+		////	glm::mat4 model;
+		////	glm::mat4 view;
+		////	glm::mat4 proj;
+		////};
 
-		std::vector< std::unique_ptr<Buffer> > m_globalUniformbuffers;
+		//std::vector< std::unique_ptr<Buffer> > m_globalUniformbuffers;
 	
 		uint32_t m_currentFrame = 0;
 

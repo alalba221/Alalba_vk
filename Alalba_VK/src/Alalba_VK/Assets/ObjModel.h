@@ -13,7 +13,7 @@ namespace Alalba
 	class ObjModel
 	{
 	public:
-		ObjModel(const Mesh& mesh, const Texture& texture);
+		ObjModel(const Mesh& mesh, const Texture& texture, const Scene& scene);
 		~ObjModel() { Clean(); };
 		void Clean();
 		static inline vk::DescriptorSetLayout* GetDescLayout() { return s_descLayout; }
@@ -24,7 +24,7 @@ namespace Alalba
 		static vk::DescriptorSetLayout* s_descLayout;
 		const class Texture& m_texture;
 		const class Mesh& m_mesh;
-		std::unique_ptr<vk::DescriptorPool> m_descriptorPool;
+		//std::unique_ptr<vk::DescriptorPool> m_descriptorPool;
 		
 		// TODO: add materials buffers
 		// std::unique_ptr<vk::Buffer> m_materialBuffer;

@@ -6,7 +6,7 @@ namespace Alalba
 {
 	vk::DescriptorSetLayout* ObjModel::s_descLayout= nullptr;
 
-	ObjModel::ObjModel(const Mesh& mesh, const Texture& texture)
+	ObjModel::ObjModel(const Mesh& mesh, const Texture& texture, const Scene& scene)
 		:m_mesh(mesh),m_texture(texture)
 	{
 		if(s_descLayout == nullptr)
@@ -17,13 +17,13 @@ namespace Alalba
 
 		Application& app = Application::Get();
 
-		m_descriptorPool = vk::DescriptorPool::Builder(app.GetDevice())
-			.SetTag("Module Descriptor Pool")
-			.SetMaxSets(1)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-			.Build();
+		//m_descriptorPool = vk::DescriptorPool::Builder(app.GetDevice())
+		//	.SetTag("Module Descriptor Pool")
+		//	.SetMaxSets(1)
+		//	.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+		//	.Build();
 
-		m_descSet = vk::DescriptorSet::Allocator(app.GetDevice(), *m_descriptorPool.get())
+		m_descSet = vk::DescriptorSet::Allocator(app.GetDevice(), scene.GetDescPool())
 			.SetTag("Module Descritor Set")
 			.SetDescSetLayout(*s_descLayout)
 			.Allocate();
@@ -35,6 +35,6 @@ namespace Alalba
 	}
 	void ObjModel::Clean()
 	{
-		m_descriptorPool->Clean();
+		//m_descriptorPool->Clean();
 	}
 }

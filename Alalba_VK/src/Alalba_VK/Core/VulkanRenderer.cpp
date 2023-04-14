@@ -74,16 +74,16 @@ namespace vk
 			.Build();
 
 		// descriptor set layout
-		m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
-			// 0 : is bingding index to set layout
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT| VK_SHADER_STAGE_FRAGMENT_BIT)
-			.SetTag("Global Descriptor Set Layout")
-			.Build();
+		//m_globalDescSetLayout = DescriptorSetLayout::Builder(m_device)
+		//	// 0 : is bingding index to set layout
+		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT| VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.SetTag("Global Descriptor Set Layout")
+		//	.Build();
 
 		// Now: for each frame, the pipeline only has a descripoter set binded, so only need one desc set layout for that 
 		m_pipelineLayout = PipelineLayout::Builder(m_device)
 			.SetTag("Pipeline layout")
-			.BindDescriptorSetLayout(*m_globalDescSetLayout.get())
+			.BindDescriptorSetLayout(*Scene::GetGlobalDescLayout())
 			.BindDescriptorSetLayout(*ObjModel::GetDescLayout())
 			.Build();
 
@@ -143,32 +143,32 @@ namespace vk
 		
 		// uniform buffers
 
-		m_globalDescPool = DescriptorPool::Builder(m_device)
-			.SetTag("Descriptor Pool")
-			.SetMaxSets(m_SwapChain->GetImgCount()*2)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_SwapChain->GetImgCount())
-			.Build();
-		// test
-		
-		for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
-		{
-			m_globalUniformbuffers.push_back(
-				Buffer::Builder(m_device, *m_allocator.get())
-				.SetTag("Uniform Buffer" + std::to_string(i))
-				.SetSize(sizeof(UniformBufferObject))
-				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
-				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
-				.Build()
-			);
+		//m_globalDescPool = DescriptorPool::Builder(m_device)
+		//	.SetTag("Descriptor Pool")
+		//	.SetMaxSets(m_SwapChain->GetImgCount()*2)
+		//	.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_SwapChain->GetImgCount())
+		//	.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_SwapChain->GetImgCount())
+		//	.Build();
+		//// test
+		//
+		//for (int i = 0; i < m_SwapChain->GetImgCount(); i++)
+		//{
+		//	m_globalUniformbuffers.push_back(
+		//		Buffer::Builder(m_device, *m_allocator.get())
+		//		.SetTag("Uniform Buffer" + std::to_string(i))
+		//		.SetSize(sizeof(UniformBufferObject))
+		//		.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+		//		.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+		//		.Build()
+		//	);
 
-			m_globalDescSets.push_back(
-				DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
-				.SetTag("Global Descritor Set " + std::to_string(i))
-				.SetDescSetLayout(*m_globalDescSetLayout.get())
-				.Allocate()
-			);
-		}
+		//	m_globalDescSets.push_back(
+		//		DescriptorSet::Allocator(m_device, *m_globalDescPool.get())
+		//		.SetTag("Global Descritor Set " + std::to_string(i))
+		//		.SetDescSetLayout(*m_globalDescSetLayout.get())
+		//		.Allocate()
+		//	);
+		//}
 	}
 	void VulkanRenderer::Shutdown()
 	{
@@ -198,11 +198,7 @@ namespace vk
 			m_imageAvailableSemaphores[i]->Clean();
 			m_renderFinishedSemaphores[i]->Clean();
 
-			m_globalUniformbuffers[i]->Clean();
 		}
-
-		m_globalDescSetLayout->Clean();
-		m_globalDescPool->Clean();
 
 		m_allocator->Clean();
 	}
@@ -297,10 +293,10 @@ namespace vk
 
 		/// TODO: write a method for setting up descriptor sets and call this method before the draw function
 		// 0 : is bingding index to set layout
-		m_globalDescSets[cmdBufferIndex]->
-			BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[cmdBufferIndex].get(), 0, sizeof(UniformBufferObject))
-			// TODO: ImageView and Layout should not be fixed 
-			.UpdateDescriptors();
+		//m_globalDescSets[cmdBufferIndex]->
+		//	BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[cmdBufferIndex].get(), 0, sizeof(UniformBufferObject))
+		//	// TODO: ImageView and Layout should not be fixed 
+		//	.UpdateDescriptors();
 
 		//test_textureDescSets[cmdBufferIndex]->
 		//	BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
@@ -348,7 +344,7 @@ namespace vk
 			vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
 
 			// 0. bind global descriptor set
-			VkDescriptorSet glbset = m_globalDescSets[cmdBufferIndex]->Handle();
+			VkDescriptorSet glbset = scene.GetGlobalDescSet(cmdBufferIndex).Handle();
 			vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
 				m_pipelineLayout->Handle(), 0, 1, &glbset, 0, nullptr);
 
@@ -404,7 +400,7 @@ namespace vk
 		// update uniform buffer
 ///////////////////////////////////////////////////////////
 		// just need to update the data in the buffers, nothing to do with descriptors
-			UniformBufferObject ubo{};
+			//UniformBufferObject ubo{};
 			if (m_quad == true)
 			{
 				//ubo.model = glm::mat4(1.0f);
@@ -419,10 +415,11 @@ namespace vk
 				//ubo.view = camera.GetViewMatrix();
 				//ubo.position = camera.GetPosition();
 			}
-			void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
+			//void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
+			void* data = scene.GetGlobalUniformBuffer(m_currentFrame).MapMemory();
 			//memcpy(data, &ubo, sizeof(ubo));
 			memcpy(data, scene.GetUniform().ptr, scene.GetUniform().size);
-			m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
+			scene.GetGlobalUniformBuffer(m_currentFrame).UnMapMemory();
 			//////////////////////////////////////////////////////////////
 		m_inFlightFences[m_currentFrame]->Reset();
 		vkResetCommandBuffer((*m_cmdBuffers.get())[m_currentFrame], 0);

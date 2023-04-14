@@ -54,7 +54,7 @@ namespace Alalba
 		void Push(const std::string& name, const float& data)
 		{
 			glm::vec4 padded_data = glm::vec4(data, 0, 0, 0);
-			Uniforms.push_back( { UniformType::Float, Cursor, name } );
+			//Uniforms.push_back( { UniformType::Float, Cursor, name } );
 			memcpy(Buffer.data() + Cursor, &padded_data, sizeof(glm::vec4));
 			Cursor += sizeof(glm::vec4);
 		}
@@ -62,7 +62,7 @@ namespace Alalba
 		void Push(const std::string& name, const glm::vec3& data)
 		{
 			glm::vec4 padded_data = glm::vec4(data, 0);
-			Uniforms.push_back({ UniformType::Float3, Cursor, name });
+			//Uniforms.push_back({ UniformType::Float3, Cursor, name });
 			memcpy(Buffer.data() + Cursor, &padded_data, sizeof(glm::vec4));
 			Cursor += sizeof(glm::vec4);
 		}
@@ -70,14 +70,14 @@ namespace Alalba
 		//template<>
 		void Push(const std::string& name, const glm::vec4& data)
 		{
-			Uniforms.push_back({ UniformType::Float4, Cursor, name });
+			//Uniforms.push_back({ UniformType::Float4, Cursor, name });
 			memcpy(Buffer.data() + Cursor, &data, sizeof(glm::vec4));
 			Cursor += sizeof(glm::vec4);
 		}
 
 		void Push(const std::string& name, const glm::mat4& data)
 		{
-			Uniforms.push_back({ UniformType::Matrix4x4, Cursor, name });
+			//Uniforms.push_back({ UniformType::Matrix4x4, Cursor, name });
 			memcpy(Buffer.data() + Cursor, &data, sizeof(glm::mat4));
 			Cursor += sizeof(glm::mat4);
 		}
