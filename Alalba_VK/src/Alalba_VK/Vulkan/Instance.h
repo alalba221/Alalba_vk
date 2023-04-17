@@ -30,15 +30,15 @@ namespace vk {
 		~Instance();
 		void Clean();
 
-		const std::vector<VkExtensionProperties>& Extensions() const { return m_extProperties; }
+		const std::vector<std::string>& Extensions() const { return m_supportedInstanceExtensions; }
 		const std::vector<VkLayerProperties>& Layers() const { return m_layerProperties; }
 		const std::vector<VkPhysicalDevice>& PhysicalDevices() const { return m_physicalDevices; }
 		const std::vector<const char*>& ValidationLayers() const { return m_validationLayers; }
 		
 	private: // data
 		VULKAN_HANDLE(VkInstance, m_instance);
+		std::vector<std::string> m_supportedInstanceExtensions;
 
-		std::vector<VkExtensionProperties> m_extProperties;
 		std::vector<const char*> m_validationLayers;
 		std::vector<VkLayerProperties> m_layerProperties;
 		

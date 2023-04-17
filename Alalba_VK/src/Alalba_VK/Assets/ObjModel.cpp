@@ -17,12 +17,6 @@ namespace Alalba
 
 		Application& app = Application::Get();
 
-		//m_descriptorPool = vk::DescriptorPool::Builder(app.GetDevice())
-		//	.SetTag("Module Descriptor Pool")
-		//	.SetMaxSets(1)
-		//	.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-		//	.Build();
-
 		m_descSet = vk::DescriptorSet::Allocator(app.GetDevice(), scene.GetDescPool())
 			.SetTag("Module Descritor Set")
 			.SetDescSetLayout(*s_descLayout)

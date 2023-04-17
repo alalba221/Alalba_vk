@@ -81,14 +81,19 @@ namespace vk
     }
   }
 
-
+  // Get extensions supported by the instance and store for later use
   void Instance::GetInstanceExtensions()
   {
-    uint32_t count;
-    vkEnumerateInstanceExtensionProperties(nullptr,&count, nullptr);
-    ALALBA_ASSERT(count > 0);
-    m_extProperties.resize(count);
-    vkEnumerateInstanceExtensionProperties(nullptr, &count, m_extProperties.data());
+    uint32_t extCount;
+    vkEnumerateInstanceExtensionProperties(nullptr,&extCount, nullptr);
+    ALALBA_ASSERT(extCount > 0);
+    std::vector<VkExtensionProperties> extensions(extCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extensions.data());
+
+    for (VkExtensionProperties extension : extensions)
+    {
+      m_supportedInstanceExtensions.push_back(extension.extensionName);
+    }
   }
   void Instance::GetInstanceLayers()
   {

@@ -24,8 +24,6 @@ namespace Alalba
       return position == other.position && normal == other.normal && uv == other.uv;
     }
 
-
-
     static std::array<VkVertexInputBindingDescription, 1> GetBindingDescriptions()
     {
       std::array<VkVertexInputBindingDescription, 1> binding_descriptions{};

@@ -15,7 +15,6 @@ namespace Alalba
 		uint32_t indexSize = sizeof(m_indices[0]) * m_indices.size();
 	
 		// Vertex buffer
-		// should has its own allocator
 		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), secne.GetAllocator())
 			.SetTag("Vertex Buffer")
 			.SetSize(vertexSize)

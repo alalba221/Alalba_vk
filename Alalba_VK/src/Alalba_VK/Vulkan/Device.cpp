@@ -105,14 +105,6 @@ namespace vk
 		vkDeviceWaitIdle(m_device);
 	}
 
-	//const DescriptorSetLayout& Device::GetDescriptorSetLayout(uint32_t index) const
-	//{
-	//	if (index < m_descSetLayouts.size())
-	//		return(*m_descSetLayouts[index].get());
-	//	else
-	//		ALALBA_ASSERT("Not valid descripotor set layout index");
-	//}
-
 	VkFormat Device::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
 	{
 		for (VkFormat format : candidates)

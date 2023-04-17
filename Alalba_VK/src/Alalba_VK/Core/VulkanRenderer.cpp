@@ -336,13 +336,12 @@ namespace vk
 			//		1, &imageMemoryBarrier);
 			//};
 			vkCmdBeginRenderPass(cmdBuffers[cmdBufferIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
-
-
 			// Dynamic states in pipeline
 			vkCmdSetViewport(cmdBuffers[cmdBufferIndex], 0, 1, &viewport);
 			vkCmdSetScissor(cmdBuffers[cmdBufferIndex], 0, 1, &scissor);
+			// TODO: Skybox
 
+			vkCmdBindPipeline(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 			// 0. bind global descriptor set
 			VkDescriptorSet glbset = scene.GetGlobalDescSet(cmdBufferIndex).Handle();
 			vkCmdBindDescriptorSets(cmdBuffers[cmdBufferIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,

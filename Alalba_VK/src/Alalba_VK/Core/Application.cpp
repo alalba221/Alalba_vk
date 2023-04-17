@@ -26,6 +26,7 @@ namespace Alalba
 			.SetVulkanVersino(VK_API_VERSION_1_3)
 			.AddValidationLayer("VK_LAYER_KHRONOS_validation")
 			.AddValidationLayer("VK_LAYER_LUNARG_monitor")
+			//.AddValidationLayer("VK_LAYER_RENDERDOC_Capture")
 			.Build();
 
 		m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance.get(), *m_Window.get())
