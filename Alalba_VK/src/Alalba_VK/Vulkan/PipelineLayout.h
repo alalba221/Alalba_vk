@@ -33,7 +33,7 @@ namespace vk
 
 	public:
 		VULKAN_NON_COPIABLE(PipelineLayout);
-		PipelineLayout(const Device& device, const std::vector<const DescriptorSetLayout*>pdescSetLayout,
+		PipelineLayout(const Device& device, const std::vector<const DescriptorSetLayout*>& pdescSetLayout,
 			const std::string& tag);
 
 		~PipelineLayout() { Clean(); }

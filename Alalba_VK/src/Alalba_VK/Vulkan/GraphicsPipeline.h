@@ -34,6 +34,7 @@ namespace vk
 					, m_viewportWidth, m_viewportHeight, m_scirrorExtent);
 			};
 
+			
 		private:
 			const class Device& m_device;
 			const class PipelineLayout& m_layout;

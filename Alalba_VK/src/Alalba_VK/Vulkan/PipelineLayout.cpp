@@ -11,7 +11,7 @@ namespace vk
 		return *this;
 	}
 
-	PipelineLayout::PipelineLayout(const Device& device,const std::vector<const DescriptorSetLayout*>pdescSetLayout, const std::string& tag)
+	PipelineLayout::PipelineLayout(const Device& device,const std::vector<const DescriptorSetLayout*>&pdescSetLayout, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
 		ALALBA_INFO("Create PipelineLayout: {0}",m_tag);

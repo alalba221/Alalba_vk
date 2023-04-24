@@ -30,6 +30,9 @@ namespace vk
 		};
 
 	public:
+
+		static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
+
 		VULKAN_NON_COPIABLE(SwapChain);
 		SwapChain(const Device& device, const Surface& surface,
 			const VkPresentModeKHR presentMode,
@@ -45,8 +48,6 @@ namespace vk
 		VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
 		VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
-		
-		
 		
 		//const std::vector<ImageView> GetImageViews() const;
 

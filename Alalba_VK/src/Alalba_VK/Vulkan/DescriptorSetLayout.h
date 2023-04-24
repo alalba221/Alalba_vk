@@ -20,7 +20,7 @@ namespace vk
         uint32_t count = 1);
      std::unique_ptr<DescriptorSetLayout> Build() const;
      // this build is for static Model texture descriptor layout
-     DescriptorSetLayout* BuildRawPointer() const;
+     /*DescriptorSetLayout* BuildRawPointer() const;*/
 
     private:
       const class Device& m_device;

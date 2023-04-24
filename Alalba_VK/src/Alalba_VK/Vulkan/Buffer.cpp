@@ -25,6 +25,7 @@ namespace vk
 		// const uint32_t* pQueueFamilyIndices;
 		m_allocation = m_allocator.AllocateBuffer(bufferInfo, m_vmaUsage, m_buffer, m_tag);
 	}
+	// copy from memory to gpu
 	void Buffer::CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 

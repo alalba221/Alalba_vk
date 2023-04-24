@@ -21,6 +21,14 @@
 // Model Api
 #include "Alalba_VK/Core/Camera.h"
 
-#include "Alalba_VK/Core/ImGui/UI.h"
-#include "Alalba_VK/Core/Scene.h"
-#include "Alalba_VK/Core/UniformBufferDeclaration.h"
+//#include "Alalba_VK/Core/ImGui/UI.h"
+#include "Alalba_VK/Assets/MeshSys.h"
+#include "Alalba_VK/Assets/TextureSys.h"
+
+// ecs
+#include "Alalba_VK/Core/Scene/Scene.h"
+#include "Alalba_VK/Core/Scene/Components.h"
+#include "Alalba_VK/Core/Scene/Entity.h"
+
+//#include "Alalba_VK/Core/System/BasicRenderSys.h"
+#include "Alalba_VK/Core/Renderer/Renderer.h"

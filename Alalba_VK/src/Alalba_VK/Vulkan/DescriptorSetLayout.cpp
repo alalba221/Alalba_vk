@@ -21,10 +21,10 @@ namespace vk
   std::unique_ptr<DescriptorSetLayout> DescriptorSetLayout::Builder::Build() const {
     return std::make_unique<DescriptorSetLayout>(m_device, m_bindings, m_tag);
   }
-  DescriptorSetLayout* DescriptorSetLayout::Builder::BuildRawPointer() const
-  {
-    return new DescriptorSetLayout(m_device, m_bindings, m_tag);
-  }
+  //DescriptorSetLayout* DescriptorSetLayout::Builder::BuildRawPointer() const
+  //{
+  //  return new DescriptorSetLayout(m_device, m_bindings, m_tag);
+  //}
   // *************** Descriptor Set Layout *********************
   DescriptorSetLayout::DescriptorSetLayout(
     const Device& device,

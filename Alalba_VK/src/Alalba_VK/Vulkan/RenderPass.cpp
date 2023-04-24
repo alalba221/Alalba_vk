@@ -67,13 +67,6 @@ namespace vk
 		depthAttachment.initialLayout = depthATCHLoadOp == VK_ATTACHMENT_LOAD_OP_CLEAR ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-		
-
-		//std::array<VkAttachmentDescription, 1> attachments =
-		//{
-		//	colorAttachment
-		//	//depthAttachment
-		//};
 
 		/*Now that our main image target is defined, we need to add a subpass that will render into it. 
 		This goes right after defining the attachment*/

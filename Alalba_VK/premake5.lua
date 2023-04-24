@@ -49,6 +49,7 @@ project "Alalba_VK"
 		"%{IncludeDir.VMA}",
 		"%{IncludeDir.stb}", 
 		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.entt}",
 	}
 
 	links

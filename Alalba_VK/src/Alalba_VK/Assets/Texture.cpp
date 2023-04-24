@@ -1,18 +1,17 @@
 #include "pch.h"
 #include "Texture.h"
-
-
+#include "TextureSys.h"
 #include "Alalba_VK/Core/Application.h"
 
-#include "Alalba_VK/Core/Scene.h"
-#include "Alalba_VK/Core/VulkanComputer.h"
+//#include "Alalba_VK/Core/Scene.h"
+//#include "Alalba_VK/Core/VulkanComputer.h"
 
 namespace Alalba
 {
 
 	vk::CommandPool* Texture::s_computeCmdPool = nullptr;
 
-	Texture::Texture(const Scene& scene,const std::string& filename)
+	Texture::Texture(TextureSys& sys, const std::string& filename)
 		:m_filePath(filename)
 	{
 		ALALBA_INFO("loading texture image from {0}", m_filePath);
@@ -23,17 +22,17 @@ namespace Alalba
 
 		VkDeviceSize  imageSize = width * height * 4;
 		// Create Image Object on GPU
-		m_image = vk::Image::Builder(Application::Get().GetDevice(), scene.GetAllocator())
+		m_image = vk::Image::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Texture Image Object")
 			.SetImgType(VK_IMAGE_TYPE_2D)
-			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1})
+			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1 })
 			.SetImageFormat(VK_FORMAT_R8G8B8A8_SRGB)
 			.SetUsageFlags(VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
 			.Build();
 
 		m_image->CopyImageFrom(m_imageData, imageSize,
-			Application::Get().GetDevice().GetGraphicsQ(), scene.GetCommandPool());
+			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool());
 		stbi_image_free(m_imageData);
 
 		// image view
@@ -44,7 +43,7 @@ namespace Alalba
 			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
 			.Build();
 
-	// sampler
+		// sampler
 		m_sampler = vk::Sampler::Builder(Application::Get().GetDevice())
 			.SetTag("Texture Sampler")
 			.SetFilter(VK_FILTER_LINEAR)
@@ -53,43 +52,43 @@ namespace Alalba
 			.Build();
 	}
 
-	//TODO: Used to create a target texture for compute shader
-	Texture::Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format)
-	{
-		// static member
-		ALALBA_INFO("Creating Target texture");
+	////TODO: Used to create a target texture for compute shader
+	//Texture::Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format)
+	//{
+	//	// static member
+	//	ALALBA_INFO("Creating Target texture");
 
-		//
-		VkDeviceSize  imageSize = width * height * 4;
-		// Create Image Object on GPU
-		m_image = vk::Image::Builder(Application::Get().GetDevice(), computer.GetAllocator())
-			.SetTag("Target Texture Image Object")
-			.SetImgType(VK_IMAGE_TYPE_2D)
-			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1 })
-			.SetImageFormat(format)
-			.SetUsageFlags(VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT)
-			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
-			.SetSharingMode(VK_SHARING_MODE_CONCURRENT)
-			.Build();
-		// Image layout transit 
-		m_image->TransitionImageLayout(computer.GetCommandPool(), Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
-		
-		// image view
-		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
-			.SetFormat(format)
-			.SetTag("Target Texture ImageView")
-			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
-			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
-			.Build();
+	//	//
+	//	VkDeviceSize  imageSize = width * height * 4;
+	//	// Create Image Object on GPU
+	//	m_image = vk::Image::Builder(Application::Get().GetDevice(), computer.GetAllocator())
+	//		.SetTag("Target Texture Image Object")
+	//		.SetImgType(VK_IMAGE_TYPE_2D)
+	//		.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1 })
+	//		.SetImageFormat(format)
+	//		.SetUsageFlags(VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT)
+	//		.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+	//		.SetSharingMode(VK_SHARING_MODE_CONCURRENT)
+	//		.Build();
+	//	// Image layout transit 
+	//	m_image->TransitionImageLayout(computer.GetCommandPool(), Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
 
-		// sampler
-		m_sampler = vk::Sampler::Builder(Application::Get().GetDevice())
-			.SetTag("Target Texture Sampler")
-			.SetFilter(VK_FILTER_LINEAR)
-			.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
-			.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER)
-			.Build();
-	}
+	//	// image view
+	//	m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
+	//		.SetFormat(format)
+	//		.SetTag("Target Texture ImageView")
+	//		.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
+	//		.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
+	//		.Build();
+
+	//	// sampler
+	//	m_sampler = vk::Sampler::Builder(Application::Get().GetDevice())
+	//		.SetTag("Target Texture Sampler")
+	//		.SetFilter(VK_FILTER_LINEAR)
+	//		.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
+	//		.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER)
+	//		.Build();
+	//}
 
 	void Texture::Clean()
 	{

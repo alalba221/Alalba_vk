@@ -12,8 +12,8 @@
 #include "Alalba_VK/Vulkan/Allocator.h"
 
 
-#include "VulkanRenderer.h"
-#include "VulkanComputer.h"
+//#include "VulkanRenderer.h"
+//#include "VulkanComputer.h"
 namespace Alalba{
 
 	class Application

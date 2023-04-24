@@ -3,10 +3,11 @@
 #include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Core/Application.h"
 
-#include "Alalba_VK/Core/Scene.h"
+#include "MeshSys.h"
+
 namespace Alalba
 {
-	Mesh::Mesh(const Scene& secne, const std::string& file)
+	Mesh::Mesh(MeshSys& sys, const std::string& file)
 	{
 		// 
 		LoadModel(file);
@@ -15,7 +16,7 @@ namespace Alalba
 		uint32_t indexSize = sizeof(m_indices[0]) * m_indices.size();
 	
 		// Vertex buffer
-		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), secne.GetAllocator())
+		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Vertex Buffer")
 			.SetSize(vertexSize)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
@@ -29,11 +30,11 @@ namespace Alalba
 		*/
 		m_vertexBuffer->CopyDataFrom(
 			m_vertices.data(), vertexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), secne.GetCommandPool()
+			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
 		);
 
 		// Index buffer
-		m_indexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), secne.GetAllocator())
+		m_indexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Index Buffer")
 			.SetSize(indexSize)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
@@ -42,7 +43,7 @@ namespace Alalba
 		
 		m_indexBuffer->CopyDataFrom(
 			m_indices.data(), indexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), secne.GetCommandPool()
+			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
 		);
 	}
 

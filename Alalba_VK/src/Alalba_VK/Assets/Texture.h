@@ -12,13 +12,13 @@ namespace vk
 {
 	class Image;
 	class ImageView;
-//	class Sampler;
-	class VulkanComputer;
+	//	class Sampler;
+	//class VulkanComputer;
 }
 
 namespace Alalba
 {
-	class	Scene;
+	class	TextureSys;
 	class Texture final
 	{
 	public:
@@ -26,8 +26,8 @@ namespace Alalba
 		Texture& operator = (const Texture&) = delete;
 		Texture& operator = (Texture&&) = delete;
 
-		Texture(const Scene& scene, const std::string& filename);
-		Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format);
+		Texture(TextureSys& sys, const std::string& filename);
+		// Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format);
 
 		Texture(const Texture&) = default;
 		Texture(Texture&&) = default;
@@ -55,5 +55,6 @@ namespace Alalba
 	};
 
 }
+
 
 
