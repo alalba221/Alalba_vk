@@ -40,7 +40,7 @@ public:
 		
 		auto cube = m_scene->CreateEntity("cube");
 		cube.AddComponent<MeshComponent>(m_meshSys->GetMesh("cube"));
-		cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("white"));
+		cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
 
 		auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
