@@ -32,15 +32,13 @@ public:
 		m_scene.reset(new Alalba::Scene());
 		m_textureSys.reset(new Alalba::TextureSys());
 
-		m_meshSys->LoadMesh("models/cube.obj").LoadMesh("models/teapot.obj");
-		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/white.png")
+		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj");
+		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
 			.LoadTexture("textures/lion.png");
 
-		
-		
 		auto cube = m_scene->CreateEntity("cube");
 		cube.AddComponent<MeshComponent>(m_meshSys->GetMesh("cube"));
-		cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("white"));
+		cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
 
 		auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));

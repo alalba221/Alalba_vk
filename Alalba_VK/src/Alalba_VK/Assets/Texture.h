@@ -26,7 +26,7 @@ namespace Alalba
 		Texture& operator = (const Texture&) = delete;
 		Texture& operator = (Texture&&) = delete;
 
-		Texture(TextureSys& sys, const std::string& filename);
+		Texture(TextureSys& sys, VkFormat format ,const std::string& filename);
 		// Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format);
 
 		Texture(const Texture&) = default;

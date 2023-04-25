@@ -11,7 +11,7 @@ namespace Alalba
 
 	vk::CommandPool* Texture::s_computeCmdPool = nullptr;
 
-	Texture::Texture(TextureSys& sys, const std::string& filename)
+	Texture::Texture(TextureSys& sys, VkFormat format,const std::string& filename)
 		:m_filePath(filename)
 	{
 		ALALBA_INFO("loading texture image from {0}", m_filePath);
@@ -26,7 +26,7 @@ namespace Alalba
 			.SetTag("Texture Image Object")
 			.SetImgType(VK_IMAGE_TYPE_2D)
 			.SetImgExtent({ static_cast<uint32_t>(width) ,static_cast<uint32_t>(height),1 })
-			.SetImageFormat(VK_FORMAT_R8G8B8A8_SRGB)
+			.SetImageFormat(format)
 			.SetUsageFlags(VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
 			.Build();
@@ -37,7 +37,7 @@ namespace Alalba
 
 		// image view
 		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
-			.SetFormat(VK_FORMAT_R8G8B8A8_SRGB)
+			.SetFormat(format)
 			.SetTag("Texture ImageView")
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
 			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
