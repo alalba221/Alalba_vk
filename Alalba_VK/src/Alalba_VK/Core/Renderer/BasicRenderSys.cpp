@@ -93,9 +93,9 @@ namespace Alalba
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
 			.SetBackCulling(false)
-			//.SetScirrorExtent(m_SwapChain->GetExtent())
-			//.SetViewPortWidth(static_cast<float>(m_SwapChain->GetExtent().width))
-			//.SetViewPortHeight(static_cast<float>(m_SwapChain->GetExtent().height))
+			/*.SetScirrorExtent(m_swapChain->GetExtent())
+			.SetViewPortWidth(static_cast<float>(m_SwapChain->GetExtent().width))
+			.SetViewPortHeight(static_cast<float>(m_SwapChain->GetExtent().height))*/
 			.Build();
 	}
 	void BasicRenderSys::PrepareDescriptorSets(Scene& scene, const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts)
