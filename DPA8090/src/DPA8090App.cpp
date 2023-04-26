@@ -32,13 +32,17 @@ public:
 		m_scene.reset(new Alalba::Scene());
 		m_textureSys.reset(new Alalba::TextureSys());
 
-		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj");
+		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj").LoadMesh("models/quad.obj");;
 		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
 			.LoadTexture("textures/lion.png");
 
-		auto cube = m_scene->CreateEntity("cube");
-		cube.AddComponent<MeshComponent>(m_meshSys->GetMesh("cube"));
-		cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
+		//auto cube = m_scene->CreateEntity("cube");
+		//cube.AddComponent<MeshComponent>(m_meshSys->GetMesh("cube"));
+		//cube.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
+		
+		/*auto quad = m_scene->CreateEntity("quad");
+		quad.AddComponent<MeshComponent>(m_meshSys->GetMesh("quad"));
+		quad.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));*/
 
 		auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));

@@ -11,7 +11,7 @@ namespace Alalba
 	BasicRenderSys::BasicRenderSys(Scene& scene,
 		const vk::RenderPass& renderpass, const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts, const vk::PipelineCache& pipelineCache)
 	{
-		CreateShaders("shaders/vert.spv", "shaders/frag.spv");
+		CreateShaders("shaders/basic.vert.spv", "shaders/basic.frag.spv");
 		CreatePipelineLayout(descriptorSetLayouts);
 		CreatePipeline(renderpass, pipelineCache);
 		PrepareDescriptorSets(scene, descriptorSetLayouts);
@@ -46,7 +46,8 @@ namespace Alalba
 				vkCmdBindVertexBuffers(cmdBuffers[currentCmdBuffer], 0, 1, vertexBuffers, &offset);
 				vkCmdBindIndexBuffer(cmdBuffers[currentCmdBuffer], IndexBuffers, offset, VK_INDEX_TYPE_UINT32);
 
-				// 4. bind local descriptors to pipeline
+				// 4. bind local descriptors to pipeline 
+				// start from index 1
 				VkDescriptorSet modset = descriptorset.DescriptorSet->Handle();
 				vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS,
 					m_pipelineLayout->Handle(), 1, 1, &modset, 0, nullptr);
@@ -115,12 +116,14 @@ namespace Alalba
 			Entity entity{ e,&scene };
 			auto& entity_tag = entity.GetComponent<TagComponent>();
 
+			// Add descriptor set to each entity
 			std::string tag = entity_tag.Tag + " descriptor set";
-			ALALBA_ERROR("{0}", tag);
+			
+			// use the second descriptor set ;descriptorSetLayouts[1]
 			m_textureDescSets.push_back(
 				std::make_shared<vk::DescriptorSet>(device, *m_descPool.get(), descriptorSetLayouts[1], tag)
 			);
-			//. Update local (opposite to global descriptor set) descriptor set (start from set 1)
+			
 			std::shared_ptr<Texture> ptexture = entity.GetComponent<TextureComponent>().m_Texture;
 			m_textureDescSets.back()->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
 					ptexture->GetSampler(), ptexture->GetImageView(), ptexture->GetImage().Layout());

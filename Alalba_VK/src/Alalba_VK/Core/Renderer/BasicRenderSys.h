@@ -7,10 +7,7 @@
 #include "Alalba_VK/Vulkan/DescriptorPool.h"
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
 
-
 #include "Alalba_VK/Vulkan/SwapChain.h"
-#include "Alalba_VK/Core/Scene/Scene.h"
-
 
 namespace vk
 {

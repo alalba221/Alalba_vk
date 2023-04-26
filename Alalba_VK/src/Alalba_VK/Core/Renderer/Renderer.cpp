@@ -119,7 +119,6 @@ namespace Alalba
 		}
 
 		///  Rendering systems
-		
 		// basic
 		m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
@@ -131,9 +130,15 @@ namespace Alalba
 			m_globalDescSetLayout.get(),
 			m_basicDescSetLayout.get()
 		};
-		
 		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass.get(), basicDescriptorSetLayout, *m_pipelineCache.get());
 
+		// diffracrtion 
+		// no need to handle textures 
+		std::vector<const vk::DescriptorSetLayout*> diffractionDescriptorSetLayout =
+		{
+			m_globalDescSetLayout.get()
+		};
+		m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass.get(), diffractionDescriptorSetLayout, *m_pipelineCache.get());
 
 	}
 	void Renderer::Shutdown()
@@ -142,6 +147,8 @@ namespace Alalba
 		device.WaitIdle();
 	
 		m_basicRenderSys->ShutDown();
+		m_diffractionRenderSys->ShutDown();
+
 		m_pipelineCache->Clean();
 		m_swapChain->Clean();
 
@@ -256,11 +263,16 @@ namespace Alalba
 				vkCmdSetViewport(cmdBuffers[i], 0, 1, &viewport);
 				vkCmdSetScissor(cmdBuffers[i], 0, 1, &scissor);
 				
-			
 				// basic render sys
 				vkCmdBeginRenderPass(cmdBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-				m_basicRenderSys->Render(scene, *m_commandBuffers.get(), *m_GlobalDescriptorSets[i].get(), i);
+				
+				if(m_BasicSysOn)
+					m_basicRenderSys->Render(scene, *m_commandBuffers.get(), *m_GlobalDescriptorSets[i].get(), i);
+				if(m_DiffractionSysOn)
+					m_diffractionRenderSys->Render(scene, *m_commandBuffers.get(), *m_GlobalDescriptorSets[i].get(), i);
+				
 				vkCmdEndRenderPass(cmdBuffers[i]);
+			
 			}
 			cmdBuffers.EndRecording(i);
 		}

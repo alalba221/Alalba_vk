@@ -1,5 +1,6 @@
 #pragma once
 #include "BasicRenderSys.h"
+#include "DiffractionSys.h"
 
 #include "Alalba_VK/Vulkan/SwapChain.h"
 #include "Alalba_VK/Vulkan/ShaderModule.h"
@@ -51,7 +52,7 @@ namespace Alalba
 
 		// pipeline 
 		std::unique_ptr<vk::PipelineCache> m_pipelineCache;
-		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
+		
 
 		// shader related Global 
 		std::unique_ptr<vk::DescriptorPool> m_globalDescPool;
@@ -76,13 +77,20 @@ namespace Alalba
 
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
-		
 		// basic sys
+		bool m_BasicSysOn = false;
+		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
+		// diffraction sys
+		bool m_DiffractionSysOn = true;
+		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
+		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
 		// other sys
+
 
 		uint32_t m_currentFrame = 0;
 		GlobalUBO ubo;
+
 	};
 }
 
