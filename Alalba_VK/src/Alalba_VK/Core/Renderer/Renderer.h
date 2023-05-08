@@ -28,7 +28,7 @@ namespace Alalba
 		~Renderer() {};
 
 		void Shutdown();
-		void RecreateSwapChainAndFramebuffers();
+		void Resize();
 	
 		
 		void PrepareCommandBuffer(Scene& scene);
@@ -46,7 +46,7 @@ namespace Alalba
 		};
 
 	private:
-
+		Scene& m_scene;
 		// 
 		std::unique_ptr<vk::Allocator> m_allocator;
 

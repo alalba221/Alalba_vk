@@ -6,6 +6,7 @@
 namespace Alalba
 {
 	Renderer::Renderer(Scene& scene)
+		:m_scene(scene)
 	{
 		Application& app = Application::Get();
 		const vk::Device& device = app.GetDevice();
@@ -179,7 +180,7 @@ namespace Alalba
 
 		m_allocator->Clean();
 	}
-	void Renderer::RecreateSwapChainAndFramebuffers()
+	void Renderer::Resize()
 	{
 		Application& app = Application::Get();
 		const vk::Device& device = Application::Get().GetDevice();
@@ -225,6 +226,31 @@ namespace Alalba
 				attachments, m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,
 				"resized Framebuffer"));
 		}
+
+		// Command buffers need to be recreated as they may store
+		// references to the recreated frame buffer
+		m_commandBuffers->Clean();
+		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool.get())
+			.SetTag("Resize window CmdBuffers4Graphics")
+			.OneTimeSubmit(false)
+			.SetSize(3) // one for each image in swapchain
+			.Allocate();
+		PrepareCommandBuffer(m_scene);
+
+		// SRS - Recreate fences in case number of swapchain images has changed on resize
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_inFlightFences[i]->Clean();
+			m_inFlightFences[i] =
+				vk::Fence::Builder(device)
+				.SetTag("Resize InFlightFence " + std::to_string(i))
+				.Signaled(true)
+				.Build();
+		}
+		// After recreate SwapChain, the first available image index is 0 (get by vkAcquireNextImageKHR)
+		// to keep index coincident, MUST rest m_currentFrame
+		m_currentFrame = 0;
+
 	}
 	void Renderer::PrepareCommandBuffer(Scene& scene)
 	{
@@ -304,12 +330,12 @@ namespace Alalba
 		const vk::Device& device = app.GetDevice();
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
-		uint32_t imageIndex;
-		VkResult result = vkAcquireNextImageKHR(device.Handle(), m_swapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &imageIndex);
+
+		VkResult result = vkAcquireNextImageKHR(device.Handle(), m_swapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &m_currentFrame);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
-			RecreateSwapChainAndFramebuffers();
+			Resize();
 			return;
 		}
 		else
@@ -354,13 +380,14 @@ namespace Alalba
 		VkSwapchainKHR swapChains[] = { m_swapChain->Handle() };
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
-		presentInfo.pImageIndices = &imageIndex;
+		presentInfo.pImageIndices = &m_currentFrame;
 		presentInfo.pResults = nullptr; // Optional
 
 		result = vkQueuePresentKHR(device.GetGraphicsQ().Handle(), &presentInfo);
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
-			RecreateSwapChainAndFramebuffers();
+			Resize();
+			return;
 		}
 		else
 		{
