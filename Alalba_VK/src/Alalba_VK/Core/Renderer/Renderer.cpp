@@ -123,7 +123,8 @@ namespace Alalba
 		// basic
 		m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("basic descriptor Set Layout")
 			.Build();
 		std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
@@ -314,14 +315,14 @@ namespace Alalba
 			Entity entity = { e, &scene};
 			auto& camera = entity.GetComponent<CamComponent>().m_Camera;
 
-			ubo.model = glm::mat4(1.0f);
+			//ubo.model = glm::mat4(1.0f);
 			ubo.view = camera.GetViewMatrix();
 			ubo.proj = camera.GetProjectionMatrix();
 			ubo.position = camera.GetPosition();
 		}
 
 		//
-		m_basicRenderSys->Update();
+		m_basicRenderSys->Update(scene);
 	}
 
 	void Renderer::DrawFrame(Scene& scene)

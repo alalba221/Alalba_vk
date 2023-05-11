@@ -90,7 +90,7 @@ namespace Alalba
 		const vk::Device& device = Application::Get().GetDevice();
 
 		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout.get(), renderpass,
-			*m_vertexShader.get(), *m_fragShader.get(), pipelineCache)
+			*m_vertexShader, *m_fragShader, pipelineCache)
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
 			.SetBackCulling(false)
@@ -104,33 +104,66 @@ namespace Alalba
 		const vk::Device& device = Application::Get().GetDevice();
 
 		m_descPool = vk::DescriptorPool::Builder(device)
-			.SetTag("Bsic Descriptor Pool")
+			.SetTag("Basic Descriptor Pool")
 			.SetMaxSets(1000)
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
 			.Build();
 
+		m_allocator.reset(new vk::Allocator(device, Application::Get().GetVulkanInstance(), "Basic sys Allocator"));
 
-		auto view = scene.GetAllEntitiesWith<TextureComponent>();
-		for (auto e : view)
+		/// convert texture and translate component into DescrpotrSetCompont
+		auto entities = scene.GetAllEntitiesWith<TextureComponent, TransformComponent>();
+		for (auto e : entities)
 		{
 			Entity entity{ e,&scene };
 			auto& entity_tag = entity.GetComponent<TagComponent>();
 
 			// Add descriptor set to each entity
-			std::string tag = entity_tag.Tag + " descriptor set";
-			
+			std::string tag = entity_tag.Tag ;
+	
 			// use the second descriptor set ;descriptorSetLayouts[1]
-			m_textureDescSets.push_back(
-				std::make_shared<vk::DescriptorSet>(device, *m_descPool.get(), descriptorSetLayouts[1], tag)
+			// DescSet for each model
+			m_modelDescSets.insert(
+				std::make_pair(
+					tag,
+					std::make_shared<vk::DescriptorSet>(device, *m_descPool.get(), descriptorSetLayouts[1], tag + " descriptor set")
+				)
 			);
 			
-			std::shared_ptr<Texture> ptexture = entity.GetComponent<TextureComponent>().m_Texture;
-			m_textureDescSets.back()->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-					ptexture->GetSampler(), ptexture->GetImageView(), ptexture->GetImage().Layout());
-			m_textureDescSets.back()->UpdateDescriptors();
+			//0. uniform buffer: convert glm::mat4 to uniformbuffer
+			m_modelUBOs.insert(
+				std::make_pair(
+					tag,
+					std::make_shared<vk::Buffer>(device, *m_allocator.get(), sizeof(ModelUBO), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, tag+ "'s uniform buffer")
+				)
+			);
 
-			entity.AddComponent<DescrpotrSetCompont>(m_textureDescSets.back());
+			//1. texture
+			std::shared_ptr<Texture> ptexture = entity.GetComponent<TextureComponent>().m_Texture;
+			
+			m_modelDescSets[tag]->BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0,
+				*m_modelUBOs[tag],0,sizeof(ModelUBO));
+			m_modelDescSets[tag]->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1,
+					ptexture->GetSampler(), ptexture->GetImageView(), ptexture->GetImage().Layout());
+			m_modelDescSets[tag]->UpdateDescriptors();
+
+			entity.AddComponent<DescrpotrSetCompont>(m_modelDescSets[tag]);
 		}
+	}
+	void BasicRenderSys::Update(Scene& scene)
+	{
+		// update ubo
+		auto entities = scene.GetAllEntitiesWith<DescrpotrSetCompont>();
+		for (auto e : entities)
+		{
+			Entity entity = { e, &scene };
+			std::string tag = entity.GetComponent<TagComponent>().Tag;
+			glm::mat4& transform = entity.GetComponent<TransformComponent>().Transform;
+			void* data = m_modelUBOs[tag]->MapMemory();
+			memcpy(data, &transform, sizeof(transform));
+			m_modelUBOs[tag]->UnMapMemory();
+		}
+		
 	}
 	void BasicRenderSys::ShutDown()
 	{
@@ -140,6 +173,9 @@ namespace Alalba
 		m_pipelineLayout->Clean();
 		m_graphicsPipeline->Clean();
 		m_descPool->Clean();
+
+		m_modelUBOs.clear();
+		m_allocator->Clean();
 	}
 
 }

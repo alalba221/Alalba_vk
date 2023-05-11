@@ -13,17 +13,22 @@ layout(location = 2) out vec2 fragTexCoord;
 
 layout(set = 0, binding = 0) uniform  CameraBuffer{
 	
-	mat4 model;
+	// mat4 model;
 	mat4 view;
 	mat4 proj;
 	vec3 pos;
 } ubo;
 
+layout(set = 1, binding = 0) uniform  ModelBuffer
+{
+	mat4 model;
+} modelubo;
+
 void main() {
 	
-	gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+	gl_Position = ubo.proj * ubo.view * modelubo.model * vec4(inPosition, 1.0);
 	// gl_Position = vec4(inPosition, 1.0);
-	Position =  mat3(ubo.model) * inPosition;
-	Normal = mat3(ubo.model) * inNormal;
+	Position =  mat3(modelubo.model) * inPosition;
+	Normal = mat3(modelubo.model) * inNormal;
 	fragTexCoord = inTexCoord;
 }

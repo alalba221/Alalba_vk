@@ -34,7 +34,7 @@ public:
 
 		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj").LoadMesh("models/quad.obj");;
 		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
-			.LoadTexture("textures/lion.png");
+			.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
 
 		//auto cube = m_scene->CreateEntity("cube");
 		//cube.AddComponent<MeshComponent>(m_meshSys->GetMesh("cube"));
@@ -47,6 +47,14 @@ public:
 		auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
 		teapot.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
+		teapot.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
+
+		auto teapot2 = m_scene->CreateEntity("teapot2");
+		teapot2.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
+		teapot2.AddComponent<TextureComponent>(m_textureSys->GetTexture("awesomeface"));
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		teapot2.AddOrReplaceComponent<TransformComponent>(trans);
 	
 		auto cam = m_scene->CreateEntity("camera");
 		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 10.0f));

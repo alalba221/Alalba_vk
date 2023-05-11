@@ -39,7 +39,7 @@ namespace Alalba
 	private:
 		
 		struct GlobalUBO {
-			glm::mat4 model;
+			//glm::mat4 model; 
 			glm::mat4 view;
 			glm::mat4 proj;
 			glm::vec3 position;
@@ -78,11 +78,11 @@ namespace Alalba
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
 		// basic sys
-		bool m_BasicSysOn = false;
+		bool m_BasicSysOn = true;
 		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
 		// diffraction sys
-		bool m_DiffractionSysOn = true;
+		bool m_DiffractionSysOn = false;
 		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
 		// other sys

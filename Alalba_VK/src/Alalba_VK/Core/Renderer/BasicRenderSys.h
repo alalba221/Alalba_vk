@@ -6,7 +6,7 @@
 #include "Alalba_VK/Core/Scene/Scene.h"
 #include "Alalba_VK/Vulkan/DescriptorPool.h"
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
-
+#include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Vulkan/SwapChain.h"
 
 namespace vk
@@ -35,17 +35,26 @@ namespace Alalba
 			const vk::DescriptorSet& globalDescSet,
 			const int currentCmdBuffer);
 
-		void Update() {};
+		void Update(Scene& scene);
 		void ShutDown();
 
 	private:
+
+		struct ModelUBO 
+		{
+			glm::mat4 model; 
+		};
+
 		std::unique_ptr < vk::ShaderModule > m_vertexShader;
 		std::unique_ptr < vk::ShaderModule > m_fragShader;
 		std::unique_ptr<vk::GraphicsPipeline> m_graphicsPipeline;
 		std::unique_ptr<vk::PipelineLayout> m_pipelineLayout;
 		std::unique_ptr<vk::DescriptorPool> m_descPool;
 
-		std::vector< std::shared_ptr<vk::DescriptorSet> > m_textureDescSets;
+		// need a place to store ubos and descriptorsets till the end of the app.
+		std::unordered_map<std::string, std::shared_ptr<vk::DescriptorSet> > m_modelDescSets;
+		std::unique_ptr<vk::Allocator> m_allocator;
+		std::unordered_map<std::string, std::shared_ptr<vk::Buffer> > m_modelUBOs;
 
 	private:
 		void CreateShaders(const std::string& vertex, const std::string& frag);

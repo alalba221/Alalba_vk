@@ -4,6 +4,7 @@
 #include "Alalba_VK//Assets/Texture.h"
 #include "Alalba_VK/Core/Camera.h"
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
+
 namespace Alalba
 {
 	struct TransformComponent
@@ -57,6 +58,7 @@ namespace Alalba
 			:m_Camera(projectionMatrix)
 		{}
 	};
+
 	struct DescrpotrSetCompont
 	{
 		std::shared_ptr<vk::DescriptorSet> DescriptorSet;

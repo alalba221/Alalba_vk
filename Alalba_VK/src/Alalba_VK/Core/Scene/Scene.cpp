@@ -16,7 +16,7 @@ namespace Alalba
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		Entity entity = { m_Registry.create(), this };
-		entity.AddComponent<TransformComponent>();
+		entity.AddComponent<TransformComponent>(glm::mat4(1.0f));
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
 		return entity;
@@ -33,6 +33,5 @@ namespace Alalba
 			camera.m_Camera.Update();
 		}
 		// update other entities
-
 	}
 }
