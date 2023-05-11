@@ -21,7 +21,7 @@ public:
 	virtual void OnUpdate() override
 	{
 		m_scene->OnUpdate();
-		m_renderer->DrawFrame(*m_scene.get());
+		m_renderer->DrawFrame(*m_scene);
 	}
 
 	virtual void OnInit() override
@@ -60,11 +60,11 @@ public:
 		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 10.0f));
 
 		// Render creation should be after scene
-		m_renderer.reset(new Alalba::Renderer(*m_scene.get()));
+		m_renderer.reset(new Alalba::Renderer(*m_scene));
 		/// record command buffer
-		m_renderer->PrepareCommandBuffer(*m_scene.get());
+		m_renderer->PrepareCommandBuffer(*m_scene);
 
-		//m_UI.reset(new Alalba::UI(*m_renderer.get(), Alalba::Application::Get().GetWindow()));
+		//m_UI.reset(new Alalba::UI(*m_renderer, Alalba::Application::Get().GetWindow()));
 	}
 
 	virtual void OnShutdown() override

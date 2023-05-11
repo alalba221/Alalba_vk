@@ -36,7 +36,7 @@ namespace Alalba
 		stbi_image_free(m_imageData);
 
 		// image view
-		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
+		m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image)
 			.SetFormat(format)
 			.SetTag("Texture ImageView")
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
@@ -74,7 +74,7 @@ namespace Alalba
 	//	m_image->TransitionImageLayout(computer.GetCommandPool(), Application::Get().GetDevice().GetComputeQ(), VK_IMAGE_LAYOUT_GENERAL);
 
 	//	// image view
-	//	m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
+	//	m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image)
 	//		.SetFormat(format)
 	//		.SetTag("Target Texture ImageView")
 	//		.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)

@@ -15,8 +15,8 @@ namespace Alalba
 
 		void Clean();
 
-		vk::Allocator& Allocator() { return *m_allocator.get(); }
-		vk::CommandPool& CmdPool() { return *m_commandPool.get(); }
+		vk::Allocator& Allocator() { return *m_allocator; }
+		vk::CommandPool& CmdPool() { return *m_commandPool; }
 
 		TextureSys& LoadTexture(const std::string& file);
 

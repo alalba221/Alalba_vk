@@ -33,10 +33,10 @@ namespace Alalba{
 		static inline Application& Get() { return *s_Instance; }
 		inline Window& GetWindow() { return *m_Window; }
 	
-		const vk::Surface& GetSurface() const { return *m_vulkanSurface.get(); };
+		const vk::Surface& GetSurface() const { return *m_vulkanSurface; };
 
-		const vk::Instance& GetVulkanInstance() const { return *m_vulkanInstance.get(); }
-		const vk::Device& GetDevice() const { return *m_vulkanDevice.get(); }
+		const vk::Instance& GetVulkanInstance() const { return *m_vulkanInstance; }
+		const vk::Device& GetDevice() const { return *m_vulkanDevice; }
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);

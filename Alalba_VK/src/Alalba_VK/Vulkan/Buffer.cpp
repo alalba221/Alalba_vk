@@ -42,7 +42,7 @@ namespace vk
 		stagingBuffer->UnMapMemory();
 
 		// 3. copy staging buffer to vertex buffer: using command pool for graphics
-		MoveDataFromStagingBuffer(*stagingBuffer.get(), sizeInByte, q, cmdPool);
+		MoveDataFromStagingBuffer(*stagingBuffer, sizeInByte, q, cmdPool);
 		// 4. Clear Staging buffer
 		stagingBuffer->Clean();
 	}
@@ -78,7 +78,7 @@ namespace vk
 		VkBufferCopy copyRegion = {};
 		copyRegion.size = sizeInByte;
 		copyCmdBuffer->BeginRecording(0);
-		VkCommandBuffer cmdbuffer = (*copyCmdBuffer.get())[0];
+		VkCommandBuffer cmdbuffer = (*copyCmdBuffer)[0];
 		vkCmdCopyBuffer(cmdbuffer, stage.Handle(), m_buffer, 1, &copyRegion);
 		copyCmdBuffer->EndRecording(0);
 		copyCmdBuffer->Flush(0, q);

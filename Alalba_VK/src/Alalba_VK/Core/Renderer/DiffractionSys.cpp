@@ -88,8 +88,8 @@ namespace Alalba
 	{
 		const vk::Device& device = Application::Get().GetDevice();
 
-		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout.get(), renderpass,
-			*m_vertexShader.get(), *m_fragShader.get(), pipelineCache)
+		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout, renderpass,
+			*m_vertexShader, *m_fragShader, pipelineCache)
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
 			.SetBackCulling(false)
@@ -120,7 +120,7 @@ namespace Alalba
 
 		//	// use the second descriptor set layout : descriptorSetLayouts[1]
 		//	m_textureDescSets.push_back(
-		//		std::make_shared<vk::DescriptorSet>(device, *m_descPool.get(), descriptorSetLayouts[1], tag)
+		//		std::make_shared<vk::DescriptorSet>(device, *m_descPool, descriptorSetLayouts[1], tag)
 		//	);
 
 		//	std::shared_ptr<Texture> ptexture = entity.GetComponent<TextureComponent>().m_Texture;

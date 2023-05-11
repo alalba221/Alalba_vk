@@ -58,7 +58,7 @@ namespace vk
   const ImageView& SwapChain::GetImageView(const uint32_t index) const
   {
     if (index < m_imageViews.size())
-      return *(m_imageViews[index].get());
+      return *(m_imageViews[index]);
     else
       ALALBA_ASSERT("Not valid index");
   }

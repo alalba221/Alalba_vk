@@ -28,13 +28,13 @@ namespace Alalba
 			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetQFamily(device.GetGraphicsQ().GetFamily())
 			.Build();
-		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool.get())
+		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("CmdBuffers4Graphics")
 			.OneTimeSubmit(false)
 			.SetSize(3) // one for each image in swapchain
 			.Allocate();
 
-		m_depthImage = vk::Image::Builder(device, *m_allocator.get())
+		m_depthImage = vk::Image::Builder(device, *m_allocator)
 			.SetTag("DepthImage")
 			.SetImgType(VK_IMAGE_TYPE_2D)
 			.SetImageFormat(device.FindSupportedFormat(
@@ -47,10 +47,10 @@ namespace Alalba
 			.SetImgExtent(VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 })
 			.Build();
 
-		m_depthImage->TransitionImageLayout(*m_commandPool.get(), device.GetGraphicsQ(),
+		m_depthImage->TransitionImageLayout(*m_commandPool, device.GetGraphicsQ(),
 			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		m_depthImageView = vk::ImageView::Builder(device, *m_depthImage.get())
+		m_depthImageView = vk::ImageView::Builder(device, *m_depthImage)
 			.SetTag("depthImageView")
 			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
 			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
@@ -81,11 +81,11 @@ namespace Alalba
 		{
 			std::string str_int = std::to_string(i);
 			std::string tag = std::string{ "Frame buffer for Swapchain" } + str_int;
-			m_frameBuffers[i] = vk::FrameBuffer::Builder(device, *m_renderPass.get())
+			m_frameBuffers[i] = vk::FrameBuffer::Builder(device, *m_renderPass)
 				.SetTag(tag)
 				.SetWidthHeight(m_swapChain->GetExtent().width, m_swapChain->GetExtent().height)
 				.AddAttachment(m_swapChain->GetImageView(i))
-				.AddAttachment(*m_depthImageView.get())
+				.AddAttachment(*m_depthImageView)
 				.Build();
 
 			m_inFlightFences[i] =
@@ -102,7 +102,7 @@ namespace Alalba
 				.SetTag("renderFinishedSemaphore " + std::to_string(i))
 				.Build();
 
-			m_globalUniformbuffers[i] = vk::Buffer::Builder(device, *m_allocator.get())
+			m_globalUniformbuffers[i] = vk::Buffer::Builder(device, *m_allocator)
 				.SetTag("Global Uniform Buffer" + std::to_string(i))
 				.SetSize(sizeof(GlobalUBO))
 				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
@@ -110,12 +110,12 @@ namespace Alalba
 				.Build();
 
 			m_GlobalDescriptorSets[i] =
-				vk::DescriptorSet::Allocator(device, *m_globalDescPool.get())
+				vk::DescriptorSet::Allocator(device, *m_globalDescPool)
 				.SetTag("Global Descritor Set " + std::to_string(i))
-				.SetDescSetLayout(*m_globalDescSetLayout.get())
+				.SetDescSetLayout(*m_globalDescSetLayout)
 				.Allocate();
 			m_GlobalDescriptorSets[i]->
-				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i].get(), 0, sizeof(GlobalUBO))
+				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i], 0, sizeof(GlobalUBO))
 				.UpdateDescriptors();
 		}
 
@@ -132,7 +132,7 @@ namespace Alalba
 			m_globalDescSetLayout.get(),
 			m_basicDescSetLayout.get()
 		};
-		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass.get(), basicDescriptorSetLayout, *m_pipelineCache.get());
+		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
 
 		// diffracrtion 
 		// no need to handle textures 
@@ -140,7 +140,7 @@ namespace Alalba
 		{
 			m_globalDescSetLayout.get()
 		};
-		m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass.get(), diffractionDescriptorSetLayout, *m_pipelineCache.get());
+		m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass, diffractionDescriptorSetLayout, *m_pipelineCache);
 
 	}
 	void Renderer::Shutdown()
@@ -198,7 +198,7 @@ namespace Alalba
 		// recreate framebuffers , depth image , depthimage view and swapchain
 		m_swapChain.reset(new vk::SwapChain(device, app.GetSurface(), VK_PRESENT_MODE_MAILBOX_KHR, VK_SHARING_MODE_EXCLUSIVE));
 
-		m_depthImage.reset(new vk::Image(device, *m_allocator.get(), VK_IMAGE_TYPE_2D,
+		m_depthImage.reset(new vk::Image(device, *m_allocator, VK_IMAGE_TYPE_2D,
 			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
 			VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 },
 			device.FindSupportedFormat(
@@ -223,7 +223,7 @@ namespace Alalba
 			attachments.push_back(m_depthImageView.get());
 
 			m_frameBuffers[i].reset(new vk::FrameBuffer(
-				device, *m_renderPass.get(),
+				device, *m_renderPass,
 				attachments, m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,
 				"resized Framebuffer"));
 		}
@@ -231,7 +231,7 @@ namespace Alalba
 		// Command buffers need to be recreated as they may store
 		// references to the recreated frame buffer
 		m_commandBuffers->Clean();
-		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool.get())
+		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("Resize window CmdBuffers4Graphics")
 			.OneTimeSubmit(false)
 			.SetSize(3) // one for each image in swapchain
@@ -260,7 +260,7 @@ namespace Alalba
 		clearValues[1].depthStencil = { 1.0f, };// depth from 0 to 1 in vulkan
 
 	
-		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers.get());
+		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers);
 
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
@@ -294,9 +294,9 @@ namespace Alalba
 				vkCmdBeginRenderPass(cmdBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 				
 				if(m_BasicSysOn)
-					m_basicRenderSys->Render(scene, *m_commandBuffers.get(), *m_GlobalDescriptorSets[i].get(), i);
+					m_basicRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
 				if(m_DiffractionSysOn)
-					m_diffractionRenderSys->Render(scene, *m_commandBuffers.get(), *m_GlobalDescriptorSets[i].get(), i);
+					m_diffractionRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
 				
 				vkCmdEndRenderPass(cmdBuffers[i]);
 			
@@ -352,7 +352,7 @@ namespace Alalba
 		m_inFlightFences[m_currentFrame]->Reset();
 
 		// TODO: abstract to a new submit method
-		VkCommandBuffer commandBuffers[]{ (*m_commandBuffers.get())[m_currentFrame] };
+		VkCommandBuffer commandBuffers[]{ (*m_commandBuffers)[m_currentFrame] };
 		VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame]->Handle() };
 		VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame]->Handle() };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };

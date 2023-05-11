@@ -20,8 +20,8 @@ namespace Alalba
     Mesh(MeshSys& sys,const std::string& file);
     
     void Clean();
-    const vk::Buffer& GetVertexbuffer() const  { return *m_vertexBuffer.get();}
-    const vk::Buffer& GetIndexbuffer() const { return *m_indexBuffer.get(); }
+    const vk::Buffer& GetVertexbuffer() const  { return *m_vertexBuffer;}
+    const vk::Buffer& GetIndexbuffer() const { return *m_indexBuffer; }
     const uint32_t GetIndexCount() const  { return m_indices.size(); }
     const uint32_t GetInstanceCount() const  { return 1; }
     ~Mesh() {};

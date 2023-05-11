@@ -29,15 +29,15 @@ namespace vk
 		~Device();
 		void Clean();
 
-		const Queue& GetGraphicsQ() const { return *(m_grapicsQ.get()); }
-		const Queue& GetComputeQ()	const { return *(m_computeQ.get()); }
-		const Queue& GetTransferQ() const { return *(m_transferQ.get()); }
+		const Queue& GetGraphicsQ() const { return *(m_grapicsQ); }
+		const Queue& GetComputeQ()	const { return *(m_computeQ); }
+		const Queue& GetTransferQ() const { return *(m_transferQ); }
 		
 		void WaitIdle() const;
 
 		//const DescriptorSetLayout& GetDescriptorSetLayout(uint32_t index) const;
 
-		//const SwapChain& GetSwapChain() const { return *m_SwapChain.get(); }
+		//const SwapChain& GetSwapChain() const { return *m_SwapChain; }
 
 		/* helper*/
 		// find a proper format statisfing features from candidates

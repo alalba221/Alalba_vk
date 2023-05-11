@@ -29,7 +29,7 @@ namespace Alalba
 			//.AddValidationLayer("VK_LAYER_RENDERDOC_Capture")
 			.Build();
 
-		m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance.get(), *m_Window.get())
+		m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance, *m_Window)
 			.Build();
 
 		m_vulkanDevice = vk::Device::Builder(m_vulkanInstance->GetPhysicalDevice())
@@ -85,7 +85,7 @@ namespace Alalba
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
 		//ALALBA_ERROR("{0}", e);
-		//vk::VulkanRenderer::Get(*m_vulkanDevice.get(), *m_allocator.get()).Resize();
+		//vk::VulkanRenderer::Get(*m_vulkanDevice, *m_allocator).Resize();
 		return false;
 	}
 }

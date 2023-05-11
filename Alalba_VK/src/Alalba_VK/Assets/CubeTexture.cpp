@@ -31,7 +31,7 @@ namespace Alalba
 		//stbi_image_free(m_imageData);
 
 		//// image view
-		//m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image.get())
+		//m_imageView = vk::ImageView::Builder(Application::Get().GetDevice(), *m_image)
 		//	.SetFormat(VK_FORMAT_R8G8B8A8_SRGB)
 		//	.SetTag("Texture ImageView")
 		//	.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)

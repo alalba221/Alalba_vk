@@ -89,7 +89,7 @@ namespace Alalba
 	{
 		const vk::Device& device = Application::Get().GetDevice();
 
-		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout.get(), renderpass,
+		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout, renderpass,
 			*m_vertexShader, *m_fragShader, pipelineCache)
 			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 			.SetPolygonMode(VK_POLYGON_MODE_FILL)
@@ -126,7 +126,7 @@ namespace Alalba
 			m_modelDescSets.insert(
 				std::make_pair(
 					tag,
-					std::make_shared<vk::DescriptorSet>(device, *m_descPool.get(), descriptorSetLayouts[1], tag + " descriptor set")
+					std::make_shared<vk::DescriptorSet>(device, *m_descPool, descriptorSetLayouts[1], tag + " descriptor set")
 				)
 			);
 			
@@ -134,7 +134,7 @@ namespace Alalba
 			m_modelUBOs.insert(
 				std::make_pair(
 					tag,
-					std::make_shared<vk::Buffer>(device, *m_allocator.get(), sizeof(ModelUBO), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, tag+ "'s uniform buffer")
+					std::make_shared<vk::Buffer>(device, *m_allocator, sizeof(ModelUBO), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU, tag+ "'s uniform buffer")
 				)
 			);
 

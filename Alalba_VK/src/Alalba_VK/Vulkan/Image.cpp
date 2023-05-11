@@ -30,7 +30,7 @@ namespace vk
     // 3. Layout transitions
     TransitionImageLayout(cmdPool, q, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     // 4. Copy staging buffer to image buffer: using command pool for graphics
-    MoveDataFromStagingBuffer(*stagingBuffer.get(), sizeInByte, q, cmdPool);
+    MoveDataFromStagingBuffer(*stagingBuffer, sizeInByte, q, cmdPool);
     
     // 5. Layout transitions
     TransitionImageLayout(cmdPool, q, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -176,7 +176,7 @@ namespace vk
     {
       // recording command buffer
       m_copyCmdBuffer->BeginRecording(0);
-      VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer.get())[0];
+      VkCommandBuffer cmdbuffer = (*m_copyCmdBuffer)[0];
       vkCmdPipelineBarrier(cmdbuffer, 
         sourceStage, destinationStage,
         0,
@@ -214,7 +214,7 @@ namespace vk
         1
     };
     copyCmdBuffer->BeginRecording(0);
-    VkCommandBuffer cmdbuffer = (*copyCmdBuffer.get())[0];
+    VkCommandBuffer cmdbuffer = (*copyCmdBuffer)[0];
     vkCmdCopyBufferToImage(cmdbuffer, stage.Handle(), m_image,
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     copyCmdBuffer->EndRecording(0);

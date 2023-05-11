@@ -50,7 +50,7 @@ namespace vk {
 
 		//********************************** physical device related*************************************************
 	public:
-		const PhysicalDevice& GetPhysicalDevice() const{ return *m_pPhysicalDevice.get(); }
+		const PhysicalDevice& GetPhysicalDevice() const{ return *m_pPhysicalDevice; }
 	private:
 		std::vector<VkPhysicalDevice> m_physicalDevices;
 		std::unique_ptr<PhysicalDevice> m_pPhysicalDevice;
