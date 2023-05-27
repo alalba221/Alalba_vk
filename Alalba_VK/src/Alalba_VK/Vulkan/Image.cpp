@@ -19,7 +19,7 @@ namespace vk
       .SetTag("Staging Buffer")
       .SetSize(sizeInByte)
       .SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
-      .SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+      .SetVmaUsage(VMA_MEMORY_USAGE_CPU_ONLY)
       .Build();
 
     // 2. Copy data to staging buffer

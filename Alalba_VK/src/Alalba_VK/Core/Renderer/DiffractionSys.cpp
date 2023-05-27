@@ -81,7 +81,12 @@ namespace Alalba
 	void DiffractionSys::CreatePipelineLayout(const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts)
 	{
 		const vk::Device& device = Application::Get().GetDevice();
-		m_pipelineLayout = std::make_unique<vk::PipelineLayout>(device, descriptorSetLayouts, "basic pipeline layout");
+		m_pipelineLayout = vk::PipelineLayout::Builder(device)
+			.SetTag("diffraction pipeline layout")
+			.AddPushConstant(sizeof(glm::mat4))
+			.BindDescriptorSetLayout(*descriptorSetLayouts[0])
+			.Build()
+			;
 	}
 
 	void DiffractionSys::CreatePipeline(const vk::RenderPass& renderpass, const vk::PipelineCache& pipelineCache)

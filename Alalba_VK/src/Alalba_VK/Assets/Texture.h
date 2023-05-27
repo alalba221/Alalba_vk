@@ -18,7 +18,7 @@ namespace vk
 
 namespace Alalba
 {
-	class	TextureSys;
+
 	class Texture final
 	{
 	public:
@@ -26,7 +26,12 @@ namespace Alalba
 		Texture& operator = (const Texture&) = delete;
 		Texture& operator = (Texture&&) = delete;
 
-		Texture(TextureSys& sys, VkFormat format ,const std::string& filename);
+		Texture(VkFormat format ,const std::string& filename, vk::Allocator& allocator, vk::CommandPool& cmdPool);
+		
+		Texture(void* buffer, VkDeviceSize bufferSize, VkFormat format, 
+			uint32_t texWidth, uint32_t texHeight,
+			vk::Allocator& allocator, vk::CommandPool& cmdPool);
+
 		// Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format);
 
 		Texture(const Texture&) = default;
@@ -46,7 +51,7 @@ namespace Alalba
 		std::unique_ptr<vk::ImageView> m_imageView;
 		std::unique_ptr<vk::Sampler> m_sampler;
 		//vk::Sampler* p_sampler;
-		unsigned char* m_imageData;
+		//unsigned char* m_imageData;
 		std::string m_filePath;
 
 		// Allocator for Target Image

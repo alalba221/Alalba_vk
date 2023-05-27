@@ -19,7 +19,8 @@ namespace Alalba
 		ALALBA_ASSERT(m_meshes.count(file) == 0, "Mesh already exist");
 
 		std::string tag = file.substr(file.rfind("/") + 1, file.rfind(".") - file.rfind("/") - 1);
-		m_meshes.insert(std::make_pair(tag, std::make_shared<Mesh>(*this, file)));
+		//m_meshes.insert(std::make_pair(tag, std::make_shared<Mesh>(*this, file)));
+		m_meshes[tag].reset(new Mesh(*this, file));
 		return *this;
 	}
 

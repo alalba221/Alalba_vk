@@ -19,7 +19,7 @@ namespace Alalba
 		ALALBA_ASSERT(m_textures.count(file) == 0, "Texture already exist");
 
 		std::string tag = file.substr(file.rfind("/") + 1, file.rfind(".") - file.rfind("/") - 1);
-		m_textures.insert(std::make_pair(tag, std::make_shared<Texture>(*this, VK_FORMAT_R8G8B8A8_SRGB, file)));
+		m_textures.insert(std::make_pair(tag, std::make_shared<Texture>(VK_FORMAT_R8G8B8A8_SRGB, file, *m_allocator,*m_commandPool)));
 		return *this;
 	}
 

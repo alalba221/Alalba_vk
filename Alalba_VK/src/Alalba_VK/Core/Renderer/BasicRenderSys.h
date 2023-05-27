@@ -54,6 +54,7 @@ namespace Alalba
 		// need a place to store ubos and descriptorsets till the end of the app.
 		std::unordered_map<std::string, std::shared_ptr<vk::DescriptorSet> > m_modelDescSets;
 		std::unique_ptr<vk::Allocator> m_allocator;
+
 		std::unordered_map<std::string, std::shared_ptr<vk::Buffer> > m_modelUBOs;
 
 	private:

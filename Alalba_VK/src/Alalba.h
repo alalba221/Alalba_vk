@@ -24,6 +24,7 @@
 //#include "Alalba_VK/Core/ImGui/UI.h"
 #include "Alalba_VK/Assets/MeshSys.h"
 #include "Alalba_VK/Assets/TextureSys.h"
+#include "Alalba_VK/Assets/GLTFLoader.h"
 
 // ecs
 #include "Alalba_VK/Core/Scene/Scene.h"

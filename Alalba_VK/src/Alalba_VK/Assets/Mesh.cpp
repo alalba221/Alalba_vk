@@ -10,11 +10,15 @@ namespace Alalba
 	Mesh::Mesh(MeshSys& sys, const std::string& file)
 	{
 		// 
-		LoadModel(file);
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+		LoadModel(file, vertices,indices);
 
-		uint32_t vertexSize = sizeof(m_vertices[0]) * m_vertices.size();
-		uint32_t indexSize = sizeof(m_indices[0]) * m_indices.size();
-	
+		uint32_t vertexSize = sizeof(Vertex) * vertices.size();
+		uint32_t indexSize = sizeof(uint32_t) * indices.size();
+		
+		m_indexCount = indices.size();
+
 		// Vertex buffer
 		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Vertex Buffer")
@@ -29,7 +33,7 @@ namespace Alalba
 			m_copyCmdBuffer->Flush(0, Application::Get().GetDevice().GetTransferQ());
 		*/
 		m_vertexBuffer->CopyDataFrom(
-			m_vertices.data(), vertexSize,
+			vertices.data(), vertexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
 		);
 
@@ -42,9 +46,12 @@ namespace Alalba
 			.Build();
 		
 		m_indexBuffer->CopyDataFrom(
-			m_indices.data(), indexSize,
+			indices.data(), indexSize,
 			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
 		);
+
+		vertices.clear();
+		indices.clear();
 	}
 
 	void Mesh::Clean()
@@ -53,7 +60,7 @@ namespace Alalba
 		m_vertexBuffer->Clean();
 		m_indexBuffer->Clean();
 	}
-	void Mesh::LoadModel(const std::string& file)
+	void Mesh::LoadModel(const std::string& file, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -66,12 +73,12 @@ namespace Alalba
 		}
 		ALALBA_ASSERT(err.empty(), err);
 
-		std::unordered_map<MeshVertex, uint32_t> uniqueVertices{};
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& shape : shapes) 
 		{
 			for (const auto& index : shape.mesh.indices) {
-				MeshVertex vertex{};
+				Vertex vertex{};
 
 				vertex.position = {
 					attrib.vertices[3 * index.vertex_index + 0],
@@ -91,10 +98,10 @@ namespace Alalba
 				};
 
 				if (uniqueVertices.count(vertex) == 0) {
-					uniqueVertices[vertex] = static_cast<uint32_t>(m_vertices.size());
-					m_vertices.push_back(vertex);
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back(vertex);
 				}
-				m_indices.push_back(uniqueVertices[vertex]);
+				indices.push_back(uniqueVertices[vertex]);
 			}
 		}
 

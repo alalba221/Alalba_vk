@@ -2,6 +2,7 @@
 #include "glm/glm.hpp"
 #include "Alalba_VK/Assets/Mesh.h"
 #include "Alalba_VK//Assets/Texture.h"
+#include "Alalba_VK/Assets/GLTFModel.h"
 #include "Alalba_VK/Core/Camera.h"
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
 
@@ -46,6 +47,16 @@ namespace Alalba
 		TextureComponent(const TextureComponent&) = default;
 		TextureComponent(std::shared_ptr<Texture> texture)
 			:m_Texture(texture)
+		{}
+	};
+
+	struct GLTFComponent
+	{
+		std::shared_ptr<GLTFModel> Model;
+		GLTFComponent() = default;
+		GLTFComponent(const GLTFComponent&) = default;
+		GLTFComponent(std::shared_ptr<GLTFModel> model)
+			:Model(model)
 		{}
 	};
 

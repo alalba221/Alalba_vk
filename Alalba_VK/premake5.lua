@@ -19,7 +19,7 @@ project "Alalba_VK"
 		
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
-		"vendor/tiny_obj_loader/tiny_obj_loader.h",
+		-- "vendor/tiny_obj_loader/tiny_obj_loader.h",
 		"vendor/VMA/include/**.h",
 		"vendor/VMA/include/**.cpp",
 		"%{prj.location}/src/%{prj.name}/Shaders/**",
@@ -46,8 +46,9 @@ project "Alalba_VK"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.tinyobj}",
+		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.VMA}",
-		"%{IncludeDir.stb}", 
+		-- "%{IncludeDir.stb}", 
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.entt}",
 	}

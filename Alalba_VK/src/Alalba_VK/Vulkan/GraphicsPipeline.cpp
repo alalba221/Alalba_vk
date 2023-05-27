@@ -27,10 +27,10 @@ namespace vk
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.pNext = nullptr; 
     // VkPipelineVertexInputStateCreateFlags       flags;
-    vertexInputInfo.vertexBindingDescriptionCount = Alalba::MeshVertex::GetBindingDescriptions().size();
-    vertexInputInfo.pVertexBindingDescriptions = Alalba::MeshVertex::GetBindingDescriptions().data(); // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = Alalba::MeshVertex::GetAttributeDescriptions().size();
-    vertexInputInfo.pVertexAttributeDescriptions = Alalba::MeshVertex::GetAttributeDescriptions().data(); // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = Alalba::Vertex::GetBindingDescriptions().size();
+    vertexInputInfo.pVertexBindingDescriptions = Alalba::Vertex::GetBindingDescriptions().data(); // Optional
+    vertexInputInfo.vertexAttributeDescriptionCount = Alalba::Vertex::GetAttributeDescriptions().size();
+    vertexInputInfo.pVertexAttributeDescriptions = Alalba::Vertex::GetAttributeDescriptions().data(); // Optional
 
     ///***** input assembly state 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};

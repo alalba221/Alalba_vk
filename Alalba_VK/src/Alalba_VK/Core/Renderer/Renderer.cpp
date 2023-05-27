@@ -120,36 +120,51 @@ namespace Alalba
 		}
 
 		///  Rendering systems
-		// basic
-		m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
+		//0. basic
+		//m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
+		//	// 0 : is bingding index of the binding slot in the set
+		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.SetTag("basic descriptor Set Layout")
+		//	.Build();
+		//std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
+		//{
+		//	m_globalDescSetLayout.get(),
+		//	m_basicDescSetLayout.get()
+		//};
+		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
+
+		////1. diffracrtion 
+		//// no need to handle textures 
+		//std::vector<const vk::DescriptorSetLayout*> diffractionDescriptorSetLayout =
+		//{
+		//	m_globalDescSetLayout.get()
+		//};
+		//m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass, diffractionDescriptorSetLayout, *m_pipelineCache);
+		
+		/// 2. gltf test
+		m_materialDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-			.SetTag("basic descriptor Set Layout")
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.SetTag("gltf descriptor Set Layout")
 			.Build();
-		std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
+		std::vector<const vk::DescriptorSetLayout*> gltfDescriptorSetLayout =
 		{
 			m_globalDescSetLayout.get(),
-			m_basicDescSetLayout.get()
+			m_materialDescSetLayout.get()
 		};
-		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
-
-		// diffracrtion 
-		// no need to handle textures 
-		std::vector<const vk::DescriptorSetLayout*> diffractionDescriptorSetLayout =
-		{
-			m_globalDescSetLayout.get()
-		};
-		m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass, diffractionDescriptorSetLayout, *m_pipelineCache);
-
+		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
+		// other 
 	}
 	void Renderer::Shutdown()
 	{
 		const vk::Device& device = Application::Get().GetDevice();
 		device.WaitIdle();
 	
-		m_basicRenderSys->ShutDown();
-		m_diffractionRenderSys->ShutDown();
+	/*	m_basicRenderSys->ShutDown();
+		m_diffractionRenderSys->ShutDown();*/
+		m_gltfRenderSys->ShutDown();
 
 		m_pipelineCache->Clean();
 		m_swapChain->Clean();
@@ -175,9 +190,11 @@ namespace Alalba
 
 		m_globalDescPool->Clean();
 
+		/// rendering systems
 		// clean descriptor set layouts
 		m_globalDescSetLayout->Clean();
-		m_basicDescSetLayout->Clean();
+//		m_basicDescSetLayout->Clean();
+		m_materialDescSetLayout->Clean();
 
 		m_allocator->Clean();
 	}
@@ -290,13 +307,16 @@ namespace Alalba
 				vkCmdSetViewport(cmdBuffers[i], 0, 1, &viewport);
 				vkCmdSetScissor(cmdBuffers[i], 0, 1, &scissor);
 				
-				// basic render sys
+				/// rendering sys
 				vkCmdBeginRenderPass(cmdBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 				
 				if(m_BasicSysOn)
 					m_basicRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
 				if(m_DiffractionSysOn)
 					m_diffractionRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
+				if (m_gltfSysOn)
+					m_gltfRenderSys->Render(*m_commandBuffers, *m_GlobalDescriptorSets[i], i);
+		
 				
 				vkCmdEndRenderPass(cmdBuffers[i]);
 			
@@ -306,7 +326,7 @@ namespace Alalba
 		
 	}
 
-	void Renderer::UpdateUBO(Scene& scene)
+	void Renderer::Update(Scene& scene)
 	{
 		// update ubo
 		auto view = scene.GetAllEntitiesWith<CamComponent>();
@@ -320,9 +340,11 @@ namespace Alalba
 			ubo.proj = camera.GetProjectionMatrix();
 			ubo.position = camera.GetPosition();
 		}
-
+		void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
+		memcpy(data, &ubo, sizeof(ubo));
+		m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
 		//
-		m_basicRenderSys->Update(scene);
+		//m_basicRenderSys->Update(scene);
 	}
 
 	void Renderer::DrawFrame(Scene& scene)
@@ -344,11 +366,8 @@ namespace Alalba
 			ALALBA_ASSERT(result == VK_SUCCESS, "Acquire Next Image Failed");
 		}
 		// update ubo
-		UpdateUBO(scene);
-		void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
-		memcpy(data, &ubo, sizeof(ubo));
-		m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
-
+		Update(scene);
+		
 		m_inFlightFences[m_currentFrame]->Reset();
 
 		// TODO: abstract to a new submit method

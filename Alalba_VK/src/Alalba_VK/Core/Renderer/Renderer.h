@@ -1,6 +1,7 @@
 #pragma once
 #include "BasicRenderSys.h"
 #include "DiffractionSys.h"
+#include "glTFRenderSys.h"
 
 #include "Alalba_VK/Vulkan/SwapChain.h"
 #include "Alalba_VK/Vulkan/ShaderModule.h"
@@ -19,6 +20,8 @@
 #include "Alalba_VK/Vulkan/DescriptorSetLayout.h"
 #include <glm/glm.hpp>
 #include "Alalba_VK/Core/Scene/Scene.h"
+
+
 namespace Alalba
 {
 	class Renderer
@@ -32,7 +35,7 @@ namespace Alalba
 	
 		
 		void PrepareCommandBuffer(Scene& scene);
-		void UpdateUBO(Scene& scene);
+		void Update(Scene& scene);
 		void DrawFrame(Scene& scene);
 	private:
 	
@@ -78,14 +81,21 @@ namespace Alalba
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
 		// basic sys
-		bool m_BasicSysOn = true;
+		bool m_BasicSysOn = false;
 		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
 		// diffraction sys
 		bool m_DiffractionSysOn = false;
 		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
+		// gltf test
+		bool m_gltfSysOn = true;
+		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
+		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout; // should be same as in the molde material;
+		
+		
 		// other sys
+
 
 
 		uint32_t m_currentFrame = 0;

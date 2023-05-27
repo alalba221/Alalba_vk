@@ -25,7 +25,7 @@ namespace vk
 		// const uint32_t* pQueueFamilyIndices;
 		m_allocation = m_allocator.AllocateBuffer(bufferInfo, m_vmaUsage, m_buffer, m_tag);
 	}
-	// copy from memory to gpu
+	// copy from memory  to gpu_only or (cpu_to_gpu) using a cpu_only 
 	void Buffer::CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 
@@ -33,7 +33,7 @@ namespace vk
 			.SetTag("Staging Buffer")
 			.SetSize(sizeInByte)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
-			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_ONLY)
 			.Build();
 
 		// 2. copy data to staging buffer

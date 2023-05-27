@@ -5,13 +5,8 @@
 // pipeline layout  = descriptor set layout + push constant
 namespace vk
 {
-	PipelineLayout::Builder& PipelineLayout::Builder::AddPushConstant()
-	{
-		// TODO: insert return statement here
-		return *this;
-	}
-
-	PipelineLayout::PipelineLayout(const Device& device,const std::vector<const DescriptorSetLayout*>&pdescSetLayout, const std::string& tag)
+	PipelineLayout::PipelineLayout(const Device& device,const std::vector<const DescriptorSetLayout*>&pdescSetLayout, 
+		const std::vector<VkPushConstantRange>& push_constants, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
 		ALALBA_INFO("Create PipelineLayout: {0}",m_tag);
@@ -25,8 +20,8 @@ namespace vk
 		ci.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		ci.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
 		ci.pSetLayouts = descriptorSetLayouts.data();
-		ci.pushConstantRangeCount = 0;
-		ci.pPushConstantRanges = nullptr; 
+		ci.pushConstantRangeCount = push_constants.size();
+		ci.pPushConstantRanges = push_constants.size()==0?nullptr : push_constants.data();
 		ci.pNext = nullptr;
 		// ci.flags
 
