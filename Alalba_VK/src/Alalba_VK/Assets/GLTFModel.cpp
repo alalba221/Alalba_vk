@@ -126,7 +126,8 @@ namespace Alalba
 		}
 		glm::mat4 rotation = glm::mat4(1.0f);
 		if (node.rotation.size() == 4) {
-			glm::quat q = glm::make_quat(node.rotation.data());
+			//glm::quat q = glm::make_quat(node.rotation.data());
+			glm::quat q = glm::quat(node.rotation[3], node.rotation[0], node.rotation[1], node.rotation[2]);
 			newNode->rotation = glm::mat4(q);
 		}
 		glm::vec3 scale = glm::vec3(1.0f);
@@ -141,7 +142,7 @@ namespace Alalba
 			}
 		};
 
-		newNode->matrix = glm::translate(glm::mat4(1.0f), translation)* glm::mat4(rotation)* glm::scale(glm::mat4(1.0f), scale)* newNode->matrix;
+		newNode->matrix = glm::translate(glm::mat4(1.0f), newNode->translation)* glm::mat4(newNode->rotation)* glm::scale(glm::mat4(1.0f), newNode->scale)* newNode->matrix;
 
 		// Node with children
 		if (node.children.size() > 0) 

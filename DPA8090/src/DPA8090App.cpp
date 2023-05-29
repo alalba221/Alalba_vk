@@ -37,7 +37,8 @@ public:
 		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
 			.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
 		//m_gltfSys->LoadModel("models/glTF/buster_drone/busterDrone.gltf");
-		m_gltfLoader->LoadModel("models/glTF/FlightHelmet/FlightHelmet.gltf");
+		m_gltfLoader->LoadModel("models/glTF/FlightHelmet/FlightHelmet.gltf")
+			.LoadModel("models/glTF/buster_drone/busterDrone.gltf");
 
 
 		auto teapot = m_scene->CreateEntity("teapot");
@@ -52,8 +53,8 @@ public:
 		trans = glm::translate(trans, glm::vec3(1.5f, -1.5f, 0.0f));
 		teapot2.AddOrReplaceComponent<TransformComponent>(trans);
 
-		auto drone = m_scene->CreateEntity("FlightHelmet");
-		drone.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("FlightHelmet"));
+		auto drone = m_scene->CreateEntity("busterDrone");
+		drone.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
 	
 		auto cam = m_scene->CreateEntity("camera");
 		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 10.0f));
