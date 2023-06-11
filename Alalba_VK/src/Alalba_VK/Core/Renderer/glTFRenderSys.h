@@ -59,8 +59,8 @@ namespace Alalba
 		void CreatePipeline(const vk::RenderPass& renderpass, const vk::PipelineCache& pipelineCache);
 		
 
-		void DrawModel(const GLTFModel& model,vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
-		void DrawNode(const GLTFModel& model, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
+		void DrawModel(const GLTFModel& model, const glm::mat4& basetransform, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
+		void DrawNode(const GLTFModel& model, const glm::mat4& basetransform, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
 
 	};
 }

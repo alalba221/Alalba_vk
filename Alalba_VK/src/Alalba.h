@@ -33,3 +33,4 @@
 
 //#include "Alalba_VK/Core/System/BasicRenderSys.h"
 #include "Alalba_VK/Core/Renderer/Renderer.h"
+#include "Alalba_VK/Core/RayTracer/RayTracer.h"

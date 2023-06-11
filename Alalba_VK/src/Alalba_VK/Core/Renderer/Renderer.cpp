@@ -84,8 +84,8 @@ namespace Alalba
 			m_frameBuffers[i] = vk::FrameBuffer::Builder(device, *m_renderPass)
 				.SetTag(tag)
 				.SetWidthHeight(m_swapChain->GetExtent().width, m_swapChain->GetExtent().height)
-				.AddAttachment(m_swapChain->GetImageView(i))
-				.AddAttachment(*m_depthImageView)
+				.PushAttachment(m_swapChain->GetImageView(i))
+				.PushAttachment(*m_depthImageView)
 				.Build();
 
 			m_inFlightFences[i] =
@@ -121,18 +121,18 @@ namespace Alalba
 
 		///  Rendering systems
 		//0. basic
-		//m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
-		//	// 0 : is bingding index of the binding slot in the set
-		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-		//	.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-		//	.SetTag("basic descriptor Set Layout")
-		//	.Build();
-		//std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
-		//{
-		//	m_globalDescSetLayout.get(),
-		//	m_basicDescSetLayout.get()
-		//};
-		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
+		m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
+			// 0 : is bingding index of the binding slot in the set
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+			.SetTag("basic descriptor Set Layout")
+			.Build();
+		std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
+		{
+			m_globalDescSetLayout.get(),
+			m_basicDescSetLayout.get()
+		};
+		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
 
 		////1. diffracrtion 
 		//// no need to handle textures 
@@ -162,8 +162,9 @@ namespace Alalba
 		const vk::Device& device = Application::Get().GetDevice();
 		device.WaitIdle();
 	
-	/*	m_basicRenderSys->ShutDown();
-		m_diffractionRenderSys->ShutDown();*/
+		m_basicDescSetLayout->Clean();
+		m_basicRenderSys->ShutDown();
+	//	m_diffractionRenderSys->ShutDown();*/
 		m_gltfRenderSys->ShutDown();
 
 		m_pipelineCache->Clean();
@@ -317,7 +318,6 @@ namespace Alalba
 				if (m_gltfSysOn)
 					m_gltfRenderSys->Render(*m_commandBuffers, *m_GlobalDescriptorSets[i], i);
 		
-				
 				vkCmdEndRenderPass(cmdBuffers[i]);
 			
 			}
@@ -344,7 +344,7 @@ namespace Alalba
 		memcpy(data, &ubo, sizeof(ubo));
 		m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
 		//
-		//m_basicRenderSys->Update(scene);
+		m_basicRenderSys->Update(scene);
 	}
 
 	void Renderer::DrawFrame(Scene& scene)

@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
-
+// TODO: should have a add attachment function
+//https://stackoverflow.com/questions/66695769/vulkan-loading-depth-attachment-in-the-second-renderpass-not-working#:~:text=void%20VulkanRenderTarget%3A%3AaddAttachment%20%28AttachmentCreateInfo%20createinfo%29%20%7B%20auto%20device%20%3D,VulkanInitializers%3A%3AimageViewCreateInfo%20%28%29%3B%20imageView.viewType%20%3D%20%28createinfo.layerCount%20%3D%3D%201%29%20%3F
 namespace vk
 {
 	class Device;
@@ -15,6 +16,7 @@ namespace vk
 			Builder& SetDepthFormat(const VkFormat depthFormat);
 			Builder& SetColorATCHLoadOP(const VkAttachmentLoadOp colorATCHLoadOp);
 			Builder& SetDepthATCHLoadOP(const VkAttachmentLoadOp depthATCHLoadOp);
+			Builder& PushAttachment(){}
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
 			std::unique_ptr<RenderPass> Build() const;
 

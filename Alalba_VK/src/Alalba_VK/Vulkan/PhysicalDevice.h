@@ -47,7 +47,7 @@ namespace vk
 		~PhysicalDevice();
 
 		bool IsExtensionSupported(const char* extensionName) const;
-		const VkPhysicalDeviceFeatures& GetPhysicalDeviceFeatures() const { return m_features; }
+		const VkPhysicalDeviceFeatures& GetPhysicalDeviceFeatures() const { return m_features.features; }
 		const QueueFamilies& GetQFamilies() const { return m_queueFamilies; }
 
 		// memory type = memoryTypeIndex is an index identifying a memory type from the memoryTypes 
@@ -66,7 +66,7 @@ namespace vk
 		std::unordered_set<std::string> m_supportedExtensions;
 
 		VkPhysicalDeviceProperties m_properties;
-		VkPhysicalDeviceFeatures m_features;
+		VkPhysicalDeviceFeatures2 m_features{};
 
 		friend class Instance;
 	};

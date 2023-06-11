@@ -18,15 +18,20 @@ namespace Alalba
 		uint32_t indexSize = sizeof(uint32_t) * indices.size();
 		
 		m_indexCount = indices.size();
+		m_vertexCount = vertices.size();
 
+		VkBufferUsageFlags flag = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+		VkBufferUsageFlags rayTracingFlags =  // used also for building acceleration structures
+			flag | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		
 		// Vertex buffer
 		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Vertex Buffer")
 			.SetSize(vertexSize)
-			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
+			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | rayTracingFlags)
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
 			.Build();
-		
+
 		/* 
 			https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer#page_Transfer-queue
 			Use graphic queue, since both compute and graphics q support transfer
@@ -41,7 +46,7 @@ namespace Alalba
 		m_indexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
 			.SetTag("Index Buffer")
 			.SetSize(indexSize)
-			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | rayTracingFlags)
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
 			.Build();
 		
@@ -52,6 +57,16 @@ namespace Alalba
 
 		vertices.clear();
 		indices.clear();
+
+		// create BLAS
+	/*	m_blas.reset(new vk::BLAS(Application::Get().GetDevice(), *m_vertexBuffer, *m_indexBuffer, m_vertexCount, m_indexCount, sys.Allocator()));
+		m_blas->BuildOnDevice(Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool());*/
+
+		m_blas = vk::BLAS::Builder(Application::Get().GetDevice(), sys.Allocator(), *m_vertexBuffer, *m_indexBuffer)
+			.SetTag("BLAS")
+			.SetIndexCount(m_indexCount)
+			.SetVertexCount(m_vertexCount)
+			.Build();
 	}
 
 	void Mesh::Clean()
@@ -59,6 +74,7 @@ namespace Alalba
 		//vkDeviceWaitIdle(Application::Get().GetDevice().Handle());
 		m_vertexBuffer->Clean();
 		m_indexBuffer->Clean();
+		m_blas->Clean();
 	}
 	void Mesh::LoadModel(const std::string& file, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 	{

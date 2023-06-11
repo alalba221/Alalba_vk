@@ -5,6 +5,7 @@
 #include"Alalba_VK/Core/Application.h"
 namespace vk
 {
+
 	Device::Builder& Device::Builder::AddExtension(const char* ext)
 	{
 		m_exts.push_back(ext);
@@ -75,6 +76,7 @@ namespace vk
 		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 		deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
 		deviceCreateInfo.pNext = &rayTracingFeatures;
+		
 		VkResult err;
 		err = vkCreateDevice(m_physicalDevice.Handle(), &deviceCreateInfo, nullptr, &m_device);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create Logical Device Failed");

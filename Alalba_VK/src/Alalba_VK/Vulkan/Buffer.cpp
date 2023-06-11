@@ -3,8 +3,12 @@
 #include "Device.h"
 #include "Allocator.h"
 #include "CommandBuffers.h"
+#include "FunctionPointers.h"
 namespace vk
 {
+	// function pointer
+	static PFN_vkGetBufferDeviceAddressKHR fpGetBufferDeviceAddressKHR;
+	
 	Buffer::Buffer(const Device& device, Allocator& allocator, 
 		const VkDeviceSize& size, const VkBufferUsageFlags& usageFlags,
 		const VmaMemoryUsage& vmaUsage,
@@ -24,9 +28,12 @@ namespace vk
 		// uint32_t               queueFamilyIndexCount;
 		// const uint32_t* pQueueFamilyIndices;
 		m_allocation = m_allocator.AllocateBuffer(bufferInfo, m_vmaUsage, m_buffer, m_tag);
+
+		GET_DEVICE_PROC_ADDR(m_device.Handle(), GetBufferDeviceAddressKHR);
+
 	}
 	// copy from memory  to gpu_only or (cpu_to_gpu) using a cpu_only 
-	void Buffer::CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+	void Buffer::CopyDataFrom(const void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 
 		std::unique_ptr<Buffer>stagingBuffer = Buffer::Builder(m_device, m_allocator)
@@ -55,6 +62,14 @@ namespace vk
 			m_allocator.DestroyBuffer(m_buffer, m_allocation);
 			m_buffer = VK_NULL_HANDLE;
 		}
+	}
+	
+	uint64_t Buffer::DeviceAddress() const
+	{
+		VkBufferDeviceAddressInfoKHR bufferDeviceAI{};
+		bufferDeviceAI.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+		bufferDeviceAI.buffer = m_buffer;
+		return fpGetBufferDeviceAddressKHR(m_device.Handle(), &bufferDeviceAI);
 	}
 
 	void* Buffer::MapMemory()

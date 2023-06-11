@@ -120,14 +120,19 @@ namespace vk
     colorBlendATCHState.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT
       | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
+
+
+    std::vector<VkPipelineColorBlendAttachmentState>
+      colorAttachBlend{ colorBlendATCHState ,colorBlendATCHState };
+
     VkPipelineColorBlendStateCreateInfo colorBlendingState = {};
     colorBlendingState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlendingState.pNext = nullptr;
     // VkPipelineColorBlendStateCreateFlags          flags;
     colorBlendingState.logicOpEnable = VK_FALSE;
     colorBlendingState.logicOp = VK_LOGIC_OP_COPY; // Optional
-    colorBlendingState.attachmentCount = 1;
-    colorBlendingState.pAttachments = &colorBlendATCHState;
+    colorBlendingState.attachmentCount = colorAttachBlend.size();
+    colorBlendingState.pAttachments = colorAttachBlend.data();
     colorBlendingState.blendConstants[0] = 0.0f; // Optional
     colorBlendingState.blendConstants[1] = 0.0f; // Optional
     colorBlendingState.blendConstants[2] = 0.0f; // Optional

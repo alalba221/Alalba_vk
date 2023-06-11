@@ -14,7 +14,7 @@ namespace vk
 		{
 		public:
 			Builder(const Device& device, const RenderPass& renderpass):m_device(device),m_renderpass(renderpass){};
-			Builder& AddAttachment(const ImageView& imageView);
+			Builder& PushAttachment(const ImageView& imageView);
 			Builder& SetTag(const std::string& tag) { m_tag = tag; return *this; }
 			Builder& SetWidthHeight(const uint32_t width, const uint32_t height) { m_width = width; m_height = height; return *this; }
 			std::unique_ptr<FrameBuffer>Build() const 

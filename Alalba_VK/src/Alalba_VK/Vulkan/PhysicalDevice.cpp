@@ -99,9 +99,15 @@ namespace vk
 		}
 
 		vkGetPhysicalDeviceProperties(device, &m_properties);
-		vkGetPhysicalDeviceFeatures(device, &m_features);
-		return m_properties.deviceType == gpuType &&
-			m_features.geometryShader && m_features.samplerAnisotropy && m_queueFamilies.IsComplete();
+
+		// https://gpuopen-librariesandsdks.github.io/VulkanMemoryAllocator/html/enabling_buffer_device_address.html
+		VkPhysicalDeviceBufferDeviceAddressFeatures deviceAddrFeature{};
+		deviceAddrFeature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+		m_features.pNext = &deviceAddrFeature;
+		m_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		vkGetPhysicalDeviceFeatures2(device, &m_features);
+		return m_properties.deviceType == gpuType && deviceAddrFeature.bufferDeviceAddress &&
+			m_features.features.geometryShader && m_features.features.samplerAnisotropy && m_queueFamilies.IsComplete();
 	}
 	PhysicalDevice::QueueFamilies PhysicalDevice::FindRequestedQFamilies(const VkPhysicalDevice& device, const uint32_t requestedQFamilies)
 	{

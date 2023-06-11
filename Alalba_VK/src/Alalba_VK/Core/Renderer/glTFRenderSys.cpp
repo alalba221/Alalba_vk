@@ -28,14 +28,15 @@ namespace Alalba
 		vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipelineLayout->Handle(), 0, 1, &gbset, 0, nullptr);
 
-		auto view = m_scene.GetAllEntitiesWith<GLTFComponent>();
+		auto view = m_scene.GetAllEntitiesWith<GLTFComponent, TransformComponent>();
 
 		/// for each entity
 		for (auto entity : view)
 		{
 			auto model = view.get<GLTFComponent>(entity).Model;
+			auto basetransform = view.get<TransformComponent>(entity).Transform;
 
-			DrawModel(*model, cmdBuffers, currentCmdBuffer);
+			DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
 
 		}
 	}
@@ -88,7 +89,7 @@ namespace Alalba
 
 	}
 
-	void glTFRenderSys::DrawModel(const GLTFModel& model, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
+	void glTFRenderSys::DrawModel(const GLTFModel& model, const glm::mat4& basetransform, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
 	{
 		// 1. Get vertex and index buffer
 		VkBuffer vertexBuffers[] = { model.GetVertexBuffer().Handle() };
@@ -102,11 +103,11 @@ namespace Alalba
 		std::vector<Node*> nodes = model.GetNodes();
 		for (auto node : nodes)
 		{
-			DrawNode(model, node, cmdBuffers, currentCmdBuffer);
+			DrawNode(model, basetransform, node, cmdBuffers, currentCmdBuffer);
 		}
 	}
 
-	void glTFRenderSys::DrawNode(const GLTFModel& model, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
+	void glTFRenderSys::DrawNode(const GLTFModel& model, const glm::mat4& basetransform, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
 	{
 		if (node->mesh) 
 		{
@@ -119,6 +120,7 @@ namespace Alalba
 			}
 
 			// Pass the final matrix to the vertex shader using push constants
+			nodeMatrix = basetransform * nodeMatrix;
 			vkCmdPushConstants(cmdBuffers[currentCmdBuffer], m_pipelineLayout->Handle(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &nodeMatrix);
 			for (Primitive* primitive : node->mesh->primitives) {
 				// bool skip = false;
@@ -148,7 +150,7 @@ namespace Alalba
 			}
 		}
 		for (auto& child : node->children) {
-			DrawNode(model,child, cmdBuffers, currentCmdBuffer);
+			DrawNode(model, basetransform, child, cmdBuffers, currentCmdBuffer);
 		}
 	}
 

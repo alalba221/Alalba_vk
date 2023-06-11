@@ -6,7 +6,7 @@
 
 namespace vk
 {
-	FrameBuffer::Builder& FrameBuffer::Builder::AddAttachment(const ImageView& imageView)
+	FrameBuffer::Builder& FrameBuffer::Builder::PushAttachment(const ImageView& imageView)
 	{
 		m_pImageViews.push_back(&imageView);
 		return *this;

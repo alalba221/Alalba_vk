@@ -9,6 +9,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include "Alalba_VK/Vulkan/Buffer.h"
+
+#include "Alalba_VK/Vulkan/AccelerationStructure.h"
 namespace Alalba
 {
   class MeshSys;
@@ -22,6 +24,7 @@ namespace Alalba
     void Clean();
     const vk::Buffer& GetVertexbuffer() const  { return *m_vertexBuffer;}
     const vk::Buffer& GetIndexbuffer() const { return *m_indexBuffer; }
+    const vk::BLAS& GetBLAS() const { return *m_blas; }
     const uint32_t GetIndexCount() const { return m_indexCount; }
     const uint32_t GetInstanceCount() const  { return 1; }
     ~Mesh() {};
@@ -29,9 +32,11 @@ namespace Alalba
   private:
     std::unique_ptr<vk::Buffer> m_vertexBuffer;
     std::unique_ptr<vk::Buffer> m_indexBuffer;
-    //std::vector<Vertex> m_vertices;
-    //std::vector<uint32_t> m_indices;
+
+    std::unique_ptr<vk::BLAS> m_blas;
+
     void LoadModel(const std::string& file, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+    uint32_t m_vertexCount;
     uint32_t m_indexCount;
   };
 }

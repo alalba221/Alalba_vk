@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
+
 namespace vk
 {
 	class Device;
@@ -43,12 +44,13 @@ namespace vk
 			const std::string& tag);
 
 		// TO GPU
-		void CopyDataFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
+		void CopyDataFrom(const void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		~Buffer() { Clean(); }
 		void Clean();
 
 		const VmaAllocation& GetAllocation() const { return m_allocation; }
-
+		//VkDeviceAddress 
+		uint64_t DeviceAddress() const;
 		void* MapMemory();
 		void UnMapMemory();
 
@@ -60,6 +62,7 @@ namespace vk
 		VkBufferUsageFlags m_usageFlags;
 		VmaAllocation m_allocation;
 		VmaMemoryUsage m_vmaUsage;
+		VkDeviceAddress m_deviceAddr;
 
 	private:
 		void MoveDataFromStagingBuffer(const Buffer& stage ,uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);

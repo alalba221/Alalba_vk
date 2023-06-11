@@ -21,6 +21,9 @@ namespace Alalba
     glm::vec2 uv;
     glm::vec3 tangent;
     glm::vec3 color;
+    // further attribute
+    glm::vec3 attr1;
+    glm::vec3 attr2;
 
     bool operator==(const Vertex& other) const {
       return position == other.position && normal == other.normal && uv == other.uv;

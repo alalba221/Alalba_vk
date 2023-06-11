@@ -2,7 +2,6 @@
 #include <vulkan/vulkan.h>
 // composition queue
 #include "Queue.h"
-
 namespace vk
 {
 	// create from 

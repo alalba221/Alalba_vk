@@ -31,7 +31,7 @@ namespace vk
 		return std::make_unique<RenderPass>(m_device, m_colorFormat, m_depthFormat, m_colorATCHLoadOp, m_depthATCHLoadOp,m_tag);
 	}
 
-
+	// TODO: should have a add attachment function
 	RenderPass::RenderPass(const Device& device,
 		const VkFormat colorForamt, const VkFormat depthFormat,
 		const VkAttachmentLoadOp colorATCHLoadOp,
@@ -72,6 +72,8 @@ namespace vk
 		This goes right after defining the attachment*/
 		/*UNDEFINED -> RenderPass Begins -> Subpass 0 begins (Transition to Attachment Optimal) ->
 		Subpass 0 renders -> Subpass 0 ends -> Renderpass Ends (Transitions to Present Source)*/
+		
+		// The attachment parameter specifies which attachment to reference by its index in the attachment descriptions array.
 		VkAttachmentReference colorAttachmentRef = {};
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -80,10 +82,16 @@ namespace vk
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
+		// The index of the attachment in this array is directly referenced from the 
+		// fragment shader with the layout(location = 0) out vec4 outColor directive!
+		std::vector<VkAttachmentReference> colorrefArry;
+		colorrefArry.push_back(VkAttachmentReference{});
+		colorrefArry.push_back(colorAttachmentRef);
+
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &colorAttachmentRef;
+		subpass.colorAttachmentCount = colorrefArry.size();
+		subpass.pColorAttachments = colorrefArry.data();
 		//subpass.pDepthStencilAttachment =nullptr;
 		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 		subpass.inputAttachmentCount = 0;				// optional
@@ -95,10 +103,20 @@ namespace vk
 		VkSubpassDependency dependency = {};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 		dependency.srcAccessMask = 0;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		VkSubpassDependency depth_dependency = {};
+		depth_dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		depth_dependency.dstSubpass = 0;
+		depth_dependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		depth_dependency.srcAccessMask = 0;
+		depth_dependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+		depth_dependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		std::vector<VkSubpassDependency> dependencies{ dependency, depth_dependency };
 
 		std::array<VkAttachmentDescription, 2> attachments =
 		{
@@ -113,8 +131,8 @@ namespace vk
     renderPassCI.pAttachments = attachments.data();
     renderPassCI.subpassCount = 1;
     renderPassCI.pSubpasses = &subpass;
-    renderPassCI.dependencyCount = 1;
-    renderPassCI.pDependencies = &dependency;
+    renderPassCI.dependencyCount = dependencies.size();
+    renderPassCI.pDependencies = dependencies.data();
 
 		VkResult err;
 		err = vkCreateRenderPass(m_device.Handle(), &renderPassCI, nullptr, &m_renderPass);

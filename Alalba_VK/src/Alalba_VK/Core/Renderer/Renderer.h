@@ -81,7 +81,7 @@ namespace Alalba
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
 		// basic sys
-		bool m_BasicSysOn = false;
+		bool m_BasicSysOn = true;
 		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
 		// diffraction sys
@@ -89,7 +89,7 @@ namespace Alalba
 		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
 		// gltf test
-		bool m_gltfSysOn = true;
+		bool m_gltfSysOn = false;
 		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout; // should be same as in the molde material;
 		

@@ -12,7 +12,7 @@ namespace vk
 	{
 		ALALBA_INFO("Create VMA Allocator: {0}", m_tag);
 		VmaAllocatorCreateInfo CI = {};
-		//CI.flags
+		CI.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 		CI.physicalDevice = m_instance.GetPhysicalDevice().Handle();
 		CI.device = m_device.Handle();
 		CI.instance = m_instance.Handle();
