@@ -15,12 +15,14 @@ layout( push_constant ) uniform constants
 	mat4 matrix;
 } PushConstants;
 
-layout(set = 0, binding = 0) uniform  CameraBuffer{
+layout(set = 0, binding = 0) uniform  CameraLightBuffer{
 	
-	// mat4 model;
 	mat4 view;
 	mat4 proj;
-	vec3 pos;
+	vec4 pos;
+
+	vec4 lightPos;
+	vec4 lightColor;
 } ubo;
 
 

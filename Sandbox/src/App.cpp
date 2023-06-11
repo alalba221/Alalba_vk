@@ -37,8 +37,8 @@ public:
 		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
 			.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
 		//m_gltfSys->LoadModel("models/glTF/buster_drone/busterDrone.gltf");
-		m_gltfLoader->LoadModel("models/glTF/FlightHelmet/FlightHelmet.gltf")
-			.LoadModel("models/glTF/buster_drone/busterDrone.gltf");
+		m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf")
+			.LoadModel("models/glTF/samplescene.gltf");
 
 
 		auto teapot = m_scene->CreateEntity("teapot");
@@ -50,16 +50,21 @@ public:
 		teapot2.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
 		teapot2.AddComponent<TextureComponent>(m_textureSys->GetTexture("awesomeface"));
 		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(1.5f, -1.5f, 2.0f));
+		trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
 		teapot2.AddOrReplaceComponent<TransformComponent>(trans);
 
 		auto drone = m_scene->CreateEntity("busterDrone");
 		drone.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
 		drone.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
 
-		auto helmet = m_scene->CreateEntity("FlightHelmet");
-		helmet.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("FlightHelmet"));
-		helmet.AddOrReplaceComponent<TransformComponent>(trans);
+		auto drone2 = m_scene->CreateEntity("busterDrone2");
+		drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
+		drone2.AddOrReplaceComponent<TransformComponent>(trans);
+	
+		glm::vec4 lightpos = glm::vec4(0, 1.0, 1.0, 1.0);
+		glm::vec4 lightcolor = glm::vec4(1.0, 1.0, 1.0, 1.0);
+		auto pointLight = m_scene->CreateEntity("pointLight0");
+		pointLight.AddComponent<PointLightComponent>(lightpos, lightcolor);
 	
 		auto cam = m_scene->CreateEntity("camera");
 		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 10.0f));

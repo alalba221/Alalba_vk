@@ -58,10 +58,10 @@ namespace Alalba
 			.Build();
 
 		m_renderPass = vk::RenderPass::Builder(device)
-			.SetColorFormat(m_swapChain->GetFormat())
-			.SetDepthFormat(m_depthImage->GetFormat()) // this should be compatible with framebuffer
-			.SetColorATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
-			.SetDepthATCHLoadOP(VK_ATTACHMENT_LOAD_OP_CLEAR)
+			.PushColorAttachment(m_swapChain->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+			.PushDepthAttachment(m_depthImage->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL)
+			.PushDependency(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+			.PushDependency(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
 			.Build();
 
 		m_globalDescPool = vk::DescriptorPool::Builder(device)
@@ -85,7 +85,7 @@ namespace Alalba
 				.SetTag(tag)
 				.SetWidthHeight(m_swapChain->GetExtent().width, m_swapChain->GetExtent().height)
 				.PushAttachment(m_swapChain->GetImageView(i))
-				.PushAttachment(*m_depthImageView)
+				.PushAttachment(*m_depthImageView) // TODO : FOR NOW depth attachment must be added at the end of attachment list
 				.Build();
 
 			m_inFlightFences[i] =
@@ -121,18 +121,18 @@ namespace Alalba
 
 		///  Rendering systems
 		//0. basic
-		m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
-			// 0 : is bingding index of the binding slot in the set
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-			.SetTag("basic descriptor Set Layout")
-			.Build();
-		std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
-		{
-			m_globalDescSetLayout.get(),
-			m_basicDescSetLayout.get()
-		};
-		m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
+		//m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
+		//	// 0 : is bingding index of the binding slot in the set
+		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+		//	.SetTag("basic descriptor Set Layout")
+		//	.Build();
+		//std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
+		//{
+		//	m_globalDescSetLayout.get(),
+		//	m_basicDescSetLayout.get()
+		//};
+		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
 
 		////1. diffracrtion 
 		//// no need to handle textures 
@@ -162,8 +162,8 @@ namespace Alalba
 		const vk::Device& device = Application::Get().GetDevice();
 		device.WaitIdle();
 	
-		m_basicDescSetLayout->Clean();
-		m_basicRenderSys->ShutDown();
+		//m_basicDescSetLayout->Clean();
+		//m_basicRenderSys->ShutDown();
 	//	m_diffractionRenderSys->ShutDown();*/
 		m_gltfRenderSys->ShutDown();
 
@@ -328,23 +328,36 @@ namespace Alalba
 
 	void Renderer::Update(Scene& scene)
 	{
-		// update ubo
+		// update camera
 		auto view = scene.GetAllEntitiesWith<CamComponent>();
 		for (auto e : view)
 		{
 			Entity entity = { e, &scene};
+			// camera
 			auto& camera = entity.GetComponent<CamComponent>().m_Camera;
-
-			//ubo.model = glm::mat4(1.0f);
-			ubo.view = camera.GetViewMatrix();
-			ubo.proj = camera.GetProjectionMatrix();
-			ubo.position = camera.GetPosition();
+			m_ubo.view = camera.GetViewMatrix();
+			m_ubo.proj = camera.GetProjectionMatrix();
+			m_ubo.camPos = glm::vec4(camera.GetPosition(),1.0);
 		}
+
+		// update light
+		auto viewlight = scene.GetAllEntitiesWith<PointLightComponent>();
+		for (auto e : viewlight)
+		{
+			Entity entity = { e, &scene };
+
+			auto& position = entity.GetComponent<PointLightComponent>().LightPosition;
+			auto& color = entity.GetComponent<PointLightComponent>().LightColor;
+			m_ubo.lightcolor = color;
+			m_ubo.lightposition = position;
+		}
+
 		void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
-		memcpy(data, &ubo, sizeof(ubo));
+		memcpy(data, &m_ubo, sizeof(m_ubo));
 		m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
+		
 		//
-		m_basicRenderSys->Update(scene);
+		//m_basicRenderSys->Update(scene);
 	}
 
 	void Renderer::DrawFrame(Scene& scene)

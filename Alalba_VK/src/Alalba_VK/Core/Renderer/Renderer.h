@@ -42,10 +42,13 @@ namespace Alalba
 	private:
 		
 		struct GlobalUBO {
-			//glm::mat4 model; 
+			// cam
 			glm::mat4 view;
 			glm::mat4 proj;
-			glm::vec3 position;
+			glm::vec4 camPos;
+			// light
+			glm::vec4 lightposition;
+			glm::vec4 lightcolor;
 		};
 
 	private:
@@ -81,7 +84,7 @@ namespace Alalba
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
 		// basic sys
-		bool m_BasicSysOn = true;
+		bool m_BasicSysOn = false;
 		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
 		// diffraction sys
@@ -89,17 +92,15 @@ namespace Alalba
 		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
 		// gltf test
-		bool m_gltfSysOn = false;
+		bool m_gltfSysOn = true;
 		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout; // should be same as in the molde material;
 		
 		
 		// other sys
 
-
-
 		uint32_t m_currentFrame = 0;
-		GlobalUBO ubo;
+		GlobalUBO m_ubo;
 
 	};
 }

@@ -1,7 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
-// TODO: should have a add attachment function
-//https://stackoverflow.com/questions/66695769/vulkan-loading-depth-attachment-in-the-second-renderpass-not-working#:~:text=void%20VulkanRenderTarget%3A%3AaddAttachment%20%28AttachmentCreateInfo%20createinfo%29%20%7B%20auto%20device%20%3D,VulkanInitializers%3A%3AimageViewCreateInfo%20%28%29%3B%20imageView.viewType%20%3D%20%28createinfo.layerCount%20%3D%3D%201%29%20%3F
+//Todo: only has one subpass
 namespace vk
 {
 	class Device;
@@ -12,36 +11,46 @@ namespace vk
 		{
 		public:
 			Builder(const Device& device):m_device(device) {};
-			Builder& SetColorFormat(const VkFormat colorFormat);
-			Builder& SetDepthFormat(const VkFormat depthFormat);
-			Builder& SetColorATCHLoadOP(const VkAttachmentLoadOp colorATCHLoadOp);
-			Builder& SetDepthATCHLoadOP(const VkAttachmentLoadOp depthATCHLoadOp);
-			Builder& PushAttachment(){}
+			
+			Builder& PushColorAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout);
+			Builder& PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			Builder& PushDependency(VkPipelineStageFlags srcStage, VkAccessFlags srcOp, VkPipelineStageFlags dstStage, VkAccessFlags dstOp);
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
-			std::unique_ptr<RenderPass> Build() const;
+			std::unique_ptr<RenderPass> Build() const
+			{
+				return std::make_unique<RenderPass>(m_device, m_attachments, m_colorAttachmentRefs, m_depthAttachmentRef, m_dependencies, m_tag);
+			}
 
 		private:
 			const class Device& m_device;
-			VkAttachmentLoadOp m_colorATCHLoadOp{};
-			VkAttachmentLoadOp m_depthATCHLoadOp{};
-			VkFormat m_colorFormat{};
-			VkFormat m_depthFormat{};
+		
 			std::string m_tag;
+			uint32_t nextColorAttachIndex = 0;
+
+			std::vector<VkAttachmentDescription> m_attachments{};
+			std::vector<VkAttachmentReference> m_colorAttachmentRefs{};
+			VkAttachmentReference m_depthAttachmentRef{};
+
+			std::vector<VkSubpassDependency> m_dependencies{};
 		};
 
 	public:
 		VULKAN_NON_COPIABLE(RenderPass);
 		RenderPass(const Device& device, 
-			const VkFormat colorForamt, const VkFormat depthFormat,
-			const VkAttachmentLoadOp colorATCHLoadOp,
-			const VkAttachmentLoadOp depthATCHLoadOp,
+			const std::vector<VkAttachmentDescription>& attachments,
+			const std::vector<VkAttachmentReference>& colorAttachmentRefs, const VkAttachmentReference& depthAttachmentRef,
+			const std::vector<VkSubpassDependency>& dependencies,
 			const std::string tag
 		);
 		~RenderPass() { Clean(); };
 		void Clean();
 
+		uint32_t ColorAttachmentCount()const { return m_colorAttachmentCount; }
+
 	private:
 		VULKAN_HANDLE(VkRenderPass, m_renderPass);
 		const class Device& m_device;
+
+		uint32_t m_colorAttachmentCount;
 	};
 }

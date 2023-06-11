@@ -21,6 +21,30 @@ namespace Alalba
 		operator const glm::mat4& () const { return Transform; }
 
 	};
+
+	struct PointLightComponent
+	{
+		glm::vec4 LightPosition = glm::vec4(1.0f);
+		glm::vec4 LightColor = glm::vec4(1.0f);
+
+		PointLightComponent() = default;
+		PointLightComponent(const PointLightComponent&) = default;
+		PointLightComponent(const glm::vec4& position, const glm::vec4& color)
+			:LightPosition(position), LightColor(color) {}
+	};
+
+	struct DirectionalLightComponent
+	{
+		glm::vec4 LightDircetion = glm::vec4(1.0f);
+		glm::vec4 LightColor = glm::vec4(1.0f);
+
+		DirectionalLightComponent() = default;
+		DirectionalLightComponent(const DirectionalLightComponent&) = default;
+		DirectionalLightComponent(const glm::vec4& direction, const glm::vec4& color)
+			:LightDircetion(direction), LightColor(color) {}
+	};
+
+
 	struct TagComponent
 	{
 		std::string Tag;

@@ -109,6 +109,7 @@ namespace vk
     depthStencil.back = {}; // Optional
 
     ///*** Color Blend
+    /// TODO: for now there's no blend between each attachment
     VkPipelineColorBlendAttachmentState colorBlendATCHState = {};
     colorBlendATCHState.blendEnable = VK_FALSE;
     colorBlendATCHState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
@@ -122,8 +123,12 @@ namespace vk
 
 
 
-    std::vector<VkPipelineColorBlendAttachmentState>
-      colorAttachBlend{ colorBlendATCHState ,colorBlendATCHState };
+    std::vector<VkPipelineColorBlendAttachmentState>colorAttachBlends(m_renderpass.ColorAttachmentCount());
+    for (auto& blend : colorAttachBlends)
+    {
+      blend = colorBlendATCHState;
+    }
+     
 
     VkPipelineColorBlendStateCreateInfo colorBlendingState = {};
     colorBlendingState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -131,8 +136,8 @@ namespace vk
     // VkPipelineColorBlendStateCreateFlags          flags;
     colorBlendingState.logicOpEnable = VK_FALSE;
     colorBlendingState.logicOp = VK_LOGIC_OP_COPY; // Optional
-    colorBlendingState.attachmentCount = colorAttachBlend.size();
-    colorBlendingState.pAttachments = colorAttachBlend.data();
+    colorBlendingState.attachmentCount = colorAttachBlends.size();
+    colorBlendingState.pAttachments = colorAttachBlends.data();
     colorBlendingState.blendConstants[0] = 0.0f; // Optional
     colorBlendingState.blendConstants[1] = 0.0f; // Optional
     colorBlendingState.blendConstants[2] = 0.0f; // Optional
