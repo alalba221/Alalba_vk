@@ -15,7 +15,7 @@ namespace Alalba
 
 		m_descPool = vk::DescriptorPool::Builder(app.GetDevice())
 			.SetTag("gltf Descriptor Pool")
-			.SetMaxSets(1000)
+			.SetMaxSets(100)// Each material of every model requires a descriptor set
 			//.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000)
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000)
 			.Build();

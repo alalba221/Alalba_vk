@@ -5,6 +5,7 @@
 #include "Alalba_VK/Core/Application.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
 #include "Alalba_VK/Core/Scene/Entity.h"
+#include "Alalba_VK/Vulkan/RenderPass.h"
 
 namespace Alalba 
 {
@@ -96,13 +97,18 @@ namespace Alalba
 		const vk::Device& device = Application::Get().GetDevice();
 
 		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout, renderpass,
-			*m_vertexShader, *m_fragShader, pipelineCache)
-			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
-			.SetPolygonMode(VK_POLYGON_MODE_FILL)
-			.SetBackCulling(false)
-			/*.SetScirrorExtent(m_swapChain->GetExtent())
-			.SetViewPortWidth(static_cast<float>(m_SwapChain->GetExtent().width))
-			.SetViewPortHeight(static_cast<float>(m_SwapChain->GetExtent().height))*/
+			pipelineCache)
+			.SetTag("OBJ graphics pipeline")
+			.AddPipelineStage(*m_vertexShader).AddPipelineStage(*m_fragShader)
+			.SetVertexProcessingState(true)
+			.SetTessellationState()
+			.SetRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE, VK_FALSE)
+			.SetDepthState(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS)
+			.SetMultisampleState(VK_SAMPLE_COUNT_1_BIT)
+			.AddColorBlendAttachmentState(VK_COLOR_COMPONENT_R_BIT| VK_COLOR_COMPONENT_G_BIT| VK_COLOR_COMPONENT_B_BIT| VK_COLOR_COMPONENT_A_BIT, VK_FALSE)
+			.SetColorBlendState(renderpass.ColorAttachmentCount())
+			.SetViewportState(1,1)
+			.SetDynamicState(VK_FALSE)
 			.Build();
 	}
 	void BasicRenderSys::PrepareDescriptorSets(Scene& scene, const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts)

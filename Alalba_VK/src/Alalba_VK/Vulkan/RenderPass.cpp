@@ -35,13 +35,13 @@ namespace vk
 		return *this;
 	}
 
-	RenderPass::Builder& RenderPass::Builder::PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout)
+	RenderPass::Builder& RenderPass::Builder::PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkAttachmentStoreOp storeOp, VkImageLayout finalLayout)
 	{
 		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = format;// depthBuffer.Format();
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		depthAttachment.loadOp = loadop;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depthAttachment.storeOp = storeOp;
 		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depthAttachment.initialLayout = initialLayout;
@@ -58,15 +58,17 @@ namespace vk
 		return *this;
 	}
 
-	RenderPass::Builder& RenderPass::Builder::PushDependency(VkPipelineStageFlags srcStage, VkAccessFlags srcOp, VkPipelineStageFlags dstStage, VkAccessFlags dstOp)
+	// for now: subpass dependency is only used for attachment;s layout transition
+	RenderPass::Builder& RenderPass::Builder::AddDependency(uint32_t src, VkPipelineStageFlags srcStage, VkAccessFlags srcOp, uint32_t dst, VkPipelineStageFlags dstStage, VkAccessFlags dstOp)
 	{
 		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
+		dependency.srcSubpass = src;
+		dependency.dstSubpass = dst;
 		dependency.srcStageMask = srcStage;
 		dependency.srcAccessMask = srcOp;
 		dependency.dstStageMask = dstStage;
 		dependency.dstAccessMask = dstOp;
+		dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
 		m_dependencies.push_back(dependency);
 		return *this;

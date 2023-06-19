@@ -28,6 +28,7 @@ namespace Alalba
 
 		Texture(VkFormat format ,const std::string& filename, vk::Allocator& allocator, vk::CommandPool& cmdPool);
 		
+		// used by gltfmodel
 		Texture(void* buffer, VkDeviceSize bufferSize, VkFormat format, 
 			uint32_t texWidth, uint32_t texHeight,
 			vk::Allocator& allocator, vk::CommandPool& cmdPool);

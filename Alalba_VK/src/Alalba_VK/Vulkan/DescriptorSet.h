@@ -49,6 +49,12 @@ namespace vk
 
 		// for descriptor
 		DescriptorSet& BindDescriptor(VkDescriptorType type, uint32_t binding, const Buffer& buffer, VkDeviceSize offset, VkDeviceSize range);
+		
+		/** @brief 
+		 *
+		 *@ param imageLayout is the layout that the image subresources accessible from imageView will be in at the time this descriptor is accessed
+		
+		 */
 		DescriptorSet& BindDescriptor(VkDescriptorType type, uint32_t binding, const Sampler& sampler, const ImageView& imageView, VkImageLayout imageLayout);
 		//void Bind(const Image& image, VkDeviceSize offset, VkDeviceSize range);
 

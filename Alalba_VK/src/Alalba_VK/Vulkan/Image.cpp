@@ -44,7 +44,7 @@ namespace vk
     const VkImageUsageFlags usageFlags, const VkExtent3D entent, const VkFormat format, const VkImageTiling tilling,
     const VkSharingMode& sharingMode,
     const std::string& tag)
-		:m_device(device),m_allocator(allocator), m_imageType(imageType), m_usageFlags(usageFlags), m_extent(entent), m_format(format), m_tag(tag)
+		:m_device(device),m_allocator(allocator), m_imageType(imageType), m_usageFlags(usageFlags), m_extent(entent), m_format(format), m_tilling(tilling), m_tag(tag)
 	{
     ALALBA_INFO("Create Image: {0}, size:({1},{2})", m_tag,m_extent.width,m_extent.height);
     // create info
@@ -55,12 +55,14 @@ namespace vk
     createinfo.extent = m_extent;
     createinfo.format = m_format;
 
-    createinfo.tiling = tilling;
+    createinfo.tiling = m_tilling;
     createinfo.usage = m_usageFlags;
     createinfo.mipLevels = 1;
     createinfo.arrayLayers = 1;
-    createinfo.samples = VK_SAMPLE_COUNT_1_BIT; 
-    createinfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    createinfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    // initialLayout must be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED
+    //https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageCreateInfo.html#VUID-VkImageCreateInfo-initialLayout-00993
+    createinfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; 
     createinfo.sharingMode = sharingMode;
     
     /// TODO: 
@@ -147,6 +149,7 @@ namespace vk
       barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
       sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+      // shadow map need to be VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT which is later than VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT 
       destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     }
     // for compute shader target texture

@@ -125,4 +125,20 @@ namespace vk
 
 		ALALBA_ASSERT("failed to find supported format!")
 	}
+
+	// Returns if a given format support LINEAR filtering
+	VkBool32 Device::FormatIsFilterable(VkFormat format, VkImageTiling tiling) const
+	{
+		VkFormatProperties formatProps;
+		vkGetPhysicalDeviceFormatProperties(m_physicalDevice.Handle(), format, &formatProps);
+
+		if (tiling == VK_IMAGE_TILING_OPTIMAL)
+			return formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+
+		if (tiling == VK_IMAGE_TILING_LINEAR)
+			return formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+
+		ALALBA_ERROR("Current format is {0} not support linear filtering", format);
+		return false;
+	}
 }

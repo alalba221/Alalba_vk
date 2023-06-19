@@ -8,9 +8,14 @@
 #include "Alalba_VK/Vulkan/Image.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
 #include "tiny_gltf.h"
-
+namespace vk
+{
+	class GraphicsPipeline;
+}
 namespace Alalba
 {
+
+
 	enum class FileLoadingFlags 
 	{
 		None = 0x00000000,
@@ -142,6 +147,9 @@ namespace Alalba
 		const vk::Buffer& GetVertexBuffer() const { return *m_vertexBuffer; }
 		const vk::Buffer& GetIndexBuffer() const { return *m_indexBuffer; }
 
+		void DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1);
+	
+
 	private:
 		void loadFromFile(const std::string& filename, float scale);
 		
@@ -152,7 +160,7 @@ namespace Alalba
 		void loadMaterials(tinygltf::Model& gltfModel);
 		
 		void loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, const tinygltf::Model& model, std::vector<uint32_t>& indexBuffer, std::vector<Vertex>& vertexBuffer, float globalscale);
-	
+		void DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1);
 	private:
 		// image : source + sampler = Alalba::Texture
 		std::vector<std::shared_ptr<Texture>> m_images;

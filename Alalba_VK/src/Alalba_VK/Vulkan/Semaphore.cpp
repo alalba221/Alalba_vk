@@ -11,7 +11,6 @@ namespace vk
 		CI.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 		CI.pNext = nullptr;
 		// CI.flags  is reserved for future use.
-
 		VkResult err = vkCreateSemaphore(m_device.Handle(), &CI, nullptr, &m_semaphore);
 
 		ALALBA_ASSERT(err == VK_SUCCESS,"Create Semaphore Failed");

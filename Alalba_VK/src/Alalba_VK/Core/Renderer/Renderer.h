@@ -1,6 +1,6 @@
 #pragma once
 #include "BasicRenderSys.h"
-#include "DiffractionSys.h"
+
 #include "glTFRenderSys.h"
 
 #include "Alalba_VK/Vulkan/SwapChain.h"
@@ -21,6 +21,8 @@
 #include <glm/glm.hpp>
 #include "Alalba_VK/Core/Scene/Scene.h"
 
+#include "OffScreen/ShadowMappingSys.h"
+#include "DebugSys.h"
 
 namespace Alalba
 {
@@ -87,17 +89,19 @@ namespace Alalba
 		bool m_BasicSysOn = false;
 		std::unique_ptr<BasicRenderSys> m_basicRenderSys;
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
-		// diffraction sys
-		bool m_DiffractionSysOn = false;
-		std::unique_ptr<DiffractionSys> m_diffractionRenderSys;
-		std::unique_ptr < vk::DescriptorSetLayout > m_diffractionDescSetLayout;
+		
 		// gltf test
-		bool m_gltfSysOn = true;
+		bool m_gltfSysOn = false;
 		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
+		// this is for the pipelineLayout, the one in the model is for the descriptorSet
 		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout; // should be same as in the molde material;
 		
-		
-		// other sys
+		// DebugSys sys
+		bool m_DeugSysOn = true;
+		std::unique_ptr<DebugSys> m_DebugSys;
+		// shadow sys
+		bool m_ShadowMapSysOn = true;
+		std::unique_ptr<ShadowMappingSys> m_shadowMapSys;
 
 		uint32_t m_currentFrame = 0;
 		GlobalUBO m_ubo;

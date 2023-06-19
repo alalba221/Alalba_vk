@@ -52,6 +52,7 @@ namespace vk
 		const VkImageType& GetType() const { return m_imageType; };
 		const VkExtent3D& GetExtent() const { return m_extent; }
 		const VkFormat& GetFormat() const { return m_format; };
+		const VkImageTiling& GetTiling() const { return m_tilling; };
 		// TO GPU 
 		void CopyImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		
@@ -68,6 +69,7 @@ namespace vk
 		VkImageType m_imageType;
 		VkExtent3D m_extent;
 		VkFormat m_format;
+		VkImageTiling m_tilling;
 		VkImageUsageFlags m_usageFlags;
 		VmaAllocation m_allocation;
 		VkImageLayout m_currentlLayout = VK_IMAGE_LAYOUT_UNDEFINED;

@@ -5,7 +5,7 @@
 #include "Alalba_VK/Core/Application.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
 #include "Alalba_VK/Core/Scene/Entity.h"
-
+#include "Alalba_VK/Vulkan/RenderPass.h"
 namespace Alalba
 {
 	glTFRenderSys::glTFRenderSys(Scene& scene,
@@ -18,10 +18,62 @@ namespace Alalba
 
 	}
 
-	void glTFRenderSys::Render(vk::CommandBuffers& cmdBuffers,
+	void glTFRenderSys::Render(const vk::CommandBuffers& cmdBuffers,
 		const vk::DescriptorSet& globalDescSet, const int currentCmdBuffer)
 	{
-		// bind pipeline
+		//// bind pipeline
+		//vkCmdBindPipeline(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
+		//// bind global descriptor set
+		//VkDescriptorSet gbset = globalDescSet.Handle();
+		//vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS,
+		//	m_pipelineLayout->Handle(), 0, 1, &gbset, 0, nullptr);
+
+		//auto view = m_scene.GetAllEntitiesWith<GLTFComponent, TransformComponent>();
+
+		///// for each entity
+		//for (auto entity : view)
+		//{
+
+		//	auto model = view.get<GLTFComponent>(entity).Model;
+		//	auto basetransform = view.get<TransformComponent>(entity).Transform;
+
+		//	//DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
+		//	model->DrawModel(basetransform, *m_graphicsPipeline, cmdBuffers, currentCmdBuffer);
+		//}
+	}
+
+	void glTFRenderSys::BuildCommandBuffer(const vk::RenderPass& renderpass, const vk::FrameBuffer& framebuffer, VkExtent2D areaExtend, 
+		const vk::DescriptorSet& globalDescSet,
+		const vk::CommandBuffers& cmdBuffers, const uint32_t currentCmdBuffer)
+	{
+		VkClearValue clearValues[2];
+		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+
+		VkRenderPassBeginInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = renderpass.Handle();
+		renderPassInfo.framebuffer = framebuffer.Handle();
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = areaExtend;
+		renderPassInfo.clearValueCount = 2;
+		renderPassInfo.pClearValues = clearValues;
+	
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = areaExtend.width;
+		viewport.height = areaExtend.height;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent = areaExtend;
+		vkCmdBeginRenderPass(cmdBuffers[currentCmdBuffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdSetViewport(cmdBuffers[currentCmdBuffer], 0, 1, &viewport);
+		vkCmdSetScissor(cmdBuffers[currentCmdBuffer], 0, 1, &scissor);
+
 		vkCmdBindPipeline(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
 		// bind global descriptor set
 		VkDescriptorSet gbset = globalDescSet.Handle();
@@ -33,12 +85,15 @@ namespace Alalba
 		/// for each entity
 		for (auto entity : view)
 		{
+
 			auto model = view.get<GLTFComponent>(entity).Model;
 			auto basetransform = view.get<TransformComponent>(entity).Transform;
 
-			DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
-
+			//DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
+			model->DrawModel(basetransform, *m_graphicsPipeline, cmdBuffers, currentCmdBuffer);
 		}
+
+		vkCmdEndRenderPass(cmdBuffers[currentCmdBuffer]);
 	}
 
 	// private
@@ -80,78 +135,20 @@ namespace Alalba
 	{
 		const vk::Device& device = Application::Get().GetDevice();
 
-		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout, renderpass,
-			*m_vertexShader, *m_fragShader, pipelineCache)
-			.SetAssemblyTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
-			.SetPolygonMode(VK_POLYGON_MODE_FILL)
-			.SetBackCulling(false)
+		m_graphicsPipeline = vk::GraphicsPipeline::Builder(device, *m_pipelineLayout, renderpass, pipelineCache)
+			.SetTag("GLTF graphics pipeline")
+			.AddPipelineStage(*m_vertexShader).AddPipelineStage(*m_fragShader)
+			.SetVertexProcessingState(true)
+			.SetTessellationState()
+			.SetRasterizationState(VK_POLYGON_MODE_FILL, VK_CULL_MODE_BACK_BIT, VK_FRONT_FACE_COUNTER_CLOCKWISE, VK_FALSE)
+			.SetDepthState(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS)
+			.SetMultisampleState(VK_SAMPLE_COUNT_1_BIT)
+			.AddColorBlendAttachmentState(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT, VK_FALSE)
+			.SetColorBlendState(renderpass.ColorAttachmentCount())
+			.SetViewportState(1, 1)
+			.SetDynamicState(VK_FALSE)
 			.Build();
 
-	}
-
-	void glTFRenderSys::DrawModel(const GLTFModel& model, const glm::mat4& basetransform, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
-	{
-		// 1. Get vertex and index buffer
-		VkBuffer vertexBuffers[] = { model.GetVertexBuffer().Handle() };
-		VkBuffer IndexBuffers = model.GetIndexBuffer().Handle();
-		
-		// 2. Bind Vertex and index buffer
-		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(cmdBuffers[currentCmdBuffer], 0, 1, vertexBuffers, &offset);
-		vkCmdBindIndexBuffer(cmdBuffers[currentCmdBuffer], IndexBuffers, offset, VK_INDEX_TYPE_UINT32);
-
-		std::vector<Node*> nodes = model.GetNodes();
-		for (auto node : nodes)
-		{
-			DrawNode(model, basetransform, node, cmdBuffers, currentCmdBuffer);
-		}
-	}
-
-	void glTFRenderSys::DrawNode(const GLTFModel& model, const glm::mat4& basetransform, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer)
-	{
-		if (node->mesh) 
-		{
-			glm::mat4 nodeMatrix = node->matrix;
-			Node* currentParent = node->parent;
-			while (currentParent) 
-			{
-				nodeMatrix = currentParent->matrix * nodeMatrix;
-				currentParent = currentParent->parent;
-			}
-
-			// Pass the final matrix to the vertex shader using push constants
-			nodeMatrix = basetransform * nodeMatrix;
-			vkCmdPushConstants(cmdBuffers[currentCmdBuffer], m_pipelineLayout->Handle(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &nodeMatrix);
-			for (Primitive* primitive : node->mesh->primitives) {
-				// bool skip = false;
-				uint32_t materialIndex = primitive->materialIndex;
-				//if (renderFlags & RenderFlags::RenderOpaqueNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_OPAQUE);
-				//}
-				//if (renderFlags & RenderFlags::RenderAlphaMaskedNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_MASK);
-				//}
-				//if (renderFlags & RenderFlags::RenderAlphaBlendedNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_BLEND);
-				//}
-				//if (!skip) {
-				//	if (renderFlags & RenderFlags::BindImages) {
-				//		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, bindImageSet, 1, &material.descriptorSet, 0, nullptr);
-				//	}
-				//	vkCmdDrawIndexed(commandBuffer, primitive->indexCount, 1, primitive->firstIndex, 0, 0);
-				//}
-
-				//
-				uint32_t materialID = primitive->materialIndex;
-				Material* material = model.GetMatirials().at(materialID);
-				VkDescriptorSet materialSet = material->descSet->Handle();
-				vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout->Handle(), 1, 1, &materialSet, 0, nullptr);
-				vkCmdDrawIndexed(cmdBuffers[currentCmdBuffer], primitive->indexCount, 1, primitive->firstIndex, 0, 0);
-			}
-		}
-		for (auto& child : node->children) {
-			DrawNode(model, basetransform, child, cmdBuffers, currentCmdBuffer);
-		}
 	}
 
 	void glTFRenderSys::Update()
@@ -167,5 +164,4 @@ namespace Alalba
 		m_pipelineLayout->Clean();
 		m_graphicsPipeline->Clean();
 	}
-
 }

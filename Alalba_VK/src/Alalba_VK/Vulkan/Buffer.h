@@ -53,7 +53,8 @@ namespace vk
 		uint64_t DeviceAddress() const;
 		void* MapMemory();
 		void UnMapMemory();
-
+		void* Mapped() { return m_mapped; }
+		
 	private:
 		VULKAN_HANDLE(VkBuffer, m_buffer);
 		const class Device& m_device;
@@ -63,7 +64,7 @@ namespace vk
 		VmaAllocation m_allocation;
 		VmaMemoryUsage m_vmaUsage;
 		VkDeviceAddress m_deviceAddr;
-
+		void* m_mapped = nullptr;
 	private:
 		void MoveDataFromStagingBuffer(const Buffer& stage ,uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 	};

@@ -41,6 +41,7 @@ namespace vk
 		/* helper*/
 		// find a proper format statisfing features from candidates
 		VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+		VkBool32 FormatIsFilterable(VkFormat format, VkImageTiling tiling) const;
 	private:
 		VULKAN_HANDLE(VkDevice, m_device);
 

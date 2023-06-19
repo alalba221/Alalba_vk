@@ -12,7 +12,7 @@ layout(location = 2) out vec2 fragTexCoord;
 
 layout( push_constant ) uniform constants
 {
-	mat4 matrix;
+	mat4 model;
 } PushConstants;
 
 layout(set = 0, binding = 0) uniform  CameraLightBuffer{
@@ -29,9 +29,9 @@ layout(set = 0, binding = 0) uniform  CameraLightBuffer{
 
 void main() {
 	
-	gl_Position = ubo.proj * ubo.view * PushConstants.matrix * vec4(inPosition, 1.0);
+	gl_Position = ubo.proj * ubo.view * PushConstants.model * vec4(inPosition, 1.0);
 	// gl_Position = vec4(inPosition, 1.0);
-	Position =  mat3(PushConstants.matrix) * inPosition;
-	Normal = mat3(PushConstants.matrix) * inNormal;
+	Position =  mat3(PushConstants.model) * inPosition;
+	Normal = mat3(PushConstants.model) * inNormal;
 	fragTexCoord = inTexCoord;
 }

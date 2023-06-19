@@ -22,17 +22,17 @@ namespace Alalba
     glm::vec3 tangent;
     glm::vec3 color;
     // further attribute
-    glm::vec3 attr1;
-    glm::vec3 attr2;
+    //glm::vec3 attr1;
+    //glm::vec3 attr2;
 
-    bool operator==(const Vertex& other) const {
+    bool operator==(const Vertex& other) const 
+    {
       return position == other.position && normal == other.normal && uv == other.uv;
     }
 
-    static std::array<VkVertexInputBindingDescription, 1> GetBindingDescriptions()
+    static std::array<VkVertexInputBindingDescription, 1> binding_descriptions;
+    static std::array<VkVertexInputBindingDescription, 1>& GetBindingDescriptions()
     {
-      std::array<VkVertexInputBindingDescription, 1> binding_descriptions{};
-
       // position
       binding_descriptions[0].binding = 0;
       binding_descriptions[0].stride = sizeof(Vertex);
@@ -48,10 +48,9 @@ namespace Alalba
       return binding_descriptions;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions()
+    static std::array<VkVertexInputAttributeDescription, 5> attribute_descriptions;
+    static std::array<VkVertexInputAttributeDescription, 5>& GetAttributeDescriptions()
     {
-      std::array<VkVertexInputAttributeDescription, 5> attribute_descriptions{};
-
       // position
       attribute_descriptions[0].binding = 0;
       attribute_descriptions[0].location = 0;

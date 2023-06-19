@@ -3,8 +3,10 @@
 #include "Entity.h"
 // test
 #include "glm/gtx/string_cast.hpp"
+#include "GLFW/glfw3.h"
 namespace Alalba
 {
+	float timer = 0.0f;
 	Scene::Scene()
 	{
 	}
@@ -24,6 +26,7 @@ namespace Alalba
 
 	void Scene::OnUpdate()
 	{
+		timer++;
 		// update camera
 		auto view = this->GetAllEntitiesWith<CamComponent>();
 		for (auto e : view)
@@ -33,5 +36,16 @@ namespace Alalba
 			camera.m_Camera.Update();
 		}
 		// update other entities
+			// light
+		//auto lightview = this->GetAllEntitiesWith<PointLightComponent>();
+		//for (auto e : lightview)
+		//{
+		//	Entity entity = { e, this };
+		//	auto& lightPos = entity.GetComponent<PointLightComponent>().LightPosition;
+		//	lightPos.x = cos(glm::radians((float)glfwGetTime() * 50.0f));
+		//	lightPos.y = -50.0f + sin(glm::radians((float)glfwGetTime() * 50.0f)) ;
+		//	lightPos.z = 25.0f + sin(glm::radians((float)glfwGetTime() * 50.0f)) ;
+		//}
+	
 	}
 }

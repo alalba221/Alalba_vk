@@ -20,8 +20,15 @@ using Ref = std::shared_ptr<T>;
 
 #define BIT(x) (1<<x)
 #define ALALBA_BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
+/*
+The first line declaresand deletes the copy constructor.It prevents creating new instances of the class by copying from an existing instance.
 
+The second line declaresand deletes the move constructor.It prevents creating new instances of the class by moving from an existing instance.
 
+The third line declaresand deletes the copy assignment operator. It prevents assigning the class from another instance.
+
+The fourth line declaresand deletes the move assignment operator. It prevents moving the class from another instance.
+*/
 #define VULKAN_NON_COPIABLE(ClassName) \
 	ClassName(const ClassName&) = delete; \
 	ClassName(ClassName&&) = delete; \

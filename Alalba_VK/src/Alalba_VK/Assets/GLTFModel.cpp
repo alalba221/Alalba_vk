@@ -5,13 +5,78 @@
 #include "glm/gtc/type_ptr.hpp"
 #include "Alalba_VK/Core/Application.h"
 
-
+#include "Alalba_VK/Vulkan/PipelineLayout.h"
+#include "Alalba_VK/Vulkan/GraphicsPipeline.h"
 namespace Alalba
 {
 	GLTFModel::GLTFModel(GLTFLoader& loader, const std::string& filename, float scale )
 		:m_loader(loader)
 	{
 		loadFromFile(filename, scale);
+	}
+
+	void GLTFModel::DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet)
+	{
+		// 1. Get vertex and index buffer
+		VkBuffer vertexBuffers[] = { m_vertexBuffer->Handle() };
+		VkBuffer IndexBuffers = m_indexBuffer->Handle();
+
+		// 2. Bind Vertex and index buffer
+		VkDeviceSize offset = 0;
+		vkCmdBindVertexBuffers(cmdbuffers[currentCmdBuffer], 0, 1, vertexBuffers, &offset);
+		vkCmdBindIndexBuffer(cmdbuffers[currentCmdBuffer], IndexBuffers, offset, VK_INDEX_TYPE_UINT32);
+
+		for (auto node : m_nodes)
+		{
+			DrawNode(basetransform, pipeline, node, cmdbuffers, currentCmdBuffer, bindImageSet);
+		}
+	}
+
+	void GLTFModel::DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline,const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet)
+	{
+		if (node->mesh)
+		{
+			glm::mat4 nodeMatrix = node->matrix;
+			Node* currentParent = node->parent;
+			while (currentParent)
+			{
+				nodeMatrix = currentParent->matrix * nodeMatrix;
+				currentParent = currentParent->parent;
+			}
+
+			// Pass the final matrix to the vertex shader using push constants
+			nodeMatrix = basetransform * nodeMatrix;
+			vkCmdPushConstants(cmdBuffers[currentCmdBuffer], pipeline.GetPipelineLayout().Handle(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4), &nodeMatrix);
+			for (Primitive* primitive : node->mesh->primitives) {
+				// bool skip = false;
+				uint32_t materialIndex = primitive->materialIndex;
+				//if (renderFlags & RenderFlags::RenderOpaqueNodes) {
+				//	skip = (material.alphaMode != Material::ALPHAMODE_OPAQUE);
+				//}
+				//if (renderFlags & RenderFlags::RenderAlphaMaskedNodes) {
+				//	skip = (material.alphaMode != Material::ALPHAMODE_MASK);
+				//}
+				//if (renderFlags & RenderFlags::RenderAlphaBlendedNodes) {
+				//	skip = (material.alphaMode != Material::ALPHAMODE_BLEND);
+				//}
+				//if (!skip) {
+				//	if (renderFlags & RenderFlags::BindImages) {
+				//		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, bindImageSet, 1, &material.descriptorSet, 0, nullptr);
+				//	}
+				//	vkCmdDrawIndexed(commandBuffer, primitive->indexCount, 1, primitive->firstIndex, 0, 0);
+				//}
+
+				//
+				uint32_t materialID = primitive->materialIndex;
+				Material* material = m_materials.at(materialID);
+				VkDescriptorSet materialSet = material->descSet->Handle();
+				vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.GetPipelineLayout().Handle(), bindImageSet, 1, &materialSet, 0, nullptr);
+				vkCmdDrawIndexed(cmdBuffers[currentCmdBuffer], primitive->indexCount, 1, primitive->firstIndex, 0, 0);
+			}
+		}
+		for (auto& child : node->children) {
+			DrawNode(basetransform, pipeline, child, cmdBuffers, currentCmdBuffer);
+		}
 	}
 
 	void GLTFModel::loadFromFile(const std::string& filename, float scale)
@@ -92,6 +157,8 @@ namespace Alalba
 					// 0 : is bingding index of the binding slot in the set
 					.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 					.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+					.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+					.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 					.SetTag("material descriptor Set Layout")
 					.Build();
 
@@ -101,8 +168,8 @@ namespace Alalba
 					.Allocate();
 
 				material->descSet
-					->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, material->baseColorTexture->GetSampler(), material->baseColorTexture->GetImageView(), material->baseColorTexture->GetImage().Layout())
-					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), material->normalTexture->GetImage().Layout())
+					->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, material->baseColorTexture->GetSampler(), material->baseColorTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 					.UpdateDescriptors()
 					;
 			}
@@ -253,7 +320,7 @@ namespace Alalba
 							}
 						}
 						else {
-							vert.color = glm::vec4(1.0f);
+							//vert.color = glm::vec4(1.0f);
 						}
 						vert.tangent = bufferTangents ? glm::vec4(glm::make_vec4(&bufferTangents[v * 4])) : glm::vec4(0.0f);
 						//vert.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);

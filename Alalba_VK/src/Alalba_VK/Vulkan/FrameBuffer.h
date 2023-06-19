@@ -21,7 +21,6 @@ namespace vk
 			{
 				return std::make_unique<FrameBuffer>(m_device, m_renderpass, m_pImageViews, m_width, m_height,m_tag);
 			};
-
 		private:
 			std::vector<const ImageView* > m_pImageViews{};
 			const class Device& m_device;
@@ -39,6 +38,9 @@ namespace vk
 		~FrameBuffer() { Clean(); };
 		void Clean();
 		const std::vector<const ImageView* >& GetAttachments()const { return m_pAttachments; }
+
+		const VkExtent2D& GetDim()const { return VkExtent2D{ m_width, m_height }; }
+
 	private:
 		VULKAN_HANDLE(VkFramebuffer, m_framebuffer);
 		const class Device& m_device;

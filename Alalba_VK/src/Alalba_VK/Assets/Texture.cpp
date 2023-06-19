@@ -32,6 +32,7 @@ namespace Alalba
 			.SetImageFormat(format)
 			.SetUsageFlags(VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
 		m_image->CopyImageFrom(imageData, imageSize,
@@ -67,6 +68,7 @@ namespace Alalba
 			.SetImageFormat(format)
 			.SetUsageFlags(VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
 		m_image->CopyImageFrom(buffer, bufferSize,

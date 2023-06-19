@@ -20,8 +20,27 @@ public:
 
 	virtual void OnUpdate() override
 	{
+
 		m_scene->OnUpdate();
 		m_renderer->DrawFrame(*m_scene);
+
+		// TEST LIGHT POSITION
+		auto viewlight = m_scene->GetAllEntitiesWith<PointLightComponent>();
+		for (auto e : viewlight)
+		{
+			Entity entity = { e, m_scene.get()};
+
+			auto& position = entity.GetComponent<PointLightComponent>().LightPosition;
+			auto& color = entity.GetComponent<PointLightComponent>().LightColor;
+
+			glm::mat4 rot = glm::mat4(1.0f);
+
+			rot = glm::rotate(rot, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+
+			position = rot * glm::vec4(1.0);
+
+			entity.AddOrReplaceComponent<PointLightComponent>(position, color);
+		}
 	}
 
 	virtual void OnInit() override
@@ -57,9 +76,9 @@ public:
 		drone.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
 		drone.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
 
-		auto drone2 = m_scene->CreateEntity("busterDrone2");
-		drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
-		drone2.AddOrReplaceComponent<TransformComponent>(trans);
+		//auto drone2 = m_scene->CreateEntity("busterDrone2");
+		//drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
+		//drone2.AddOrReplaceComponent<TransformComponent>(trans);
 	
 		glm::vec4 lightpos = glm::vec4(0, 1.0, 1.0, 1.0);
 		glm::vec4 lightcolor = glm::vec4(1.0, 1.0, 1.0, 1.0);
@@ -67,7 +86,7 @@ public:
 		pointLight.AddComponent<PointLightComponent>(lightpos, lightcolor);
 	
 		auto cam = m_scene->CreateEntity("camera");
-		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 10.0f));
+		cam.AddComponent<CamComponent>(glm::perspective(glm::radians(45.0f), 1024.0f / 720.f, 0.1f, 100.0f));
 
 		// Render creation should be after scene
 		m_renderer.reset(new Alalba::Renderer(*m_scene));

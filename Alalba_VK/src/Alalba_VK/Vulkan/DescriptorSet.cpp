@@ -58,7 +58,7 @@ namespace vk
 
 		m_writes[binding] = descriptorWrite;
 		return *this;
-	}
+	}																																																							
 	DescriptorSet& DescriptorSet::BindDescriptor(VkDescriptorType type, uint32_t binding, const Sampler& sampler, const ImageView& imageView, VkImageLayout imageLayout)
 	{
 		m_imageDescInfo[binding] = { sampler.Handle(), imageView.Handle(), imageLayout};

@@ -59,6 +59,10 @@ namespace vk
 		if (m_buffer != VK_NULL_HANDLE)
 		{
 			ALALBA_WARN("Clean Buffer {0}", m_tag);
+
+			if (m_mapped != nullptr)
+				UnMapMemory();
+
 			m_allocator.DestroyBuffer(m_buffer, m_allocation);
 			m_buffer = VK_NULL_HANDLE;
 		}
@@ -74,13 +78,14 @@ namespace vk
 
 	void* Buffer::MapMemory()
 	{
-		void* mappedMemory;
-		vmaMapMemory(m_allocator.Handle(), m_allocation, &mappedMemory);
-		return mappedMemory;
+		//void* mappedMemory;
+		vmaMapMemory(m_allocator.Handle(), m_allocation, &m_mapped);
+		return m_mapped;
 	}
 	void Buffer::UnMapMemory()
 	{
 		vmaUnmapMemory(m_allocator.Handle(), m_allocation);
+		m_mapped = nullptr;
 	}
 	void Buffer::MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{

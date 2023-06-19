@@ -31,9 +31,13 @@ namespace Alalba
 
 
 		// rendering related command, mainly record command into command buffers
-		void Render(vk::CommandBuffers& cmdBuffers,
+		void Render(const vk::CommandBuffers& cmdBuffers,
 			const vk::DescriptorSet& globalDescSet,
 			const int currentCmdBuffer);
+
+		void BuildCommandBuffer(const vk::RenderPass& renderpass, const vk::FrameBuffer& framebuffer, VkExtent2D areaExtend,
+			const vk::DescriptorSet& globalDescSet,
+			const vk::CommandBuffers& cmdBuffers, const uint32_t currentCmdBuffer);
 
 		void Update();
 		void ShutDown();
@@ -58,10 +62,6 @@ namespace Alalba
 		void CreatePipelineLayout(const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts);
 		void CreatePipeline(const vk::RenderPass& renderpass, const vk::PipelineCache& pipelineCache);
 		
-
-		void DrawModel(const GLTFModel& model, const glm::mat4& basetransform, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
-		void DrawNode(const GLTFModel& model, const glm::mat4& basetransform, const Node* node, vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer);
-
 	};
 }
 

@@ -37,6 +37,7 @@ namespace Alalba
 		m_depthImage = vk::Image::Builder(device, *m_allocator)
 			.SetTag("DepthImage")
 			.SetImgType(VK_IMAGE_TYPE_2D)
+			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.SetImageFormat(device.FindSupportedFormat(
 				{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
 				VK_IMAGE_TILING_OPTIMAL,
@@ -59,9 +60,12 @@ namespace Alalba
 
 		m_renderPass = vk::RenderPass::Builder(device)
 			.PushColorAttachment(m_swapChain->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-			.PushDepthAttachment(m_depthImage->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL)
-			.PushDependency(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
-			.PushDependency(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+			.PushDepthAttachment(m_depthImage->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED)
+			// there is an image layout the transition at the start of the render pass and at the end of the render pass
+			// but the former does not occur at the right time
+			// https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Rendering_and_presentation
+			.AddDependency(VK_SUBPASS_EXTERNAL,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+			.AddDependency(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0, 0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 			.Build();
 
 		m_globalDescPool = vk::DescriptorPool::Builder(device)
@@ -109,6 +113,8 @@ namespace Alalba
 				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
 				.Build();
 
+			m_globalUniformbuffers[i]->MapMemory();
+
 			m_GlobalDescriptorSets[i] =
 				vk::DescriptorSet::Allocator(device, *m_globalDescPool)
 				.SetTag("Global Descritor Set " + std::to_string(i))
@@ -119,7 +125,7 @@ namespace Alalba
 				.UpdateDescriptors();
 		}
 
-		///  Rendering systems
+///  Rendering systems
 		//0. basic
 		//m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 		//	// 0 : is bingding index of the binding slot in the set
@@ -134,19 +140,13 @@ namespace Alalba
 		//};
 		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
 
-		////1. diffracrtion 
-		//// no need to handle textures 
-		//std::vector<const vk::DescriptorSetLayout*> diffractionDescriptorSetLayout =
-		//{
-		//	m_globalDescSetLayout.get()
-		//};
-		//m_diffractionRenderSys = std::make_unique<DiffractionSys>(scene, *m_renderPass, diffractionDescriptorSetLayout, *m_pipelineCache);
-		
-		/// 2. gltf test
+		/// 1. gltf test
 		m_materialDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+			.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("gltf descriptor Set Layout")
 			.Build();
 		std::vector<const vk::DescriptorSetLayout*> gltfDescriptorSetLayout =
@@ -155,7 +155,13 @@ namespace Alalba
 			m_materialDescSetLayout.get()
 		};
 		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
-		// other 
+		
+
+		//2. ShadowMap: OFF SCREEN
+		m_shadowMapSys = std::make_unique<ShadowMappingSys>(scene, gltfDescriptorSetLayout);
+
+		//// 3. DebugSys
+		m_DebugSys = std::make_unique<DebugSys>(*m_renderPass, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, m_shadowMapSys->GetImageView(), m_shadowMapSys->GetSampler());
 	}
 	void Renderer::Shutdown()
 	{
@@ -164,8 +170,11 @@ namespace Alalba
 	
 		//m_basicDescSetLayout->Clean();
 		//m_basicRenderSys->ShutDown();
-	//	m_diffractionRenderSys->ShutDown();*/
+
+		m_shadowMapSys->ShutDown();
+		m_DebugSys->ShutDown();
 		m_gltfRenderSys->ShutDown();
+
 
 		m_pipelineCache->Clean();
 		m_swapChain->Clean();
@@ -275,51 +284,25 @@ namespace Alalba
 	{
 		std::array<VkClearValue, 2> clearValues = {};
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, };// depth from 0 to 1 in vulkan
+		clearValues[1].depthStencil = { 1.0f, 0 };// depth from 0 to 1 in vulkan
 
 	
 		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers);
 
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
-			VkRenderPassBeginInfo renderPassInfo = {};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = m_renderPass->Handle();
-			renderPassInfo.framebuffer = m_frameBuffers[i]->Handle();
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = m_swapChain->GetExtent();
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			VkViewport viewport{};
-			viewport.x = 0.0f;
-			viewport.y = 0.0f;
-			viewport.width = static_cast<float>(m_swapChain->GetExtent().width);
-			viewport.height = static_cast<float>(m_swapChain->GetExtent().height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-
-			VkRect2D scissor{};
-			scissor.offset = { 0, 0 };
-			scissor.extent = m_swapChain->GetExtent();
 			
 			cmdBuffers.BeginRecording(i);
 			{
-				vkCmdSetViewport(cmdBuffers[i], 0, 1, &viewport);
-				vkCmdSetScissor(cmdBuffers[i], 0, 1, &scissor);
-				
+				// shadow mapp	
+
+				m_shadowMapSys->GenerateShadowMapp(cmdBuffers, i);
+				if(m_DeugSysOn)
+					m_DebugSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[i], m_swapChain->GetExtent(), *m_commandBuffers, i);
+
 				/// rendering sys
-				vkCmdBeginRenderPass(cmdBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-				
-				if(m_BasicSysOn)
-					m_basicRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
-				if(m_DiffractionSysOn)
-					m_diffractionRenderSys->Render(scene, *m_commandBuffers, *m_GlobalDescriptorSets[i], i);
-				if (m_gltfSysOn)
-					m_gltfRenderSys->Render(*m_commandBuffers, *m_GlobalDescriptorSets[i], i);
-		
-				vkCmdEndRenderPass(cmdBuffers[i]);
-			
+				if(m_gltfSysOn)
+					m_gltfRenderSys->BuildCommandBuffer(*m_renderPass,*m_frameBuffers[i], m_swapChain->GetExtent(), *m_GlobalDescriptorSets[i],*m_commandBuffers,i);
 			}
 			cmdBuffers.EndRecording(i);
 		}
@@ -352,12 +335,13 @@ namespace Alalba
 			m_ubo.lightposition = position;
 		}
 
-		void* data = m_globalUniformbuffers[m_currentFrame]->MapMemory();
-		memcpy(data, &m_ubo, sizeof(m_ubo));
-		m_globalUniformbuffers[m_currentFrame]->UnMapMemory();
+		memcpy(m_globalUniformbuffers[m_currentFrame]->Mapped(), &m_ubo, sizeof(m_ubo));
 		
 		//
 		//m_basicRenderSys->Update(scene);
+
+		m_shadowMapSys->Update(scene);
+		m_DebugSys->Update();
 	}
 
 	void Renderer::DrawFrame(Scene& scene)
@@ -367,6 +351,7 @@ namespace Alalba
 
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
 
+/// Presentation queue: siganl semaphore for graphics queue
 		VkResult result = vkAcquireNextImageKHR(device.Handle(), m_swapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &m_currentFrame);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
@@ -380,15 +365,23 @@ namespace Alalba
 		}
 		// update ubo
 		Update(scene);
+
 		
+/// fence must be reset, before gpu can signal it again
 		m_inFlightFences[m_currentFrame]->Reset();
 
 		// TODO: abstract to a new submit method
+		
+		// submit a command buffer batch
 		VkCommandBuffer commandBuffers[]{ (*m_commandBuffers)[m_currentFrame] };
 		VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame]->Handle() };
 		VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame]->Handle() };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
+		
+/// graphics queue  		
+		/// graphics queue waits on imageAvailable semaphore signaled by presentation queue
+		/// After graphics queue finished, it will signal fence to cpu, and renderFinished to presentation queue
+		// waitStages VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT: new image needed only when command start COLOR_ATTACHMENT_OUTPUT stage
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.waitSemaphoreCount = 1;
@@ -402,8 +395,10 @@ namespace Alalba
 		err = vkQueueSubmit(device.GetGraphicsQ().Handle(),
 			1, &submitInfo, m_inFlightFences[m_currentFrame]->Handle());
 		ALALBA_ASSERT(err == VK_SUCCESS, "Q submit failed");
+	
 
-
+/// prensent queue 
+		/// wait on signal from graphics queue
 		// TODO: abstract to a new present method
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -429,5 +424,4 @@ namespace Alalba
 		m_currentFrame = (m_currentFrame + 1) % m_swapChain->GetImgCount();
 
 	}
-
 }

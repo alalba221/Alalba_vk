@@ -13,8 +13,9 @@ namespace vk
 			Builder(const Device& device):m_device(device) {};
 			
 			Builder& PushColorAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout);
-			Builder& PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-			Builder& PushDependency(VkPipelineStageFlags srcStage, VkAccessFlags srcOp, VkPipelineStageFlags dstStage, VkAccessFlags dstOp);
+			Builder& PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkAttachmentStoreOp storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE, VkImageLayout finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			// for now: dependecy is only for attachment referred images' layout transition
+			Builder& AddDependency(uint32_t src, VkPipelineStageFlags srcStage, VkAccessFlags srcOp, uint32_t dst, VkPipelineStageFlags dstStage, VkAccessFlags dstOp);
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
 			std::unique_ptr<RenderPass> Build() const
 			{
@@ -45,7 +46,7 @@ namespace vk
 		~RenderPass() { Clean(); };
 		void Clean();
 
-		uint32_t ColorAttachmentCount()const { return m_colorAttachmentCount; }
+		const uint32_t ColorAttachmentCount()const { return m_colorAttachmentCount; }
 
 	private:
 		VULKAN_HANDLE(VkRenderPass, m_renderPass);
