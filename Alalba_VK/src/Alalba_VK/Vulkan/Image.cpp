@@ -12,7 +12,7 @@ namespace vk
       m_sharingMode,m_tag);
   }
 
-  void Image::CopyImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+  void Image::CopyTextureImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
   {
     // 1. create staging buffer 
     std::unique_ptr<Buffer>stagingBuffer = Buffer::Builder(m_device, m_allocator)

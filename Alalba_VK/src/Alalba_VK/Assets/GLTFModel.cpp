@@ -167,9 +167,9 @@ namespace Alalba
 					.SetDescSetLayout(*material->descSetLayout)
 					.Allocate();
 
-				material->descSet
-					->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, material->baseColorTexture->GetSampler(), material->baseColorTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+				material->descSet																																																																				// VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+					->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, material->baseColorTexture->GetSampler(), material->baseColorTexture->GetImageView(), material->baseColorTexture->GetImage().Layout())
+					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), material->baseColorTexture->GetImage().Layout())
 					.UpdateDescriptors()
 					;
 			}

@@ -53,8 +53,11 @@ namespace vk
 		const VkExtent3D& GetExtent() const { return m_extent; }
 		const VkFormat& GetFormat() const { return m_format; };
 		const VkImageTiling& GetTiling() const { return m_tilling; };
-		// TO GPU 
-		void CopyImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
+		
+		/** 
+		* @ breif only for transfering texture TO GPU, since the finall imagelayout is finallly set as VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		*/
+		void CopyTextureImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		
 		~Image() { Clean(); };
 		void Clean();

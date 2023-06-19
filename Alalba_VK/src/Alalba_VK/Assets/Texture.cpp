@@ -35,7 +35,7 @@ namespace Alalba
 			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
-		m_image->CopyImageFrom(imageData, imageSize,
+		m_image->CopyTextureImageFrom(imageData, imageSize,
 			app.GetDevice().GetGraphicsQ(), cmdPool);
 		stbi_image_free(imageData);
 
@@ -71,7 +71,7 @@ namespace Alalba
 			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
-		m_image->CopyImageFrom(buffer, bufferSize,
+		m_image->CopyTextureImageFrom(buffer, bufferSize,
 			device.GetGraphicsQ(), cmdPool);
 
 		// image view
