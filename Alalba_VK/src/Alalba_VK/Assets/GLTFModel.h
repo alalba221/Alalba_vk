@@ -44,11 +44,11 @@ namespace Alalba
 		float roughnessFactor = 1.0f;
 		glm::vec4 baseColorFactor = glm::vec4(1.0f);
 
-		std::shared_ptr<Texture> baseColorTexture ;
-		std::shared_ptr<Texture> metallicRoughnessTexture ;
-		std::shared_ptr<Texture> normalTexture ;
-		std::shared_ptr<Texture> occlusionTexture ;
-		std::shared_ptr<Texture> emissiveTexture ;
+		Texture* baseColorTexture = nullptr ;
+		Texture* metallicRoughnessTexture = nullptr;
+		Texture* normalTexture = nullptr;
+		Texture* occlusionTexture = nullptr;
+		Texture* emissiveTexture = nullptr;
 
 		//std::shared_ptr<Texture> specularGlossinessTexture;
 		//std::shared_ptr<Texture> diffuseTexture;
@@ -147,7 +147,7 @@ namespace Alalba
 		const vk::Buffer& GetVertexBuffer() const { return *m_vertexBuffer; }
 		const vk::Buffer& GetIndexBuffer() const { return *m_indexBuffer; }
 
-		void DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1);
+		void DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1) const;
 	
 
 	private:
@@ -155,15 +155,15 @@ namespace Alalba
 		
 		void loadImages(tinygltf::Model& input);
 		void loadTextures(tinygltf::Model& input);
-		std::shared_ptr<Texture> getImage(uint32_t index);
+		Texture* getImage(uint32_t index);
 
 		void loadMaterials(tinygltf::Model& gltfModel);
 		
 		void loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, const tinygltf::Model& model, std::vector<uint32_t>& indexBuffer, std::vector<Vertex>& vertexBuffer, float globalscale);
-		void DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1);
+		void DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1) const;
 	private:
 		// image : source + sampler = Alalba::Texture
-		std::vector<std::shared_ptr<Texture>> m_images;
+		std::vector<std::unique_ptr<Texture>> m_images;
 		std::vector<uint32_t> m_textures;
 		std::vector<Material*> m_materials;
 		std::vector<Node*> m_nodes;

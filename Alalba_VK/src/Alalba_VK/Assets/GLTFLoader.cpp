@@ -26,7 +26,7 @@ namespace Alalba
 		ALALBA_ASSERT(m_glTFmodels.count(file) == 0, "gltfModel already exist");
 
 		std::string modelName = file.substr(file.rfind("/") + 1, file.rfind(".") - file.rfind("/") - 1);
-		m_glTFmodels.insert(std::make_pair(modelName, std::make_shared<GLTFModel>(*this, file)));
+		m_glTFmodels.insert(std::make_pair(modelName, std::make_unique<GLTFModel>(*this, file)));
 		return *this;
 	}
 

@@ -20,18 +20,18 @@ namespace Alalba
 
 		GLTFLoader& LoadModel(const std::string& file);
 
-		std::shared_ptr<GLTFModel> GetModel(const std::string tag) //const 
+		const GLTFModel* GetModel(const std::string tag) //const 
 		{
-			return m_glTFmodels[tag];
+			return m_glTFmodels[tag].get();
 		}
 
-		const std::unordered_map<std::string, std::shared_ptr<GLTFModel> >& GetModelMap() const{ return m_glTFmodels; }
+		//const std::unordered_map<std::string, std::shared_ptr<GLTFModel> >& GetModelMap() const{ return m_glTFmodels; }
 
 	private:
 		std::unique_ptr<vk::Allocator> m_allocator;
 		std::unique_ptr<vk::CommandPool> m_commandPool;
 		std::unique_ptr<vk::DescriptorPool> m_descPool;
 
-		std::unordered_map<std::string, std::shared_ptr<GLTFModel> > m_glTFmodels;
+		std::unordered_map<std::string, std::unique_ptr<GLTFModel> > m_glTFmodels;
 	};
 }

@@ -15,7 +15,7 @@ namespace Alalba
 		loadFromFile(filename, scale);
 	}
 
-	void GLTFModel::DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet)
+	void GLTFModel::DrawModel(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const vk::CommandBuffers& cmdbuffers, const int currentCmdBuffer, uint32_t bindImageSet) const
 	{
 		// 1. Get vertex and index buffer
 		VkBuffer vertexBuffers[] = { m_vertexBuffer->Handle() };
@@ -32,7 +32,7 @@ namespace Alalba
 		}
 	}
 
-	void GLTFModel::DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline,const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet)
+	void GLTFModel::DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline,const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet) const
 	{
 		if (node->mesh)
 		{
@@ -169,7 +169,7 @@ namespace Alalba
 
 				material->descSet																																																																				// VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 					->BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, material->baseColorTexture->GetSampler(), material->baseColorTexture->GetImageView(), material->baseColorTexture->GetImage().Layout())
-					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), material->baseColorTexture->GetImage().Layout())
+					.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, material->normalTexture->GetSampler(), material->normalTexture->GetImageView(), material->normalTexture->GetImage().Layout())
 					.UpdateDescriptors()
 					;
 			}
@@ -391,7 +391,8 @@ namespace Alalba
 
 	void GLTFModel::loadMaterials(tinygltf::Model& gltfModel)
 	{
-		for (tinygltf::Material& mat : gltfModel.materials) {
+		for (tinygltf::Material& mat : gltfModel.materials) 
+		{
 			Material* material = new Material();
 			if (mat.values.find("baseColorTexture") != mat.values.end()) {
 				material->baseColorTexture = getImage(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source);
@@ -490,10 +491,10 @@ namespace Alalba
 			m_textures[i] = input.textures[i].source;
 		}
 	}
-	std::shared_ptr<Texture> GLTFModel::getImage(uint32_t index)
+	Texture* GLTFModel::getImage(uint32_t index)
 	{
 		if (index < m_images.size()) {
-			return m_images[index];
+			return m_images[index].get();
 		}
 		return nullptr;
 	}

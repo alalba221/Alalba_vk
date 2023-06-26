@@ -76,10 +76,10 @@ namespace Alalba
 
 	struct GLTFComponent
 	{
-		std::shared_ptr<GLTFModel> Model;
+		const GLTFModel* Model;
 		GLTFComponent() = default;
 		GLTFComponent(const GLTFComponent&) = default;
-		GLTFComponent(std::shared_ptr<GLTFModel> model)
+		GLTFComponent(const GLTFModel* model)
 			:Model(model)
 		{}
 	};
