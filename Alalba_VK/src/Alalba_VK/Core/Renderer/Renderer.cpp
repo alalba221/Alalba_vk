@@ -72,12 +72,15 @@ namespace Alalba
 			.SetTag("Global Descriptor Pool")
 			.SetMaxSets(m_swapChain->GetImgCount())
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_swapChain->GetImgCount())
+			// 1: for shadow map
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_swapChain->GetImgCount())
 			.Build();
 
 		m_globalDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-			// todo: add lights
+			// 1: for shadow map
+			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 
@@ -120,9 +123,9 @@ namespace Alalba
 				.SetTag("Global Descritor Set " + std::to_string(i))
 				.SetDescSetLayout(*m_globalDescSetLayout)
 				.Allocate();
-			m_GlobalDescriptorSets[i]->
+	/*		m_GlobalDescriptorSets[i]->
 				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i], 0, sizeof(GlobalUBO))
-				.UpdateDescriptors();
+				.UpdateDescriptors();*/
 		}
 
 ///  Rendering systems
@@ -140,7 +143,7 @@ namespace Alalba
 		//};
 		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
 
-		/// 1. gltf test
+		
 		m_materialDescSetLayout = vk::DescriptorSetLayout::Builder(device)
 			// 0 : is bingding index of the binding slot in the set
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
@@ -149,19 +152,33 @@ namespace Alalba
 			.AddBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			.SetTag("gltf descriptor Set Layout")
 			.Build();
+		
+		// 0. ShadowMap: OFF SCREEN
+		std::vector<const vk::DescriptorSetLayout*> shadowDescriptorSetLayout =
+		{
+			m_globalDescSetLayout.get(),
+			m_materialDescSetLayout.get() // for model drawing 
+		};
+		m_shadowMapSys = std::make_unique<ShadowMappingSys>(scene, shadowDescriptorSetLayout);
+
+		// 1. DebugSys for shadow mapp
+		m_DebugSys = std::make_unique<DebugSys>(*m_renderPass, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, m_shadowMapSys->GetImageView(), m_shadowMapSys->GetSampler());
+
+		/// 2. gltf test
 		std::vector<const vk::DescriptorSetLayout*> gltfDescriptorSetLayout =
 		{
 			m_globalDescSetLayout.get(),
 			m_materialDescSetLayout.get()
 		};
+		for (int i = 0; i < m_swapChain->GetImgCount(); i++)
+		{
+			m_GlobalDescriptorSets[i]->
+				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i], 0, sizeof(GlobalUBO))
+				.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, m_shadowMapSys->GetSampler(), m_shadowMapSys->GetImageView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL)
+				.UpdateDescriptors();
+		}
 		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
-		
-
-		//2. ShadowMap: OFF SCREEN
-		m_shadowMapSys = std::make_unique<ShadowMappingSys>(scene, gltfDescriptorSetLayout);
-
-		//// 3. DebugSys
-		m_DebugSys = std::make_unique<DebugSys>(*m_renderPass, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, m_shadowMapSys->GetImageView(), m_shadowMapSys->GetSampler());
+	
 	}
 	void Renderer::Shutdown()
 	{
@@ -333,6 +350,9 @@ namespace Alalba
 			auto& color = entity.GetComponent<PointLightComponent>().LightColor;
 			m_ubo.lightcolor = color;
 			m_ubo.lightposition = position;
+			m_ubo.lightproj = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+			m_ubo.lightproj[1][1] *= -1;
+			m_ubo.lightview = glm::lookAt(glm::vec3(position), glm::vec3(0.0f), glm::vec3(0, 1, 0));
 		}
 
 		memcpy(m_globalUniformbuffers[m_currentFrame]->Mapped(), &m_ubo, sizeof(m_ubo));

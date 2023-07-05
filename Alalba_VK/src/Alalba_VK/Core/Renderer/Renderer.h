@@ -47,6 +47,11 @@ namespace Alalba
 			// cam
 			glm::mat4 view;
 			glm::mat4 proj;
+			
+			// light
+			glm::mat4 lightview;
+			glm::mat4 lightproj;
+			// cam
 			glm::vec4 camPos;
 			// light
 			glm::vec4 lightposition;
@@ -93,8 +98,9 @@ namespace Alalba
 		// gltf test
 		bool m_gltfSysOn = true;
 		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
-		// this is for the pipelineLayout, the one in the model is for the descriptorSet
-		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout; // should be same as in the molde material;
+		// this is for the pipelineLayout, the one in the model is for the descriptorSet,should be same as in the molde material
+		// systems who call model drawing function should use it ;
+		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout;
 		
 		// DebugSys sys
 		bool m_DeugSysOn = false;

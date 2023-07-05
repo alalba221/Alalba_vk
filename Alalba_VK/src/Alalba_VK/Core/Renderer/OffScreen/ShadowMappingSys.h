@@ -55,8 +55,8 @@ namespace Alalba
 			glm::mat4 lightProject;
 			
 			// Used for depth map visualization
-			float zNear = 0.1f;
-			float zFar = 100.0f;
+			float zNear ;
+			float zFar ;
 		};
 
 		std::unique_ptr<vk::Allocator> m_allocator;

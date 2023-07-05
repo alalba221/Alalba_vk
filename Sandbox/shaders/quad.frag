@@ -17,13 +17,13 @@ layout (binding = 0) uniform UBO
 	float zFar;
 } ubo;
 
-float zNear = 0.1f;
-float zFar = 100.0;
+//float zNear = 0.1f;
+//float zFar = 100.0;
 
 float LinearizeDepth(float depth) 
 {
     float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * zNear * zFar) / (zFar + zNear - z * (zFar - zNear));	
+    return (2.0 * ubo.zNear * ubo.zFar) / (ubo.zFar + ubo.zNear - z * (ubo.zFar - ubo.zNear));	
 }
 
 //float LinearizeDepth(float depth)
@@ -36,7 +36,7 @@ float LinearizeDepth(float depth)
 //
 void main() 
 {
-	float depth = LinearizeDepth(texture(samplerColor, inUV).r)/zFar;
+	float depth = LinearizeDepth(texture(samplerColor, inUV).r)/ubo.zFar;
 
 	outFragColor = vec4(vec3(depth), 1.0);
 

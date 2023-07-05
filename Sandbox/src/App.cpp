@@ -33,11 +33,11 @@ public:
 			auto& position = entity.GetComponent<PointLightComponent>().LightPosition;
 			auto& color = entity.GetComponent<PointLightComponent>().LightColor;
 
-			glm::mat4 rot = glm::mat4(1.0f);
+			glm::mat4 transform = glm::mat4(1.0f);
+			
+			transform = glm::rotate(transform, glm::radians(0.01f) , glm::vec3(0.0f, 1.0f, 0.0f));
 
-			rot = glm::rotate(rot, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-			position = rot * glm::vec4(1.0);
+			position = transform * position;
 
 			entity.AddOrReplaceComponent<PointLightComponent>(position, color);
 		}
@@ -55,10 +55,9 @@ public:
 		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj").LoadMesh("models/quad.obj");;
 		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
 			.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
-		//m_gltfSys->LoadModel("models/glTF/buster_drone/busterDrone.gltf");
-		m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf")
-			.LoadModel("models/glTF/samplescene.gltf");
-
+		m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf");
+	/*	m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf")
+			.LoadModel("models/glTF/samplescene.gltf");*/
 
 		auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
@@ -80,7 +79,7 @@ public:
 		//drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
 		//drone2.AddOrReplaceComponent<TransformComponent>(trans);
 	
-		glm::vec4 lightpos = glm::vec4(0, 1.0, 1.0, 1.0);
+		glm::vec4 lightpos = glm::vec4(3.0, 3.0, 3.0, 1.0);
 		glm::vec4 lightcolor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 		auto pointLight = m_scene->CreateEntity("pointLight0");
 		pointLight.AddComponent<PointLightComponent>(lightpos, lightcolor);

@@ -96,7 +96,6 @@ namespace Alalba
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_FRAGMENT_BIT)
 			// Binding 1 : Fragment shader image sampler (shadow map)
 			.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			// todo: add lights
 			.SetTag("DebugSys Descriptor Set Layout")
 			.Build();
 
