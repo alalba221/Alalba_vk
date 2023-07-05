@@ -56,7 +56,7 @@ namespace vk
 
 		std::unique_ptr<Buffer> m_buffer;
 		uint64_t m_deviceAddress;
-		VkDeviceSize m_asSize;
+		VkDeviceSize m_scratchBufferSize;
 		VkAccelerationStructureGeometryKHR  m_accelerationStructureGeometry{};
 		uint32_t m_primitiveCount;
 

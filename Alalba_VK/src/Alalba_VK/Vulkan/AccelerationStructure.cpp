@@ -33,45 +33,56 @@ namespace vk
 		GET_DEVICE_PROC_ADDR(m_device.Handle(), CmdBuildAccelerationStructuresKHR);
 		GET_DEVICE_PROC_ADDR(m_device.Handle(), DestroyAccelerationStructureKHR);
 
-
 		// BLAS builder requires raw device addresses.
-		VkDeviceAddress vertexAddress = vertexBuffer.DeviceAddress();
-		VkDeviceAddress indexAddress = indexBuffer.DeviceAddress();
-
+		VkDeviceAddress vertexBufferAddress = vertexBuffer.DeviceAddress();
+		VkDeviceAddress indexBufferAddress = indexBuffer.DeviceAddress();
+		
 		// Describe buffer as array of Vertex.
 		VkAccelerationStructureGeometryTrianglesDataKHR triangles{ VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR };
 		triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;  // vec3 vertex position data.
-		triangles.vertexData.deviceAddress = vertexAddress;
+		triangles.vertexData.deviceAddress = vertexBufferAddress;
 		triangles.vertexStride = sizeof(Vertex);
 		// Describe index data (32-bit unsigned int)
 		triangles.indexType = VK_INDEX_TYPE_UINT32;
-		triangles.indexData.deviceAddress = indexAddress;
+		triangles.indexData.deviceAddress = indexBufferAddress;
 		// Indicate identity transform by setting transformData to null device pointer.
-		//triangles.transformData = {};
+		triangles.transformData = {};
 		triangles.maxVertex = vertexCount;
 
 		// data pointer
-		
+	
 		m_accelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
 		m_accelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
 		m_accelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-		m_accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
-		m_accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
-		m_accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = vertexAddress;
-		m_accelerationStructureGeometry.geometry.triangles.maxVertex = 3;
-		m_accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(Vertex);
-		m_accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
-		m_accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = indexAddress;
-		m_accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = 0;
-		m_accelerationStructureGeometry.geometry.triangles.transformData.hostAddress = nullptr;
-		//accelerationStructureGeometry.geometry.triangles.transformData = transformBufferDeviceAddress;
+		m_accelerationStructureGeometry.geometry.triangles = triangles;
+		//m_accelerationStructureGeometry.geometry.triangles.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+		//m_accelerationStructureGeometry.geometry.triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+		//m_accelerationStructureGeometry.geometry.triangles.vertexData.deviceAddress = vertexBufferAddress;
+		//m_accelerationStructureGeometry.geometry.triangles.maxVertex = vertexCount;
+		//m_accelerationStructureGeometry.geometry.triangles.vertexStride = sizeof(Vertex);
+		//m_accelerationStructureGeometry.geometry.triangles.indexType = VK_INDEX_TYPE_UINT32;
+		//m_accelerationStructureGeometry.geometry.triangles.indexData.deviceAddress = indexBufferAddress;
+		//m_accelerationStructureGeometry.geometry.triangles.transformData.deviceAddress = 0;
+		//m_accelerationStructureGeometry.geometry.triangles.transformData.hostAddress = nullptr;
+		////accelerationStructureGeometry.geometry.triangles.transformData = transformBufferDeviceAddress;
+
+
+	/*
+	 * Creating a Bottom-Level-Accelerated-Structure, requires the following elements:
+
+	 * VkAccelerationStructureBuildGeometryInfoKHR` : to create and build the acceleration structure. It is referencing the array of `VkAccelerationStructureGeometryKHR` created in `objectToVkGeometryKHR()`
+	 * VkAccelerationStructureBuildRangeInfoKHR`: a reference to the range, also created in `objectToVkGeometryKHR()`
+	 * VkAccelerationStructureBuildSizesInfoKHR`: the size require for the creation of the AS and the scratch buffer
+	*/
 
 		VkAccelerationStructureBuildGeometryInfoKHR accelerationStructureBuildGeometryInfo{};
 		accelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
 		accelerationStructureBuildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 		accelerationStructureBuildGeometryInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+		/// Our blas is made from only one geometry, but could be made of many geometries	
 		accelerationStructureBuildGeometryInfo.geometryCount = 1;
 		accelerationStructureBuildGeometryInfo.pGeometries = &m_accelerationStructureGeometry;
+
 
 		// get size
 		m_primitiveCount = static_cast<uint32_t>(indexCount)/3;
@@ -83,7 +94,8 @@ namespace vk
 			&m_primitiveCount,
 			&accelerationStructureBuildSizesInfo);
 		
-		m_asSize = accelerationStructureBuildSizesInfo.buildScratchSize;
+		// no compact
+		m_scratchBufferSize = accelerationStructureBuildSizesInfo.buildScratchSize;
 		
 		/// Create
 		// 1. 
@@ -94,13 +106,13 @@ namespace vk
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
 			.Build();
 
-		// Get size info
 		VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo{};
 		accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
 		accelerationStructureCreateInfo.buffer = m_buffer->Handle();
 		accelerationStructureCreateInfo.size = accelerationStructureBuildSizesInfo.accelerationStructureSize;
 		accelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-		fpCreateAccelerationStructureKHR(m_device.Handle(), &accelerationStructureCreateInfo, nullptr, &m_BLAS);
+		VkResult err = fpCreateAccelerationStructureKHR(m_device.Handle(), &accelerationStructureCreateInfo, nullptr, &m_BLAS);
+		ALALBA_ASSERT(err == VK_SUCCESS, "Create BLAS Failed");
 
 		VkAccelerationStructureDeviceAddressInfoKHR accelerationDeviceAddressInfo{};
 		accelerationDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
@@ -113,7 +125,7 @@ namespace vk
 		// Create a small scratch buffer used during build of the bottom level acceleration structure
 		std::unique_ptr<Buffer>scratchBuffer = Buffer::Builder(m_device, m_allocator)
 			.SetTag("BLAS scratch Buffer")
-			.SetSize(m_asSize)
+			.SetSize(m_scratchBufferSize)
 			.SetUsage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
 			.Build();

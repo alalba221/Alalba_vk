@@ -440,7 +440,7 @@ namespace Alalba
 		// Push a default material at the end of the list for meshes with no material assigned
 		m_materials.push_back(new Material());
 	}
-	void GLTFModel::loadImages(tinygltf::Model& gltfModel)
+	void GLTFModel::loadImages(tinygltf::Model& gltfModel) 
 	{
 		// Images can be stored inside the glTF (which is the case for the sample model), so instead of directly
 	  // loading them from disk, we fetch them from the glTF loader and upload the buffers

@@ -10,6 +10,8 @@ namespace Alalba
 	Mesh::Mesh(MeshSys& sys, const std::string& file)
 	{
 		// 
+		std::string tag = file.substr(file.rfind("/") + 1, file.rfind(".") - file.rfind("/") - 1);
+
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		LoadModel(file, vertices,indices);
@@ -22,11 +24,13 @@ namespace Alalba
 
 		VkBufferUsageFlags flag = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 		VkBufferUsageFlags rayTracingFlags =  // used also for building acceleration structures
+																																									//The ray tracing will need to use those buffers as storage buffers
 			flag | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 		
+
 		// Vertex buffer
 		m_vertexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
-			.SetTag("Vertex Buffer")
+			.SetTag(tag+ "'s Vertex Buffer")
 			.SetSize(vertexSize)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | rayTracingFlags)
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
@@ -44,7 +48,7 @@ namespace Alalba
 
 		// Index buffer
 		m_indexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), sys.Allocator())
-			.SetTag("Index Buffer")
+			.SetTag(tag + "'s Index Buffer")
 			.SetSize(indexSize)
 			.SetUsage(VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | rayTracingFlags)
 			.SetVmaUsage(VMA_MEMORY_USAGE_GPU_ONLY)
@@ -63,10 +67,11 @@ namespace Alalba
 		m_blas->BuildOnDevice(Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool());*/
 
 		m_blas = vk::BLAS::Builder(Application::Get().GetDevice(), sys.Allocator(), *m_vertexBuffer, *m_indexBuffer)
-			.SetTag("BLAS")
+			.SetTag(tag + "'s BLAS")
 			.SetIndexCount(m_indexCount)
 			.SetVertexCount(m_vertexCount)
 			.Build();
+		m_blas->BuildOnDevice(Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool());
 	}
 
 	void Mesh::Clean()
