@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 #include "Alalba_VK/Core/Scene/Scene.h"
 #include "Alalba_VK/Vulkan/AccelerationStructure.h"
-
+#include "Alalba_VK/Vulkan/Allocator.h"
 namespace Alalba
 {
 	class RayTracer

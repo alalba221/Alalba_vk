@@ -57,7 +57,7 @@ namespace vk
 		/** 
 		* @ breif only for transfering texture TO GPU, since the finall imagelayout is finallly set as VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 		*/
-		void CopyTextureImageFrom(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
+		void CopyImageFromData(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		
 		~Image() { Clean(); };
 		void Clean();

@@ -5,7 +5,10 @@
 #include "PipelineLayout.h"
 #include "RenderPass.h"
 #include "PipelineCache.h"
+
 #include"Alalba_VK/Assets/Vertex.h"
+#include "Alalba_VK/Core/ImGui/UIOverlay.h"
+
 namespace vk
 {
 
@@ -15,7 +18,7 @@ namespace vk
     return *this;
   }
 
-  GraphicsPipeline::Builder& GraphicsPipeline::Builder::SetVertexProcessingState(bool hasVertices)
+  GraphicsPipeline::Builder& GraphicsPipeline::Builder::SetVertexProcessingState(bool formodel)
   {
     m_inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     m_inputAssembly.pNext = nullptr;
@@ -25,15 +28,25 @@ namespace vk
 
 
     m_vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if (!hasVertices)
+    // if bufferless rendering or ImGui
+    if (!formodel)
+    {
+      m_vertexInputState.pNext = nullptr;
+      // VkPipelineVertexInputStateCreateFlags       flags;
+      m_vertexInputState.vertexBindingDescriptionCount = Alalba::UIOverlay::GetBindingDescriptions().size();
+      m_vertexInputState.pVertexBindingDescriptions = Alalba::UIOverlay::GetBindingDescriptions().data(); // Optional
+      m_vertexInputState.vertexAttributeDescriptionCount = Alalba::UIOverlay::GetAttributeDescriptions().size();
+      m_vertexInputState.pVertexAttributeDescriptions = Alalba::UIOverlay::GetAttributeDescriptions().data(); // Optional
       return *this;
+    }
+     
     
     m_vertexInputState.pNext = nullptr;
     // VkPipelineVertexInputStateCreateFlags       flags;
     m_vertexInputState.vertexBindingDescriptionCount = Alalba::Vertex::GetBindingDescriptions().size();
-    m_vertexInputState.pVertexBindingDescriptions = Alalba::Vertex::GetBindingDescriptions().data(); // Optional
+    m_vertexInputState.pVertexBindingDescriptions = Alalba::Vertex::GetBindingDescriptions().data(); 
     m_vertexInputState.vertexAttributeDescriptionCount = Alalba::Vertex::GetAttributeDescriptions().size();
-    m_vertexInputState.pVertexAttributeDescriptions = Alalba::Vertex::GetAttributeDescriptions().data(); // Optional
+    m_vertexInputState.pVertexAttributeDescriptions = Alalba::Vertex::GetAttributeDescriptions().data(); 
     
     return *this;
   }
@@ -96,13 +109,23 @@ namespace vk
   {
     
     VkPipelineColorBlendAttachmentState colorAttachBlendState{};
+    //colorAttachBlendState.blendEnable = blendEnable;
+    //colorAttachBlendState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    //colorAttachBlendState.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    //colorAttachBlendState.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+    //colorAttachBlendState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+    //colorAttachBlendState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+    //colorAttachBlendState.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+    //TODO: following is for IMGUI, if need blending in furture, change the code below 
     colorAttachBlendState.blendEnable = blendEnable;
-    colorAttachBlendState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    colorAttachBlendState.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    colorAttachBlendState.colorBlendOp = VK_BLEND_OP_ADD; // Optional
-    colorAttachBlendState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-    colorAttachBlendState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
-    colorAttachBlendState.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+    colorAttachBlendState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
+    colorAttachBlendState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+    colorAttachBlendState.colorBlendOp = VK_BLEND_OP_ADD; 
+    colorAttachBlendState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+    colorAttachBlendState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; 
+    colorAttachBlendState.alphaBlendOp = VK_BLEND_OP_ADD; 
+
     colorAttachBlendState.colorWriteMask = colorWriteMask;
 
     m_colorAttachBlendStates.push_back(colorAttachBlendState);

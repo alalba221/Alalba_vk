@@ -39,8 +39,14 @@ namespace vk
 			Builder& SetTag(const std::string& tag) { m_tag = tag; return *this; }
 			// new
 			Builder& AddPipelineStage(const ShaderModule& shader);
-			// 1. vertex processing 
-			Builder& SetVertexProcessingState(bool hasVertices = true);
+			// 1. vertex processing
+			/**
+		 * @brief 
+		 * @tparam 
+		 * @param vertexbuffer is for model, otherwise for bufferless rendering or UI
+		 * @return
+		 */
+			Builder& SetVertexProcessingState(bool formodel = true);
 			
 			// 2. tessellation state
 			Builder& SetTessellationState() { return *this; };
@@ -56,11 +62,18 @@ namespace vk
 			// 6. pixel Proccessing
 			Builder& SetMultisampleState(VkSampleCountFlagBits rasterizationSamples);
 			Builder& AddColorBlendAttachmentState(VkColorComponentFlags colorWriteMask, VkBool32 blendEnable);
+			// todo : make colorAttachmentCount more meaningfull
 			Builder& SetColorBlendState(uint32_t colorAttachmentCount);
 			
 
 			// dynamic state
 			Builder& SetViewportState(uint32_t viewportCount, uint32_t scissorCount);
+			/**
+		 * @brief
+		 * @tparam
+		 * @param depth bias
+		 * @return
+		 */
 			Builder& SetDynamicState(VkBool32 depthBias);
 
 		private:
@@ -76,7 +89,7 @@ namespace vk
 			VkPipelineRasterizationStateCreateInfo m_rasterizerState{};
 			bool m_depthBiasOn;
 
-			VkPipelineDepthStencilStateCreateInfo m_depthState{};
+			VkPipelineDepthStencilStateCreateInfo m_depthState{ VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
 			VkPipelineMultisampleStateCreateInfo m_multisamplingState{};
 			std::vector<VkPipelineColorBlendAttachmentState> m_colorAttachBlendStates{};
 			VkPipelineColorBlendStateCreateInfo m_colorBlendState{};

@@ -1,6 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
-//Todo: only has one subpass
+
 namespace vk
 {
 	class Device;

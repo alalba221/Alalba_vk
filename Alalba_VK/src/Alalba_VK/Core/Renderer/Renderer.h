@@ -34,7 +34,8 @@ namespace Alalba
 
 		void Shutdown();
 		void Resize();
-	
+		
+		const vk::RenderPass& GetRenderPass()const { return *m_renderPass; }
 		
 		void PrepareCommandBuffer(Scene& scene);
 		void Update(Scene& scene);
@@ -76,8 +77,9 @@ namespace Alalba
 		std::unique_ptr<vk::SwapChain> m_swapChain;
 		std::unique_ptr<vk::RenderPass> m_renderPass;
 		std::vector<std::unique_ptr<vk::FrameBuffer>> m_frameBuffers{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
-		std::unique_ptr<vk::Image> m_depthImage;
-		std::unique_ptr<vk::ImageView> m_depthImageView;
+		
+		std::vector<std::unique_ptr<vk::Image>> m_depthImages{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
+		std::vector < std::unique_ptr<vk::ImageView>> m_depthImageViews{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 		
 		// command
 		std::unique_ptr<vk::CommandPool> m_commandPool;

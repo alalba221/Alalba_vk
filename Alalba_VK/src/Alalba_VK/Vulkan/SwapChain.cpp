@@ -139,6 +139,7 @@ namespace vk
     std::vector<VkImage> swapChainImages;
     //uint32_t imgCount;
     vkGetSwapchainImagesKHR(m_device.Handle(), m_swapChain, &m_imgCount, nullptr);
+    ALALBA_ASSERT(m_imgCount == MAX_FRAMES_IN_FLIGHT,"change MAX_FRAMES_IN_FLIGHT same as m_imgCount");
     swapChainImages.resize(m_imgCount);
     vkGetSwapchainImagesKHR(m_device.Handle(), m_swapChain, &m_imgCount, swapChainImages.data());
     

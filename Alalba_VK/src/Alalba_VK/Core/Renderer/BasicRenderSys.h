@@ -9,6 +9,7 @@
 #include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Vulkan/SwapChain.h"
 
+#include "Alalba_VK/Vulkan/Allocator.h"
 namespace vk
 {
 	class RenderPass;

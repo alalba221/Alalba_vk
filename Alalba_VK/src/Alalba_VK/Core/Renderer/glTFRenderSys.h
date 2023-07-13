@@ -9,6 +9,8 @@
 #include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Vulkan/SwapChain.h"
 
+#include "Alalba_VK/Core/ImGui/UIOverlay.h"
+
 namespace vk
 {
 	class RenderPass;
@@ -31,16 +33,14 @@ namespace Alalba
 
 
 		// rendering related command, mainly record command into command buffers
-		void Render(const vk::CommandBuffers& cmdBuffers,
-			const vk::DescriptorSet& globalDescSet,
-			const int currentCmdBuffer);
-
 		void BuildCommandBuffer(const vk::RenderPass& renderpass, const vk::FrameBuffer& framebuffer, VkExtent2D areaExtend,
 			const vk::DescriptorSet& globalDescSet,
 			const vk::CommandBuffers& cmdBuffers, const uint32_t currentCmdBuffer);
 
 		void Update();
 		void ShutDown();
+
+		//bool UineedUpdate = false;
 
 	private:
 
@@ -56,12 +56,16 @@ namespace Alalba
 		
 		//GLTFSys& m_loader;
 		Scene& m_scene;
+		
 
 	private:
 		void CreateShaders(const std::string& vertex, const std::string& frag);
 		void CreatePipelineLayout(const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts);
 		void CreatePipeline(const vk::RenderPass& renderpass, const vk::PipelineCache& pipelineCache);
 		
+	public:
+		// temproray put ui here
+		std::unique_ptr<UIOverlay> m_UI;
 	};
 }
 

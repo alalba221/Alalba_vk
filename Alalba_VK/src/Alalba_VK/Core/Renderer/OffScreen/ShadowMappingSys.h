@@ -20,7 +20,9 @@
 #include "Alalba_VK/Vulkan/GraphicsPipeline.h"
 
 #include "Alalba_VK/Core/Scene/Scene.h"
+#include "Alalba_VK/Vulkan/Allocator.h"
 
+#include "Alalba_VK/Vulkan/SwapChain.h"
 namespace Alalba 
 {
 	//class DebugSys;
@@ -37,12 +39,12 @@ namespace Alalba
 		//	const vk::DescriptorSet& globalDescSet,
 		//	const int currentCmdBuffer);
 
-		void Update(Scene& scene);
+		void Update(Scene& scene, uint32_t currentFrame);
 		void ShutDown();
 
-		const vk::ImageView& GetImageView() const { return *m_depthImageView; }
-		const vk::Sampler& GetSampler()const { return *m_sampler; }
-		const vk::Image& GetImage() const { return *m_depthImage; }
+		const vk::ImageView& GetImageView(uint32_t i) const { return *m_depthImageViews[i]; }
+		const vk::Sampler& GetSampler(uint32_t i)const { return *m_samplers[i]; }
+		const vk::Image& GetImage(uint32_t i) const { return *m_depthImages[i]; }
 
 		static constexpr int SHADOWMAP_DIM = 2048;
 
@@ -62,14 +64,14 @@ namespace Alalba
 		std::unique_ptr<vk::Allocator> m_allocator;
 		std::unique_ptr<vk::CommandPool> m_cmdPool;
 
-		std::unique_ptr<vk::Image> m_depthImage;
-		std::unique_ptr<vk::ImageView> m_depthImageView;
-		std::unique_ptr<vk::Sampler> m_sampler;
+		std::vector<std::unique_ptr<vk::Image>> m_depthImages{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
+		std::vector<std::unique_ptr<vk::ImageView>> m_depthImageViews{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
+		std::vector<std::unique_ptr<vk::Sampler>> m_samplers{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 
 		std::unique_ptr<vk::RenderPass> m_renderPass;
-		std::unique_ptr<vk::FrameBuffer> m_framebuffer;
+		std::vector< std::unique_ptr<vk::FrameBuffer> > m_framebuffers{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 
-		std::unique_ptr<vk::Buffer> m_shadowMapUBO;
+		std::vector<std::unique_ptr<vk::Buffer>> m_shadowMapUBOs{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 		std::unique_ptr<vk::DescriptorSetLayout> m_descSetLayout;
 
 
@@ -81,7 +83,7 @@ namespace Alalba
 		std::unique_ptr<vk::GraphicsPipeline> m_pipeline;
 		
 		std::unique_ptr<vk::DescriptorPool> m_descPool;
-		std::unique_ptr<vk::DescriptorSet> m_descriptorSet;
+		std::vector<std::unique_ptr<vk::DescriptorSet>> m_descriptorSets{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 
 		
 		Scene& m_scene;

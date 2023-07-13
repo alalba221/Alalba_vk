@@ -33,34 +33,37 @@ namespace Alalba
 			.OneTimeSubmit(false)
 			.SetSize(3) // one for each image in swapchain
 			.Allocate();
+		
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_depthImages[i] = vk::Image::Builder(device, *m_allocator)
+				.SetTag("DepthImage")
+				.SetImgType(VK_IMAGE_TYPE_2D)
+				.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
+				.SetImageFormat(device.FindSupportedFormat(
+					{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+				))// this should be compatible with framebuffer
+				.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+				.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+				.SetImgExtent(VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 })
+				.Build();
 
-		m_depthImage = vk::Image::Builder(device, *m_allocator)
-			.SetTag("DepthImage")
-			.SetImgType(VK_IMAGE_TYPE_2D)
-			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
-			.SetImageFormat(device.FindSupportedFormat(
-				{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-				VK_IMAGE_TILING_OPTIMAL,
-				VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-			))// this should be compatible with framebuffer
-			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
-			.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
-			.SetImgExtent(VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 })
-			.Build();
+			m_depthImages[i]->TransitionImageLayout(*m_commandPool, device.GetGraphicsQ(),
+				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		m_depthImage->TransitionImageLayout(*m_commandPool, device.GetGraphicsQ(),
-			VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
-
-		m_depthImageView = vk::ImageView::Builder(device, *m_depthImage)
-			.SetTag("depthImageView")
-			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
-			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
-			.SetFormat(m_depthImage->GetFormat())
-			.Build();
+			m_depthImageViews[i] = vk::ImageView::Builder(device, *m_depthImages[i])
+				.SetTag("depthImageView")
+				.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
+				.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
+				.SetFormat(m_depthImages[i]->GetFormat())
+				.Build();
+		}
 
 		m_renderPass = vk::RenderPass::Builder(device)
 			.PushColorAttachment(m_swapChain->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-			.PushDepthAttachment(m_depthImage->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED)
+			.PushDepthAttachment(m_depthImages[0]->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED)
 			// there is an image layout the transition at the start of the render pass and at the end of the render pass
 			// but the former does not occur at the right time
 			// https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Rendering_and_presentation
@@ -70,7 +73,7 @@ namespace Alalba
 
 		m_globalDescPool = vk::DescriptorPool::Builder(device)
 			.SetTag("Global Descriptor Pool")
-			.SetMaxSets(m_swapChain->GetImgCount())
+			.SetMaxSets(vk::SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, m_swapChain->GetImgCount())
 			// 1: for shadow map
 			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, m_swapChain->GetImgCount())
@@ -84,7 +87,7 @@ namespace Alalba
 			.SetTag("Global Descriptor Set Layout")
 			.Build();
 
-		for (int i = 0; i < m_swapChain->GetImgCount(); i++)
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			std::string str_int = std::to_string(i);
 			std::string tag = std::string{ "Frame buffer for Swapchain" } + str_int;
@@ -92,7 +95,7 @@ namespace Alalba
 				.SetTag(tag)
 				.SetWidthHeight(m_swapChain->GetExtent().width, m_swapChain->GetExtent().height)
 				.PushAttachment(m_swapChain->GetImageView(i))
-				.PushAttachment(*m_depthImageView) // TODO : FOR NOW depth attachment must be added at the end of attachment list
+				.PushAttachment(*m_depthImageViews[i]) // TODO : FOR NOW depth attachment must be added at the end of attachment list
 				.Build();
 
 			m_inFlightFences[i] =
@@ -162,7 +165,7 @@ namespace Alalba
 		m_shadowMapSys = std::make_unique<ShadowMappingSys>(scene, shadowDescriptorSetLayout);
 
 		// 1. DebugSys for shadow mapp
-		m_DebugSys = std::make_unique<DebugSys>(*m_renderPass, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, m_shadowMapSys->GetImageView(), m_shadowMapSys->GetSampler());
+		m_DebugSys = std::make_unique<DebugSys>(*m_renderPass, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL, m_shadowMapSys->GetImageView(0), m_shadowMapSys->GetSampler(0));
 
 		/// 2. gltf test
 		std::vector<const vk::DescriptorSetLayout*> gltfDescriptorSetLayout =
@@ -170,11 +173,11 @@ namespace Alalba
 			m_globalDescSetLayout.get(),
 			m_materialDescSetLayout.get()
 		};
-		for (int i = 0; i < m_swapChain->GetImgCount(); i++)
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			m_GlobalDescriptorSets[i]->
 				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i], 0, sizeof(GlobalUBO))
-				.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, m_shadowMapSys->GetSampler(), m_shadowMapSys->GetImageView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL)
+				.BindDescriptor(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, m_shadowMapSys->GetSampler(i), m_shadowMapSys->GetImageView(i), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL)
 				.UpdateDescriptors();
 		}
 		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
@@ -199,9 +202,11 @@ namespace Alalba
 		m_renderPass->Clean();
 		for (auto& framebuffer : m_frameBuffers)
 			framebuffer->Clean();
-
-		m_depthImage->Clean();
-		m_depthImageView->Clean();
+		
+		for (auto& depthImage : m_depthImages)
+			depthImage->Clean();
+		for (auto& depthImageView : m_depthImageViews)
+			depthImageView->Clean();
 
 		m_commandBuffers->Clean();
 		m_commandPool->Clean();
@@ -235,36 +240,39 @@ namespace Alalba
 		{
 			m_frameBuffers[i]->Clean();
 		}
-		m_depthImageView->Clean();
-		m_depthImage->Clean();
+		for (auto& depthImage : m_depthImages)
+			depthImage->Clean();
+		for (auto& depthImageView : m_depthImageViews)
+			depthImageView->Clean();
 		m_swapChain->Clean();
 
 		// recreate framebuffers , depth image , depthimage view and swapchain
 		m_swapChain.reset(new vk::SwapChain(device, app.GetSurface(), VK_PRESENT_MODE_MAILBOX_KHR, VK_SHARING_MODE_EXCLUSIVE));
 
-		m_depthImage.reset(new vk::Image(device, *m_allocator, VK_IMAGE_TYPE_2D,
-			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-			VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 },
-			device.FindSupportedFormat(
-				{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-				VK_IMAGE_TILING_OPTIMAL,
-				VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-			),
-			VK_IMAGE_TILING_OPTIMAL,
-			VK_SHARING_MODE_EXCLUSIVE,
-			"Recreated depth image"
-		));
-
-		m_depthImageView.reset(new vk::ImageView(device, m_depthImage->Handle(),
-			VK_IMAGE_ASPECT_DEPTH_BIT, m_depthImage->GetFormat(),
-			VK_IMAGE_VIEW_TYPE_2D, "Recreated Depth ImageView"
-		));
+		
 
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
+			m_depthImages[i].reset(new vk::Image(device, *m_allocator, VK_IMAGE_TYPE_2D,
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+				VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 },
+				device.FindSupportedFormat(
+					{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+				),
+				VK_IMAGE_TILING_OPTIMAL,
+				VK_SHARING_MODE_EXCLUSIVE,
+				"Recreated depth image"
+			));
+
+			m_depthImageViews[i].reset(new vk::ImageView(device, m_depthImages[i]->Handle(),
+				VK_IMAGE_ASPECT_DEPTH_BIT, m_depthImages[i]->GetFormat(),
+				VK_IMAGE_VIEW_TYPE_2D, "Recreated Depth ImageView"
+			));
 			std::vector<const vk::ImageView*> attachments;
 			attachments.push_back(&(m_swapChain->GetImageView(i)));
-			attachments.push_back(m_depthImageView.get());
+			attachments.push_back(m_depthImageViews[i].get());
 
 			m_frameBuffers[i].reset(new vk::FrameBuffer(
 				device, *m_renderPass,
@@ -308,11 +316,11 @@ namespace Alalba
 
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
-			
+			m_inFlightFences[i]->Wait(UINT64_MAX);
+			vkResetCommandBuffer(cmdBuffers[i], 0);
 			cmdBuffers.BeginRecording(i);
 			{
 				// shadow mapp	
-
 				m_shadowMapSys->GenerateShadowMapp(cmdBuffers, i);
 				if(m_DeugSysOn)
 					m_DebugSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[i], m_swapChain->GetExtent(), *m_commandBuffers, i);
@@ -356,11 +364,22 @@ namespace Alalba
 		}
 
 		memcpy(m_globalUniformbuffers[m_currentFrame]->Mapped(), &m_ubo, sizeof(m_ubo));
-		
+		m_globalUniformbuffers[m_currentFrame]->Flush();
+
 		//
 		//m_basicRenderSys->Update(scene);
 
-		m_shadowMapSys->Update(scene);
+
+		// update UI
+		//********** for test**************
+		m_gltfRenderSys->m_UI->NewFrame();
+		if (m_gltfRenderSys->m_UI->UpdateBuffers())
+		{
+			PrepareCommandBuffer(m_scene);
+		}
+		// ***************************
+
+		m_shadowMapSys->Update(scene, m_currentFrame);
 		m_DebugSys->Update();
 	}
 
@@ -441,7 +460,7 @@ namespace Alalba
 		{
 			ALALBA_ASSERT(result == VK_SUCCESS, "Queue Present Failed");
 		}
-		m_currentFrame = (m_currentFrame + 1) % m_swapChain->GetImgCount();
+		m_currentFrame = (m_currentFrame + 1) % vk::SwapChain::MAX_FRAMES_IN_FLIGHT;
 
 	}
 }

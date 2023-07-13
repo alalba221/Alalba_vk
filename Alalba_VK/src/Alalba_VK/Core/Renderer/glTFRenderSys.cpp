@@ -16,30 +16,7 @@ namespace Alalba
 		CreatePipelineLayout(descriptorSetLayouts);
 		CreatePipeline(renderpass, pipelineCache);
 
-	}
-
-	void glTFRenderSys::Render(const vk::CommandBuffers& cmdBuffers,
-		const vk::DescriptorSet& globalDescSet, const int currentCmdBuffer)
-	{
-		//// bind pipeline
-		//vkCmdBindPipeline(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline->Handle());
-		//// bind global descriptor set
-		//VkDescriptorSet gbset = globalDescSet.Handle();
-		//vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS,
-		//	m_pipelineLayout->Handle(), 0, 1, &gbset, 0, nullptr);
-
-		//auto view = m_scene.GetAllEntitiesWith<GLTFComponent, TransformComponent>();
-
-		///// for each entity
-		//for (auto entity : view)
-		//{
-
-		//	auto model = view.get<GLTFComponent>(entity).Model;
-		//	auto basetransform = view.get<TransformComponent>(entity).Transform;
-
-		//	//DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
-		//	model->DrawModel(basetransform, *m_graphicsPipeline, cmdBuffers, currentCmdBuffer);
-		//}
+		m_UI.reset(new UIOverlay(renderpass));
 	}
 
 	void glTFRenderSys::BuildCommandBuffer(const vk::RenderPass& renderpass, const vk::FrameBuffer& framebuffer, VkExtent2D areaExtend, 
@@ -70,6 +47,12 @@ namespace Alalba
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = areaExtend;
+
+		///***************/
+		//m_UI->NewFrame();
+		//m_UI->UpdateBuffers();
+		///***************/
+
 		vkCmdBeginRenderPass(cmdBuffers[currentCmdBuffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdSetViewport(cmdBuffers[currentCmdBuffer], 0, 1, &viewport);
 		vkCmdSetScissor(cmdBuffers[currentCmdBuffer], 0, 1, &scissor);
@@ -92,6 +75,8 @@ namespace Alalba
 			//DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
 			model->DrawModel(basetransform, *m_graphicsPipeline, cmdBuffers, currentCmdBuffer);
 		}
+
+		m_UI->Draw(cmdBuffers, currentCmdBuffer);
 
 		vkCmdEndRenderPass(cmdBuffers[currentCmdBuffer]);
 	}

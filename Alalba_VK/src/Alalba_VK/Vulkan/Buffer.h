@@ -55,6 +55,7 @@ namespace vk
 		void UnMapMemory();
 		void* Mapped() { return m_mapped; }
 		
+		void Flush();
 	private:
 		VULKAN_HANDLE(VkBuffer, m_buffer);
 		const class Device& m_device;

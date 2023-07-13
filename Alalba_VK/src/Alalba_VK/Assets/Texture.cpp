@@ -35,7 +35,7 @@ namespace Alalba
 			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
-		m_image->CopyTextureImageFrom(imageData, imageSize,
+		m_image->CopyImageFromData(imageData, imageSize,
 			app.GetDevice().GetGraphicsQ(), cmdPool);
 		stbi_image_free(imageData);
 
@@ -57,7 +57,7 @@ namespace Alalba
 	}
 
 	// Build from Buffer
-	Texture::Texture(void* buffer, VkDeviceSize bufferSize, VkFormat format, uint32_t texWidth, uint32_t texHeight, vk::Allocator& allocator, vk::CommandPool& cmdPool)
+	Texture::Texture(void* data, VkDeviceSize bufferSize, VkFormat format, uint32_t texWidth, uint32_t texHeight, vk::Allocator& allocator, vk::CommandPool& cmdPool)
 	{
 		const vk::Device& device = Application::Get().GetDevice();
 
@@ -71,7 +71,7 @@ namespace Alalba
 			.SetSharingMode(VK_SHARING_MODE_EXCLUSIVE)
 			.Build();
 
-		m_image->CopyTextureImageFrom(buffer, bufferSize,
+		m_image->CopyImageFromData(data, bufferSize,
 			device.GetGraphicsQ(), cmdPool);
 
 		// image view

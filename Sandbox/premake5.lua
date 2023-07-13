@@ -23,6 +23,7 @@ project "Sandbox"
 		"%{IncludeDir.tinygltf}",
 		"%{IncludeDir.GLFW}",
 		--"%{IncludeDir.stb}",
+		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.entt}",
 
    }

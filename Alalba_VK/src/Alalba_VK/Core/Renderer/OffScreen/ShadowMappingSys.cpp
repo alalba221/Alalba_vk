@@ -17,8 +17,8 @@ namespace Alalba
 
 		m_cmdPool = vk::CommandPool::Builder(device)
 			.SetTag("ShadowMapSys CmdPool")
-			//	.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+			//.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetQFamily(device.GetGraphicsQ().GetFamily())
 			.Build();
 
@@ -39,15 +39,15 @@ namespace Alalba
 		// 5. Descriptor pool
 		m_descPool = vk::DescriptorPool::Builder(device)
 			.SetTag("ShadowMapSys Descriptor Pool")
-			.SetMaxSets(3)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3)
-			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 3)
+			.SetMaxSets(vk::SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, vk::SwapChain::MAX_FRAMES_IN_FLIGHT)
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, vk::SwapChain::MAX_FRAMES_IN_FLIGHT)
 			.Build();
 
 		// 6. DescriptorSet
 		PrepareOffScreenDescripterSets();
 	}
-	void ShadowMappingSys::Update(Scene& scene)
+	void ShadowMappingSys::Update(Scene& scene, uint32_t currentFrame)
 	{
 		auto viewlight = scene.GetAllEntitiesWith<PointLightComponent>();
 		for (auto e : viewlight)
@@ -63,7 +63,8 @@ namespace Alalba
 			m_ubo.lightProject[1][1] *= -1;
 			m_ubo.lightView = glm::lookAt(glm::vec3(position), glm::vec3(0.0f), glm::vec3(0, 1, 0));
 			
-			memcpy(m_shadowMapUBO->Mapped(), &m_ubo, sizeof(ShadowMappUbo));
+			memcpy(m_shadowMapUBOs[currentFrame]->Mapped(), &m_ubo, sizeof(ShadowMappUbo));
+			m_shadowMapUBOs[currentFrame]->Flush();
 		}
 	}
 	void ShadowMappingSys::ShutDown()
@@ -76,16 +77,22 @@ namespace Alalba
 		m_pipeline->Clean();
 
 		m_renderPass->Clean();
-		m_framebuffer->Clean();
 
-		m_depthImage->Clean();
-		m_depthImageView->Clean();
-		m_sampler->Clean();
-		
-		m_shadowMapUBO->Clean();
+		for (auto& framebuffer : m_framebuffers)
+			framebuffer->Clean();
+		for (auto& depthImage : m_depthImages)
+			depthImage->Clean();
+		for (auto& depthImageView : m_depthImageViews)
+			depthImageView->Clean();
+		for (auto& sampler : m_samplers)
+			sampler->Clean();
+		for (auto& shadowMapUBO : m_shadowMapUBOs)
+			shadowMapUBO->Clean();
+
 		m_descPool->Clean();
 		m_descSetLayout->Clean();
-		m_descriptorSet->Clean();
+		for (auto& descriptorSet : m_descriptorSets)
+			descriptorSet->Clean();
 
 		m_cmdPool->Clean();
 		m_allocator->Clean();
@@ -97,7 +104,7 @@ namespace Alalba
 
 		m_renderPass = vk::RenderPass::Builder(device)
 			.SetTag("ShadowMapSys RenderPass")																																																		
-			.PushDepthAttachment(m_depthImage->GetFormat(), 
+			.PushDepthAttachment(m_depthImages[0]->GetFormat(),
 				VK_ATTACHMENT_LOAD_OP_CLEAR, //Clear depth at beginning of the render pass
 				VK_IMAGE_LAYOUT_UNDEFINED,  // We don't care about initial layout of the attachment
 				VK_ATTACHMENT_STORE_OP_STORE, // We will read from depth, so it's important to store the depth attachment results 
@@ -116,56 +123,63 @@ namespace Alalba
 		Application& app = Application::Get();
 		const vk::Device& device = app.GetDevice();
 
-		m_depthImage = vk::Image::Builder(device, *m_allocator)
-			.SetTag("ShadowMapSys DepthImage")
-			.SetImgType(VK_IMAGE_TYPE_2D)
-			.SetImageFormat(device.FindSupportedFormat(
-				{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-				VK_IMAGE_TILING_OPTIMAL,
-				VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
-			))// this should be compatible with framebuffer
-			.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
-			.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
-			.SetImgExtent(VkExtent3D{ SHADOWMAP_DIM, SHADOWMAP_DIM,1 })
-			.Build();
-		m_depthImage->TransitionImageLayout(*m_cmdPool, device.GetGraphicsQ(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_depthImages[i] = vk::Image::Builder(device, *m_allocator)
+				.SetTag("ShadowMapSys DepthImage")
+				.SetImgType(VK_IMAGE_TYPE_2D)
+				.SetImageFormat(device.FindSupportedFormat(
+					{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+					VK_IMAGE_TILING_OPTIMAL,
+					VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+				))// this should be compatible with framebuffer
+				.SetImageTiling(VK_IMAGE_TILING_OPTIMAL)
+				.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
+				.SetImgExtent(VkExtent3D{ SHADOWMAP_DIM, SHADOWMAP_DIM,1 })
+				.Build();
+			m_depthImages[i]->TransitionImageLayout(*m_cmdPool, device.GetGraphicsQ(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		m_depthImageView = vk::ImageView::Builder(device, *m_depthImage)
-			.SetTag("ShadowMapSys DepthImageView")
-			.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
-			.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
-			.SetFormat(m_depthImage->GetFormat())
-			.Build();
+			m_depthImageViews[i] = vk::ImageView::Builder(device, *m_depthImages[i])
+				.SetTag("ShadowMapSys DepthImageView")
+				.SetViewType(VK_IMAGE_VIEW_TYPE_2D)
+				.SetSubresourceAspectFlags(VK_IMAGE_ASPECT_DEPTH_BIT)
+				.SetFormat(m_depthImages[i]->GetFormat())
+				.Build();
 
-		m_sampler = vk::Sampler::Builder(device)
-			.SetTag("ShadowMapSys DepthImage Sampler")
-			.SetFilter(device.FormatIsFilterable(m_depthImage->GetFormat(), m_depthImage->GetTiling()) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST)
-			.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
-			.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
-			.Build();
-
+			m_samplers[i] = vk::Sampler::Builder(device)
+				.SetTag("ShadowMapSys DepthImage Sampler")
+				.SetFilter(device.FormatIsFilterable(m_depthImages[i]->GetFormat(), m_depthImages[i]->GetTiling()) ? VK_FILTER_LINEAR : VK_FILTER_NEAREST)
+				.SetMipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR)
+				.SetAddressMode(VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE)
+				.Build();
+		}
+		
 		PrepareOffScreenRenderPass();
 
-		m_framebuffer = vk::FrameBuffer::Builder(device, *m_renderPass)
-			.SetTag("ShadowMapSys Framebuffer")
-			.SetWidthHeight(SHADOWMAP_DIM, SHADOWMAP_DIM)
-			.PushAttachment(*m_depthImageView)
-			.Build();
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_framebuffers[i] = vk::FrameBuffer::Builder(device, *m_renderPass)
+				.SetTag("ShadowMapSys Framebuffer")
+				.SetWidthHeight(SHADOWMAP_DIM, SHADOWMAP_DIM)
+				.PushAttachment(*m_depthImageViews[i])
+				.Build();
+		}
 	}
 	void ShadowMappingSys::PrepareUniformBuffer()
 	{
 		Application& app = Application::Get();
 		const vk::Device& device = app.GetDevice();
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_shadowMapUBOs[i] = vk::Buffer::Builder(device, *m_allocator)
+				.SetTag("ShadowMapSys Uniform Buffer")
+				.SetSize(sizeof(ShadowMappUbo))
+				.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+				.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
+				.Build();
 
-		m_shadowMapUBO = vk::Buffer::Builder(device, *m_allocator)
-			.SetTag("ShadowMapSys Uniform Buffer")
-			.SetSize(sizeof(ShadowMappUbo))
-			.SetUsage(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
-			.SetVmaUsage(VMA_MEMORY_USAGE_CPU_TO_GPU)
-			.Build();
-
-		m_shadowMapUBO->MapMemory();
-
+			m_shadowMapUBOs[i]->MapMemory();
+		}
 	}
 	void ShadowMappingSys::SetupDescriptorSetLayout(const std::vector<const vk::DescriptorSetLayout*>& descriptorSetLayouts)
 	{
@@ -176,7 +190,6 @@ namespace Alalba
 			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
 			//// Binding 1 : Fragment shader image sampler (shadow map)
 			//.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-			// todo: add lights
 			.SetTag("ShadowMapSys Descriptor Set Layout")
 			.Build();
 
@@ -227,13 +240,16 @@ namespace Alalba
 	void ShadowMappingSys::PrepareOffScreenDescripterSets()
 	{
 		const vk::Device& device = Application::Get().GetDevice();
-		m_descriptorSet = vk::DescriptorSet::Allocator(device, *m_descPool)
-			.SetTag("ShadowMapSys OffScreen DescriptorSet")
-			.SetDescSetLayout(*m_descSetLayout)
-			.Allocate();
-		m_descriptorSet->
-			BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_shadowMapUBO, 0, sizeof(ShadowMappUbo))
-			.UpdateDescriptors();
+		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			m_descriptorSets[i] = vk::DescriptorSet::Allocator(device, *m_descPool)
+				.SetTag("ShadowMapSys OffScreen DescriptorSet")
+				.SetDescSetLayout(*m_descSetLayout)
+				.Allocate();
+			m_descriptorSets[i]->
+				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_shadowMapUBOs[i], 0, sizeof(ShadowMappUbo))
+				.UpdateDescriptors();
+		}
 	}
 
 	void ShadowMappingSys::GenerateShadowMapp(vk::CommandBuffers& cmdBuffers, const uint32_t currentCmdBuffer)
@@ -244,7 +260,7 @@ namespace Alalba
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = m_renderPass->Handle();
-		renderPassInfo.framebuffer = m_framebuffer->Handle();
+		renderPassInfo.framebuffer = m_framebuffers[currentCmdBuffer]->Handle();
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent.width = SHADOWMAP_DIM;
 		renderPassInfo.renderArea.extent.height = SHADOWMAP_DIM;
@@ -281,7 +297,7 @@ namespace Alalba
 			m_depthBiasSlope);
 
 		vkCmdBindPipeline(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline->Handle());
-		VkDescriptorSet offScreenDescSet = m_descriptorSet->Handle();
+		VkDescriptorSet offScreenDescSet = m_descriptorSets[currentCmdBuffer]->Handle();
 		vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout->Handle(), 0, 1, &offScreenDescSet, 0, nullptr);
 		
 		auto view = m_scene.GetAllEntitiesWith<GLTFComponent, TransformComponent>();

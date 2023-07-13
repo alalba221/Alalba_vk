@@ -1,5 +1,5 @@
 #version 450
-
+#extension GL_KHR_vulkan_glsl : enable
 
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec3 Normal;
@@ -41,6 +41,29 @@ float textureProj(vec4 shadowCoord, vec2 off)
 		}
 	}
 	return shadow;
+}
+
+float filterPCF(vec4 sc)
+{
+	ivec2 texDim = textureSize(shadowMap, 0);
+	float scale = 1.5;
+	float dx = scale * 1.0 / float(texDim.x);
+	float dy = scale * 1.0 / float(texDim.y);
+
+	float shadowFactor = 0.0;
+	int count = 0;
+	int range = 3;
+	
+	for (int x = -range; x <= range; x++)
+	{
+		for (int y = -range; y <= range; y++)
+		{
+			shadowFactor += textureProj(sc, vec2(dx*x, dy*y));
+			count++;
+		}
+	
+	}
+	return shadowFactor / count;
 }
 
 // Light sources also have different intensities for their ambient, diffuse and specular components respectively
@@ -86,7 +109,8 @@ void main()
  
 	vec4 result = CalcPointLight(ubo.lightPos, Ls, normal,Position,viewDir);
   
-	float shadow = textureProj(inShadowCoord / inShadowCoord.w, vec2(0.0));
+	//float shadow = textureProj(inShadowCoord / inShadowCoord.w, vec2(0.0));
+	float shadow = filterPCF(inShadowCoord / inShadowCoord.w);
 //	result += CalcDirLight(dirG, normal, viewDir);
 //	result += CalcDirLight(dirR, normal, viewDir);
 	//outColor = vec4(texture(texSampler,fragTexCoord).rgb,1.0)*vec4 (result);

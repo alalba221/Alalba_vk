@@ -9,8 +9,8 @@
 #include "Alalba_VK/Vulkan/Instance.h"
 #include "Alalba_VK/Vulkan/Device.h"
 #include "Alalba_VK/Vulkan/Surface.h"
-#include "Alalba_VK/Vulkan/Allocator.h"
 
+#include "Alalba_VK/Core/ImGui/UIOverlay.h"
 
 //#include "VulkanRenderer.h"
 //#include "VulkanComputer.h"
@@ -27,6 +27,8 @@ namespace Alalba{
 		virtual void OnInit();
 		virtual void OnUpdate() {}
 		virtual void OnShutdown();
+
+		virtual void OnUpdateUIOverlay(UIOverlay* overlay) {};
 
 		virtual void OnEvent(Event& event);
 
@@ -46,11 +48,13 @@ namespace Alalba{
 		bool m_Running = true;
 
 		static Application* s_Instance;
+
 	protected:
 		std::unique_ptr<vk::Instance> m_vulkanInstance;
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
 
+		std::unique_ptr<UIOverlay> m_ui;
 	};
 
 	// to be defined in sandbox

@@ -87,6 +87,11 @@ namespace vk
 		vmaUnmapMemory(m_allocator.Handle(), m_allocation);
 		m_mapped = nullptr;
 	}
+	void Buffer::Flush()
+	{
+		VkResult err = vmaFlushAllocation(m_allocator.Handle(), m_allocation, 0, VK_WHOLE_SIZE);
+		ALALBA_ASSERT(err == VK_SUCCESS, "Flush buffer failed");
+	}
 	void Buffer::MoveDataFromStagingBuffer(const Buffer& stage, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
