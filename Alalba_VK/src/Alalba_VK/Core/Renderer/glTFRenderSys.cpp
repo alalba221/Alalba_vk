@@ -138,8 +138,9 @@ namespace Alalba
 
 	void glTFRenderSys::Update()
 	{
-
-
+		// update UI
+		//m_UI->NewFrame();
+		//cmdNeedUpdate = m_UI->UpdateBuffers();
 	}
 	void glTFRenderSys::ShutDown()
 	{

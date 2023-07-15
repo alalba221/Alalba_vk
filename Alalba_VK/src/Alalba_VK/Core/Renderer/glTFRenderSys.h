@@ -40,14 +40,9 @@ namespace Alalba
 		void Update();
 		void ShutDown();
 
-		//bool UineedUpdate = false;
+		bool cmdNeedUpdate = false;
 
 	private:
-
-		struct ModelUBO
-		{
-			glm::mat4 model;
-		};
 
 		std::unique_ptr < vk::ShaderModule > m_vertexShader;
 		std::unique_ptr < vk::ShaderModule > m_fragShader;

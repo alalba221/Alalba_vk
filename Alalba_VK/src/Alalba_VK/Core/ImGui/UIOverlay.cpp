@@ -4,6 +4,9 @@
 #include "Alalba_VK/Vulkan/RenderPass.h"
 #include "Alalba_VK/Core/Application.h"
 #include "Alalba_VK/Vulkan/CommandBuffers.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+
 namespace Alalba
 {
 	std::array<VkVertexInputBindingDescription, 1> UIOverlay::binding_descriptions =
@@ -30,43 +33,14 @@ namespace Alalba
 
 		// Color scheme
 
-
 		// Dimensions
 		ImGuiIO& io = ImGui::GetIO();
-#if defined(_WIN32)
-		// If we directly work with os specific key codes, we need to map special key types like tab
-		io.KeyMap[ImGuiKey_Tab] = VK_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = VK_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = VK_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = VK_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = VK_DOWN;
-		io.KeyMap[ImGuiKey_Backspace] = VK_BACK;
-		io.KeyMap[ImGuiKey_Enter] = VK_RETURN;
-		io.KeyMap[ImGuiKey_Space] = VK_SPACE;
-		io.KeyMap[ImGuiKey_Delete] = VK_DELETE;
-#endif
+
 		io.DisplaySize = ImVec2((float)1280, (float)720);
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
 		// Color scheme
-		ImGuiStyle& style = ImGui::GetStyle();
-		style.Colors[ImGuiCol_TitleBg] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-		style.Colors[ImGuiCol_TitleBgActive] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-		style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.0f, 0.0f, 0.0f, 0.1f);
-		style.Colors[ImGuiCol_MenuBarBg] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_Header] = ImVec4(0.8f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_HeaderActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_HeaderHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_FrameBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.8f);
-		style.Colors[ImGuiCol_CheckMark] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-		style.Colors[ImGuiCol_SliderGrab] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-		style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(1.0f, 1.0f, 1.0f, 0.1f);
-		style.Colors[ImGuiCol_FrameBgActive] = ImVec4(1.0f, 1.0f, 1.0f, 0.2f);
-		style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
-		style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
-		style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
-
+		ImGui::StyleColorsDark();
 
 		// create shader
 		m_vertexShader = vk::ShaderModule::Builder(device)
@@ -89,112 +63,12 @@ namespace Alalba
 			.Build();
 		PreparePipeline();
 	}
-	void UIOverlay::NewFrame()
-	{
-		
+	//void UIOverlay::NewFrame()
+	//{
+	//	
 
-	/*	io.MousePos = ImVec2(mousePos.x, mousePos.y);
-		io.MouseDown[0] = mouseButtons.left && UIOverlay.visible;
-		io.MouseDown[1] = mouseButtons.right && UIOverlay.visible;
-		io.MouseDown[2] = mouseButtons.middle && UIOverlay.visible;*/
-//		if (!visible)
-//			return;
-//
-//		ImGuiIO& io = ImGui::GetIO();
-//
-//		//io.DisplaySize = ImVec2((float)width, (float)height);
-//		//io.DeltaTime = frameTimer;
-//
-//		//io.MousePos = ImVec2(mousePos.x, mousePos.y);
-//		//io.MouseDown[0] = mouseButtons.left && UIOverlay.visible;
-//		//io.MouseDown[1] = mouseButtons.right && UIOverlay.visible;
-//		//io.MouseDown[2] = mouseButtons.middle && UIOverlay.visible;
-//
-//		ImGui::NewFrame();
-//
-//		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-//		ImGui::SetNextWindowPos(ImVec2(10 * UIOverlay.scale, 10 * UIOverlay.scale));
-//		ImGui::SetNextWindowSize(ImVec2(0, 0), ImGuiSetCond_FirstUseEver);
-//		ImGui::Begin("Vulkan Example", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-//		ImGui::TextUnformatted(title.c_str());
-//		ImGui::TextUnformatted(deviceProperties.deviceName);
-//		ImGui::Text("%.2f ms/frame (%.1d fps)", (1000.0f / lastFPS), lastFPS);
-//
-//#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-//		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 5.0f * UIOverlay.scale));
-//#endif
-//		ImGui::PushItemWidth(110.0f * UIOverlay.scale);
-//		OnUpdateUIOverlay(&UIOverlay);
-//		ImGui::PopItemWidth();
-//#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-//		ImGui::PopStyleVar();
-//#endif
-//
-//		ImGui::End();
-//		ImGui::PopStyleVar();
-//		ImGui::Render();
-//
-//		if (UIOverlay.update() || UIOverlay.updated) {
-//			buildCommandBuffers();
-//			UIOverlay.updated = false;
-//		}
-
-		ImGui::NewFrame();
-
-		// Init imGui windows and elements
-
-		// Debug window
-		ImGui::SetWindowPos(ImVec2(20 * scale, 20 * scale), ImGuiCond_FirstUseEver);
-		ImGui::SetWindowSize(ImVec2(300 * scale, 300 * scale), ImGuiCond_Always);
-		ImGui::TextUnformatted("Vulkan Example");
-		ImGui::TextUnformatted("Vulkan dEVICE NAME");
-
-		////SRS - Display Vulkan API version and device driver information if available (otherwise blank)
-		//ImGui::Text("Vulkan API %i.%i.%i", 1,1,1);
-		//ImGui::Text("%s %s", "driver name", "driver info");
-
-		//// Update frame time display
-		///*if (updateFrameGraph) {
-		//	std::rotate(uiSettings.frameTimes.begin(), uiSettings.frameTimes.begin() + 1, uiSettings.frameTimes.end());
-		//	float frameTime = 1000.0f / (example->frameTimer * 1000.0f);
-		//	uiSettings.frameTimes.back() = frameTime;
-		//	if (frameTime < uiSettings.frameTimeMin) {
-		//		uiSettings.frameTimeMin = frameTime;
-		//	}
-		//	if (frameTime > uiSettings.frameTimeMax) {
-		//		uiSettings.frameTimeMax = frameTime;
-		//	}
-		//}*/
-
-		////ImGui::PlotLines("Frame Times", &uiSettings.frameTimes[0], 50, 0, "", uiSettings.frameTimeMin, uiSettings.frameTimeMax, ImVec2(0, 80));
-
-		//ImGui::Text("Camera");
-		////ImGui::InputFloat3("position", &example->camera.position.x, 2);
-		////ImGui::InputFloat3("rotation", &example->camera.rotation.x, 2);
-
-		//// Example settings window
-		//ImGui::SetNextWindowPos(ImVec2(20 * scale, 360 * scale), ImGuiCond_FirstUseEver);
-		//ImGui::SetNextWindowSize(ImVec2(300 * scale, 200 * scale), ImGuiCond_FirstUseEver);
-		//ImGui::Begin("Example settings");
-		/*ImGui::Checkbox("Render models", nullptr);
-		ImGui::Checkbox("Display logos", nullptr);
-		ImGui::Checkbox("Display background", nullptr);
-		ImGui::Checkbox("Animate light", nullptr);
-		ImGui::SliderFloat("Light speed", nullptr, 0.1f, 1.0f);*/
-		//ImGui::ShowStyleSelector("UI style");
-
-		//if (ImGui::Combo("UI style", nullptr, "Vulkan\0Classic\0Dark\0Light\0")) {
-		//	//setStyle(selectedStyle);
-		//}
-
-		//ImGui::End();
-
-		//SRS - ShowDemoWindow() sets its own initial position and size, cannot override here
-		ImGui::ShowDemoWindow();
-
-		// Render to generate draw buffers
-		ImGui::Render();
-	}
+	//
+	//}
 	bool UIOverlay::UpdateBuffers()
 	{
 		const vk::Device& device = Application::Get().GetDevice();
@@ -433,5 +307,24 @@ namespace Alalba
 			.Build();
 	}
 
+	void UIOverlay::NewFrame()
+	{
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 
+		// Init imGui windows and elements
+	
+		// Debug window
+		ImGui::SetWindowPos(ImVec2(20 * scale, 20 * scale), ImGuiCond_FirstUseEver);
+		ImGui::SetWindowSize(ImVec2(300 * scale, 300 * scale), ImGuiCond_Always);
+		ImGui::TextUnformatted("Vulkan Example");
+		ImGui::TextUnformatted("Vulkan dEVICE NAME");
+
+		//SRS - ShowDemoWindow() sets its own initial position and size, cannot override here
+		ImGui::ShowDemoWindow();
+
+		// Render to generate draw buffers
+		ImGui::Render();
+	}
 }

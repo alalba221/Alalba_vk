@@ -62,7 +62,6 @@ namespace Alalba
 
 	void Application::Run()
 	{
-		// Load model in OnInit();
 		OnInit();
 
 		while(m_Running)

@@ -396,10 +396,15 @@ namespace Alalba
 			Material* material = new Material();
 			if (mat.values.find("baseColorTexture") != mat.values.end()) {
 				material->baseColorTexture = getImage(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source);
+			}else{
+				material->baseColorTexture = m_emptyTexture.get();
 			}
+
 			// Metallic roughness workflow
 			if (mat.values.find("metallicRoughnessTexture") != mat.values.end()) {
 				material->metallicRoughnessTexture = getImage(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source);
+			}else {
+				material->metallicRoughnessTexture = m_emptyTexture.get();
 			}
 			if (mat.values.find("roughnessFactor") != mat.values.end()) {
 				material->roughnessFactor = static_cast<float>(mat.values["roughnessFactor"].Factor());
@@ -412,15 +417,18 @@ namespace Alalba
 			}
 			if (mat.additionalValues.find("normalTexture") != mat.additionalValues.end()) {
 				material->normalTexture = getImage(gltfModel.textures[mat.additionalValues["normalTexture"].TextureIndex()].source);
-			}
-			else {
-				//material.normalTexture = &emptyTexture;
+			}else {
+				material->normalTexture = m_emptyTexture.get();
 			}
 			if (mat.additionalValues.find("emissiveTexture") != mat.additionalValues.end()) {
 				material->emissiveTexture = getImage(gltfModel.textures[mat.additionalValues["emissiveTexture"].TextureIndex()].source);
+			}else {
+				material->emissiveTexture = m_emptyTexture.get();
 			}
 			if (mat.additionalValues.find("occlusionTexture") != mat.additionalValues.end()) {
 				material->occlusionTexture = getImage(gltfModel.textures[mat.additionalValues["occlusionTexture"].TextureIndex()].source);
+			}else {
+				material->occlusionTexture = m_emptyTexture.get();
 			}
 			if (mat.additionalValues.find("alphaMode") != mat.additionalValues.end()) {
 				tinygltf::Parameter param = mat.additionalValues["alphaMode"];
@@ -438,7 +446,7 @@ namespace Alalba
 			m_materials.push_back(material);
 		}
 		// Push a default material at the end of the list for meshes with no material assigned
-		m_materials.push_back(new Material());
+		// m_materials.push_back(new Material());
 	}
 	void GLTFModel::loadImages(tinygltf::Model& gltfModel) 
 	{
@@ -481,16 +489,21 @@ namespace Alalba
 				delete[] buffer;
 			}
 		}
+
+		// Create an empty texture to be used for empty material images
+		creatEmptyTexture();
 	}
 
-	void GLTFModel::loadTextures(tinygltf::Model& input)
+	void GLTFModel::creatEmptyTexture()
 	{
-		m_textures.resize(input.textures.size());
-		for (size_t i = 0; i < input.textures.size(); i++)
-		{
-			m_textures[i] = input.textures[i].source;
-		}
+		size_t bufferSize = 1 * 1 * 4;
+		unsigned char* buffer = new unsigned char[bufferSize];
+		memset(buffer, 0, bufferSize);
+		m_emptyTexture.reset(new Texture(buffer, bufferSize, VK_FORMAT_R8G8B8A8_UNORM, 1, 1,
+			m_loader.Allocator(), m_loader.CmdPool()));
 	}
+
+
 	Texture* GLTFModel::getImage(uint32_t index)
 	{
 		if (index < m_images.size()) {

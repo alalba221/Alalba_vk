@@ -121,6 +121,7 @@ namespace Alalba
 		void update();
 		~Node();
 	};
+
 	class GLTFModel
 	{
 	public:
@@ -154,17 +155,20 @@ namespace Alalba
 		void loadFromFile(const std::string& filename, float scale);
 		
 		void loadImages(tinygltf::Model& input);
-		void loadTextures(tinygltf::Model& input);
+		void creatEmptyTexture();
+		//void loadTextures(tinygltf::Model& input);
 		Texture* getImage(uint32_t index);
 
 		void loadMaterials(tinygltf::Model& gltfModel);
 		
 		void loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, const tinygltf::Model& model, std::vector<uint32_t>& indexBuffer, std::vector<Vertex>& vertexBuffer, float globalscale);
 		void DrawNode(const glm::mat4& basetransform, const vk::GraphicsPipeline& pipeline, const Node* node, const vk::CommandBuffers& cmdBuffers, const int currentCmdBuffer, uint32_t bindImageSet = 1) const;
+	
 	private:
 		// image : source + sampler = Alalba::Texture
 		std::vector<std::unique_ptr<Texture>> m_images;
-		std::vector<uint32_t> m_textures;
+		std::unique_ptr<Texture> m_emptyTexture;
+	
 		std::vector<Material*> m_materials;
 		std::vector<Node*> m_nodes;
 

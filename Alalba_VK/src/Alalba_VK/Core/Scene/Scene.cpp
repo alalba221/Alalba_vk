@@ -35,17 +35,28 @@ namespace Alalba
 			auto& camera = entity.GetComponent<CamComponent>();
 			camera.m_Camera.Update();
 		}
+
 		// update other entities
 			// light
-		//auto lightview = this->GetAllEntitiesWith<PointLightComponent>();
-		//for (auto e : lightview)
-		//{
-		//	Entity entity = { e, this };
-		//	auto& lightPos = entity.GetComponent<PointLightComponent>().LightPosition;
-		//	lightPos.x = cos(glm::radians((float)glfwGetTime() * 50.0f));
-		//	lightPos.y = -50.0f + sin(glm::radians((float)glfwGetTime() * 50.0f)) ;
-		//	lightPos.z = 25.0f + sin(glm::radians((float)glfwGetTime() * 50.0f)) ;
-		//}
+		auto viewlight = this->GetAllEntitiesWith<PointLightComponent>();
+		for (auto e : viewlight)
+		{
+			Entity entity = { e, this };
+
+			auto& position = entity.GetComponent<PointLightComponent>().LightPosition;
+			auto& color = entity.GetComponent<PointLightComponent>().LightColor;
+
+			glm::mat4 transform = glm::mat4(1.0f);
+			transform = glm::rotate(transform, glm::radians(0.01f), glm::vec3(0.0f, 1.0f, 0.0f));
+			position = transform * position;
+
+			//// TODO: if light rotate fast there will be error, should synchronize between shadow system and gltf system
+			//glm::mat4 rot = glm::mat4(1.0f);
+			//rot = glm::rotate(rot, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			//position = rot * glm::vec4(1.0);
+
+			entity.AddOrReplaceComponent<PointLightComponent>(position, color);
+		}
 	
 	}
 }

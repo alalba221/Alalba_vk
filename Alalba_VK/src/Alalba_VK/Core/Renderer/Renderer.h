@@ -41,7 +41,7 @@ namespace Alalba
 		void Update(Scene& scene);
 		void DrawFrame(Scene& scene);
 	private:
-	
+		bool cmdsNeedUpdate = true;
 	private:
 		
 		struct GlobalUBO {

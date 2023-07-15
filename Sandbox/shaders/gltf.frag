@@ -87,6 +87,8 @@ vec4 CalcPointLight(vec4 lightPos, vec4 lightColor, vec3 norm, vec3 pos, vec3 vi
 
   // diffuse
   float diff = max(dot(norm,lightDir), 0.0);
+  // add texture
+  Kd =  vec4(texture(texSampler,fragTexCoord).rgb,1.0);
   vec4 diffuse = Kd* Ld * diff;
 
   // specular
@@ -108,26 +110,10 @@ void main()
 	vec3 viewDir = normalize(vec3(ubo.pos) - Position);
  
 	vec4 result = CalcPointLight(ubo.lightPos, Ls, normal,Position,viewDir);
+
   
 	//float shadow = textureProj(inShadowCoord / inShadowCoord.w, vec2(0.0));
 	float shadow = filterPCF(inShadowCoord / inShadowCoord.w);
-//	result += CalcDirLight(dirG, normal, viewDir);
-//	result += CalcDirLight(dirR, normal, viewDir);
-	//outColor = vec4(texture(texSampler,fragTexCoord).rgb,1.0)*vec4 (result);
+
 	outColor = vec4 (result.r*shadow,result.g*shadow,result.b*shadow,1.0);
 }
-
-//float near = 0.1; 
-//float far  = 100.0; 
-//  
-//float LinearizeDepth(float depth) 
-//{
-//    float z = depth * 2.0 - 1.0; // back to NDC 
-//    return (2.0 * near * far) / (far + near - z * (far - near));	
-//}
-//
-//void main()
-//{             
-//    float depth = LinearizeDepth(gl_FragCoord.z) / far; // divide by far for demonstration
-//    outColor = vec4(vec3(depth), 1.0);
-//}

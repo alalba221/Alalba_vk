@@ -307,21 +307,23 @@ namespace Alalba
 	}
 	void Renderer::PrepareCommandBuffer(Scene& scene)
 	{
-		std::array<VkClearValue, 2> clearValues = {};
-		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-		clearValues[1].depthStencil = { 1.0f, 0 };// depth from 0 to 1 in vulkan
-
 	
 		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers);
 
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
+			// before re-recording, must wait the command is completed on GPU
 			m_inFlightFences[i]->Wait(UINT64_MAX);
 			vkResetCommandBuffer(cmdBuffers[i], 0);
+
 			cmdBuffers.BeginRecording(i);
 			{
-				// shadow mapp	
+				/// Off Screen sys have their own renderpass
+				// off  shadow mapp	
 				m_shadowMapSys->GenerateShadowMapp(cmdBuffers, i);
+				
+
+				///  On screen using renderer's renderpass
 				if(m_DeugSysOn)
 					m_DebugSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[i], m_swapChain->GetExtent(), *m_commandBuffers, i);
 
@@ -331,7 +333,7 @@ namespace Alalba
 			}
 			cmdBuffers.EndRecording(i);
 		}
-		
+		cmdsNeedUpdate = false;
 	}
 
 	void Renderer::Update(Scene& scene)
@@ -381,6 +383,7 @@ namespace Alalba
 
 		m_shadowMapSys->Update(scene, m_currentFrame);
 		m_DebugSys->Update();
+		m_gltfRenderSys->Update();
 	}
 
 	void Renderer::DrawFrame(Scene& scene)
