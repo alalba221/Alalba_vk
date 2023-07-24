@@ -15,14 +15,13 @@ namespace Alalba
 		CreateShaders("shaders/gltf.vert.spv", "shaders/gltf.frag.spv");
 		CreatePipelineLayout(descriptorSetLayouts);
 		CreatePipeline(renderpass, pipelineCache);
-
-		m_UI.reset(new UIOverlay(renderpass));
 	}
 
 	void glTFRenderSys::BuildCommandBuffer(const vk::RenderPass& renderpass, const vk::FrameBuffer& framebuffer, VkExtent2D areaExtend, 
 		const vk::DescriptorSet& globalDescSet,
 		const vk::CommandBuffers& cmdBuffers, const uint32_t currentCmdBuffer)
 	{
+	//	auto start = std::chrono::system_clock::now();
 		VkClearValue clearValues[2];
 		clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
 		clearValues[1].depthStencil = { 1.0f, 0 };
@@ -47,12 +46,7 @@ namespace Alalba
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
 		scissor.extent = areaExtend;
-
-		///***************/
-		//m_UI->NewFrame();
-		//m_UI->UpdateBuffers();
-		///***************/
-
+		
 		vkCmdBeginRenderPass(cmdBuffers[currentCmdBuffer], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		vkCmdSetViewport(cmdBuffers[currentCmdBuffer], 0, 1, &viewport);
 		vkCmdSetScissor(cmdBuffers[currentCmdBuffer], 0, 1, &scissor);
@@ -62,10 +56,13 @@ namespace Alalba
 		VkDescriptorSet gbset = globalDescSet.Handle();
 		vkCmdBindDescriptorSets(cmdBuffers[currentCmdBuffer], VK_PIPELINE_BIND_POINT_GRAPHICS,
 			m_pipelineLayout->Handle(), 0, 1, &gbset, 0, nullptr);
-
+		
+		
+		
 		auto view = m_scene.GetAllEntitiesWith<GLTFComponent, TransformComponent>();
 
 		/// for each entity
+	
 		for (auto entity : view)
 		{
 
@@ -73,12 +70,20 @@ namespace Alalba
 			auto basetransform = view.get<TransformComponent>(entity).Transform;
 
 			//DrawModel(*model, basetransform, cmdBuffers, currentCmdBuffer);
+			
 			model->DrawModel(basetransform, *m_graphicsPipeline, cmdBuffers, currentCmdBuffer);
+			
 		}
-
-		m_UI->Draw(cmdBuffers, currentCmdBuffer);
+		
+		///todo: record ui draw call
+		Application& app = Application::Get();
+		app.m_ui->Draw(cmdBuffers, currentCmdBuffer);
 
 		vkCmdEndRenderPass(cmdBuffers[currentCmdBuffer]);
+
+		//auto end = std::chrono::system_clock::now();
+		//double diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		//ALALBA_ERROR("time {0}", diff);
 	}
 
 	// private

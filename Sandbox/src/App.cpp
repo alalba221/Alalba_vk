@@ -22,7 +22,6 @@ public:
 	{
 		m_scene->OnUpdate();
 		m_renderer->DrawFrame(*m_scene);
-
 	}
 
 	virtual void OnInit() override
@@ -41,7 +40,7 @@ public:
 		m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf")
 			.LoadModel("models/glTF/vulkanscene_shadow.gltf");
 
-		auto teapot = m_scene->CreateEntity("teapot");
+		/*auto teapot = m_scene->CreateEntity("teapot");
 		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
 		teapot.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
 		teapot.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
@@ -51,19 +50,20 @@ public:
 		teapot2.AddComponent<TextureComponent>(m_textureSys->GetTexture("awesomeface"));
 		glm::mat4 trans = glm::mat4(1.0f);
 		trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
-		teapot2.AddOrReplaceComponent<TransformComponent>(trans);
-
+		teapot2.AddOrReplaceComponent<TransformComponent>(trans);*/
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
 		auto drone = m_scene->CreateEntity("busterDrone");
 		drone.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
 		drone.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
 
-		auto drone2 = m_scene->CreateEntity("busterDrone2");
-		drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
-		drone2.AddOrReplaceComponent<TransformComponent>(trans);
+		//auto drone2 = m_scene->CreateEntity("busterDrone2");
+		//drone2.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("busterDrone"));
+		//drone2.AddOrReplaceComponent<TransformComponent>(trans);
 		
-	/*	auto vulkanscene_shadow = m_scene->CreateEntity("vulkanscene_shadow");
-		vulkanscene_shadow.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("vulkanscene_shadow"));
-		vulkanscene_shadow.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));*/
+		//auto vulkanscene_shadow = m_scene->CreateEntity("vulkanscene_shadow");
+		//vulkanscene_shadow.AddComponent<GLTFComponent>(m_gltfLoader->GetModel("vulkanscene_shadow"));
+		//vulkanscene_shadow.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
 
 
 	
@@ -78,7 +78,7 @@ public:
 		// Render creation should be after scene
 		m_renderer.reset(new Alalba::Renderer(*m_scene));
 		/// record command buffer
-		m_renderer->PrepareCommandBuffer(*m_scene);
+		//m_renderer->PrepareCommandBuffers();
 
 		//m_UI.reset(new Alalba::UI(*m_renderer, Alalba::Application::Get().GetWindow()));
 	}
@@ -96,6 +96,11 @@ public:
 		m_gltfLoader->Clean();
 
 		Alalba::Application::OnShutdown();
+	}
+
+	virtual void DesignUI(UIOverlay* overlay) override
+	{
+		ImGui::ShowDemoWindow();
 	}
 
 private:

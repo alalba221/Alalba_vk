@@ -53,6 +53,7 @@ namespace Alalba
 
 	void Application::OnShutdown()
 	{				
+		m_ui->Clean();
 		m_vulkanDevice->Clean();
 	}
 

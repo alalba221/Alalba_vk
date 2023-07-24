@@ -33,10 +33,10 @@ namespace vk
     {
       m_vertexInputState.pNext = nullptr;
       // VkPipelineVertexInputStateCreateFlags       flags;
-      m_vertexInputState.vertexBindingDescriptionCount = Alalba::UIOverlay::GetBindingDescriptions().size();
-      m_vertexInputState.pVertexBindingDescriptions = Alalba::UIOverlay::GetBindingDescriptions().data(); // Optional
-      m_vertexInputState.vertexAttributeDescriptionCount = Alalba::UIOverlay::GetAttributeDescriptions().size();
-      m_vertexInputState.pVertexAttributeDescriptions = Alalba::UIOverlay::GetAttributeDescriptions().data(); // Optional
+      //m_vertexInputState.vertexBindingDescriptionCount = Alalba::UIOverlay::GetBindingDescriptions().size();
+      //m_vertexInputState.pVertexBindingDescriptions = Alalba::UIOverlay::GetBindingDescriptions().data(); // Optional
+      //m_vertexInputState.vertexAttributeDescriptionCount = Alalba::UIOverlay::GetAttributeDescriptions().size();
+      //m_vertexInputState.pVertexAttributeDescriptions = Alalba::UIOverlay::GetAttributeDescriptions().data(); // Optional
       return *this;
     }
      

@@ -24,13 +24,13 @@ namespace Alalba
 
 		m_commandPool = vk::CommandPool::Builder(device)
 			.SetTag("Renderer CmdPool")
-		//	.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
+			//.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetQFamily(device.GetGraphicsQ().GetFamily())
 			.Build();
 		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("CmdBuffers4Graphics")
-			.OneTimeSubmit(false)
+			.OneTimeSubmit(true)
 			.SetSize(3) // one for each image in swapchain
 			.Allocate();
 		
@@ -182,6 +182,11 @@ namespace Alalba
 		}
 		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
 	
+
+		// ui init
+		app.m_ui = new UIOverlay(*m_renderPass);
+
+		PrepareCommandBuffers();
 	}
 	void Renderer::Shutdown()
 	{
@@ -280,15 +285,7 @@ namespace Alalba
 				"resized Framebuffer"));
 		}
 
-		// Command buffers need to be recreated as they may store
-		// references to the recreated frame buffer
-		m_commandBuffers->Clean();
-		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
-			.SetTag("Resize window CmdBuffers4Graphics")
-			.OneTimeSubmit(false)
-			.SetSize(3) // one for each image in swapchain
-			.Allocate();
-		PrepareCommandBuffer(m_scene);
+		PrepareCommandBuffers();
 
 		// SRS - Recreate fences in case number of swapchain images has changed on resize
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -305,35 +302,36 @@ namespace Alalba
 		m_currentFrame = 0;
 
 	}
-	void Renderer::PrepareCommandBuffer(Scene& scene)
+	void Renderer::PrepareCommandBuffers()
 	{
 	
-		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers);
-
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
-			// before re-recording, must wait the command is completed on GPU
-			m_inFlightFences[i]->Wait(UINT64_MAX);
-			vkResetCommandBuffer(cmdBuffers[i], 0);
-
-			cmdBuffers.BeginRecording(i);
-			{
-				/// Off Screen sys have their own renderpass
-				// off  shadow mapp	
-				m_shadowMapSys->GenerateShadowMapp(cmdBuffers, i);
-				
-
-				///  On screen using renderer's renderpass
-				if(m_DeugSysOn)
-					m_DebugSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[i], m_swapChain->GetExtent(), *m_commandBuffers, i);
-
-				/// rendering sys
-				if(m_gltfSysOn)
-					m_gltfRenderSys->BuildCommandBuffer(*m_renderPass,*m_frameBuffers[i], m_swapChain->GetExtent(), *m_GlobalDescriptorSets[i],*m_commandBuffers,i);
-			}
-			cmdBuffers.EndRecording(i);
+			UpdateCommandBuffer(i);
 		}
-		cmdsNeedUpdate = false;
+	}
+
+	void Renderer::UpdateCommandBuffer(uint32_t currentFrame)
+	{
+		vk::CommandBuffers& cmdBuffers = (*m_commandBuffers);
+
+		cmdBuffers.BeginRecording(currentFrame);
+		{
+			/// Off Screen sys have their own renderpass
+			// off  shadow mapp	
+			m_shadowMapSys->GenerateShadowMapp(cmdBuffers, currentFrame);
+
+
+			///  On screen using renderer's renderpass
+			if (m_DeugSysOn)
+				m_DebugSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[currentFrame], m_swapChain->GetExtent(), *m_commandBuffers, currentFrame);
+
+			/// rendering sys
+			if (m_gltfSysOn)
+				m_gltfRenderSys->BuildCommandBuffer(*m_renderPass, *m_frameBuffers[currentFrame], m_swapChain->GetExtent(), *m_GlobalDescriptorSets[currentFrame], *m_commandBuffers, currentFrame);
+		}
+		cmdBuffers.EndRecording(currentFrame);
+
 	}
 
 	void Renderer::Update(Scene& scene)
@@ -371,19 +369,19 @@ namespace Alalba
 		//
 		//m_basicRenderSys->Update(scene);
 
-
-		// update UI
-		//********** for test**************
-		m_gltfRenderSys->m_UI->NewFrame();
-		if (m_gltfRenderSys->m_UI->UpdateBuffers())
-		{
-			PrepareCommandBuffer(m_scene);
-		}
-		// ***************************
-
 		m_shadowMapSys->Update(scene, m_currentFrame);
 		m_DebugSys->Update();
 		m_gltfRenderSys->Update();
+
+		/////todo: update UI
+//********** for test**************
+		Application& app = Application::Get();
+		app.m_ui->NewFrame();
+		//if (app.m_ui->BufferUpdated() && app.m_ui->visiable)
+		//{
+		//	PrepareCommandBuffer();
+		//}
+		//***************************
 	}
 
 	void Renderer::DrawFrame(Scene& scene)
@@ -411,7 +409,11 @@ namespace Alalba
 		
 /// fence must be reset, before gpu can signal it again
 		m_inFlightFences[m_currentFrame]->Reset();
-
+		if (app.m_ui->BufferUpdated() && app.m_ui->visiable)
+		{
+			UpdateCommandBuffer(m_currentFrame);
+		
+		}
 		// TODO: abstract to a new submit method
 		
 		// submit a command buffer batch

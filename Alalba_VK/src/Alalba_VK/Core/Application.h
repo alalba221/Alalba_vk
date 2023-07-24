@@ -1,8 +1,7 @@
 #pragma once
 #include "Window.h"
 #include <memory>
-//#include "Alalba_VK/Vulkan/VulkanContext.h" // need to be deleted
-//#include "Alalba_VK/Assets/Scene.h"
+
 #include "Camera.h"
 #include "Events/ApplicationEvent.h"
 
@@ -12,8 +11,6 @@
 
 #include "Alalba_VK/Core/ImGui/UIOverlay.h"
 
-//#include "VulkanRenderer.h"
-//#include "VulkanComputer.h"
 namespace Alalba{
 
 	class Application
@@ -28,7 +25,7 @@ namespace Alalba{
 		virtual void OnUpdate() {}
 		virtual void OnShutdown();
 
-		virtual void OnUpdateUIOverlay(UIOverlay* overlay) {};
+		virtual void DesignUI(UIOverlay* overlay) {};
 
 		virtual void OnEvent(Event& event);
 
@@ -48,13 +45,14 @@ namespace Alalba{
 		bool m_Running = true;
 
 		static Application* s_Instance;
-
-	protected:
 		std::unique_ptr<vk::Instance> m_vulkanInstance;
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
-
-		std::unique_ptr<UIOverlay> m_ui;
+	
+	protected:
+	
+	public:
+		UIOverlay* m_ui;
 	};
 
 	// to be defined in sandbox

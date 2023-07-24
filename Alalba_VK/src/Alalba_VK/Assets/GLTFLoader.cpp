@@ -6,7 +6,7 @@ namespace Alalba
 	GLTFLoader::GLTFLoader()
 	{
 		Application& app = Application::Get();
-		m_allocator.reset(new vk::Allocator(app.GetDevice(), app.GetVulkanInstance(), "GLTFSys Allocator"));
+		m_allocator.reset(new vk::Allocator(app.GetDevice(), app.GetVulkanInstance(), "GLTF loader Allocator"));
 		m_commandPool = vk::CommandPool::Builder(app.GetDevice())
 			.SetTag("GLTFSys CmdPool")
 			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)

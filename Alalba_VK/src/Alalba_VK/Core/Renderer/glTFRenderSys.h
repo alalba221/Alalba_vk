@@ -40,7 +40,7 @@ namespace Alalba
 		void Update();
 		void ShutDown();
 
-		bool cmdNeedUpdate = false;
+
 
 	private:
 
@@ -59,8 +59,7 @@ namespace Alalba
 		void CreatePipeline(const vk::RenderPass& renderpass, const vk::PipelineCache& pipelineCache);
 		
 	public:
-		// temproray put ui here
-		std::unique_ptr<UIOverlay> m_UI;
+
 	};
 }
 

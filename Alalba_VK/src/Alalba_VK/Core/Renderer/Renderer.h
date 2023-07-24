@@ -37,11 +37,12 @@ namespace Alalba
 		
 		const vk::RenderPass& GetRenderPass()const { return *m_renderPass; }
 		
-		void PrepareCommandBuffer(Scene& scene);
+		void PrepareCommandBuffers();
+		void UpdateCommandBuffer(uint32_t currentFrame);
+
 		void Update(Scene& scene);
 		void DrawFrame(Scene& scene);
-	private:
-		bool cmdsNeedUpdate = true;
+
 	private:
 		
 		struct GlobalUBO {

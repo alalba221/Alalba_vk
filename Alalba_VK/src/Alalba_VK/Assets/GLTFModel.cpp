@@ -446,7 +446,7 @@ namespace Alalba
 			m_materials.push_back(material);
 		}
 		// Push a default material at the end of the list for meshes with no material assigned
-		// m_materials.push_back(new Material());
+		//m_materials.push_back(new Material());
 	}
 	void GLTFModel::loadImages(tinygltf::Model& gltfModel) 
 	{
@@ -519,6 +519,7 @@ namespace Alalba
 			for (auto& img : m_images)
 				img->Clean();
 		}
+		m_emptyTexture->Clean();
 		if (!m_materials.empty())
 		{
 			for (auto mat : m_materials)
