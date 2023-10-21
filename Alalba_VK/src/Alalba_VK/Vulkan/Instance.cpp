@@ -35,7 +35,10 @@ namespace vk
     createInfo.pApplicationInfo = &appInfo;
 
     auto extensions = window->GetRequiredInstanceExtensions();
-
+    //ALALBA_ERROR("{0}", extensions[0]);
+    /*std::vector<const char*>extensions;
+    extensions.push_back("VK_KHR_win32_surface");
+    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);*/
 #ifdef ALALBA_DEBUG    
     extensions.push_back("VK_EXT_debug_utils");
 #else
@@ -102,6 +105,11 @@ namespace vk
     ALALBA_ASSERT(count > 0);
     m_layerProperties.resize(count);
     vkEnumerateInstanceLayerProperties(&count, m_layerProperties.data());
+
+    for (auto layer : m_layerProperties)
+    {
+      ALALBA_ERROR("LAYER {0}", layer.layerName);
+    }
   }
   void Instance::GetPhysicalDevices()
   {
