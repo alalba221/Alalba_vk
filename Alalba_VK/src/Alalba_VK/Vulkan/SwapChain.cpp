@@ -121,7 +121,7 @@ namespace vk
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     // assume graphics queue support present
     createInfo.imageSharingMode = imageShareMode;
-    createInfo.queueFamilyIndexCount = (imageShareMode==VK_SHARING_MODE_EXCLUSIVE)?0:3; // 0 for VK_SHARING_MODE_EXCLUSIVE, 2 for VK_SHARING_MODE_CONCURRENT 
+    createInfo.queueFamilyIndexCount = (imageShareMode==VK_SHARING_MODE_EXCLUSIVE)?0:2; // 0 for VK_SHARING_MODE_EXCLUSIVE, 2 for VK_SHARING_MODE_CONCURRENT 
     createInfo.pQueueFamilyIndices = nullptr; // Optional
     createInfo.preTransform = surfaceDetails.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
