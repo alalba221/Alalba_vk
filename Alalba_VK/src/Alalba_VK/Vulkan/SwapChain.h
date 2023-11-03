@@ -2,7 +2,6 @@
 #include <vulkan/vulkan.h>
 #include "ImageView.h"
 #include "Image.h"
-#include "FrameBuffer.h"
 
 namespace vk
 {

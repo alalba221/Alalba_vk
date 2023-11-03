@@ -28,7 +28,7 @@ project "Sandbox"
 
    }
    --prebuildcommands [[for %%i in (shaders\*.vert shaders\*.frag) do (C:\VulkanSDK\1.3.239.0\Bin\glslc.exe %%i -o "%%~dpi\%%~ni.spv")]]
-   prebuildcommands [[for %%i in (shaders\*.vert shaders\*.frag) do (C:\VulkanSDK\1.3.239.0\Bin\glslc.exe %%i -o "%%~dpi\%%~nxi.spv")]]
+   -- prebuildcommands [[for %%i in (shaders\*.vert shaders\*.frag) do (C:\VulkanSDK\1.3.239.0\Bin\glslc.exe %%i -o "%%~dpi\%%~nxi.spv")]]
     links
     {
         "Alalba_VK"

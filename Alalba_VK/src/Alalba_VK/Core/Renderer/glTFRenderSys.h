@@ -8,7 +8,7 @@
 #include "Alalba_VK/Vulkan/DescriptorSet.h"
 #include "Alalba_VK/Vulkan/Buffer.h"
 #include "Alalba_VK/Vulkan/SwapChain.h"
-
+#include "Alalba_VK/Vulkan/FrameBuffer.h"
 #include "Alalba_VK/Core/ImGui/UIOverlay.h"
 
 namespace vk
