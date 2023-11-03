@@ -6,8 +6,8 @@ namespace vk
 	class Device;
 	class Instance;
 
-	class Buffer;
-	class Image;
+	//class Buffer;
+	//class Image;
 
 	class Allocator
 	{

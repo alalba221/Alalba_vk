@@ -6,14 +6,14 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-class DPA8090 : public Alalba::Application
+class Sandbox : public Alalba::Application
 {
 public:
-	DPA8090()
+	Sandbox()
 	{
 		
 	}
-	~DPA8090()
+	~Sandbox()
 	{
 		
 	}
@@ -28,29 +28,30 @@ public:
 	{
 		ALALBA_INFO("Hello from dpa8090 OnInit");
 
-		m_meshSys.reset(new Alalba::MeshSys());
+		//m_meshSys.reset(new Alalba::MeshSys());
 		m_scene.reset(new Alalba::Scene());
-		m_textureSys.reset(new Alalba::TextureSys());
+		//m_textureSys.reset(new Alalba::TextureSys());
 		m_gltfLoader.reset(new Alalba::GLTFLoader());
-
-		m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj").LoadMesh("models/quad.obj");;
-		m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
-			.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
 
 		m_gltfLoader->LoadModel("models/glTF/buster_drone/busterDrone.gltf")
 			.LoadModel("models/glTF/vulkanscene_shadow.gltf");
 
-		/*auto teapot = m_scene->CreateEntity("teapot");
-		teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
-		teapot.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
-		teapot.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
+		//m_meshSys->LoadMesh("models/room.obj").LoadMesh("models/teapot.obj").LoadMesh("models/cube.obj").LoadMesh("models/quad.obj");;
+		//m_textureSys->LoadTexture("textures/awesomeface.png").LoadTexture("textures/room.png")
+		//	.LoadTexture("textures/lion.png").LoadTexture("textures/white.png");
 
-		auto teapot2 = m_scene->CreateEntity("teapot2");
-		teapot2.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
-		teapot2.AddComponent<TextureComponent>(m_textureSys->GetTexture("awesomeface"));
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
-		teapot2.AddOrReplaceComponent<TransformComponent>(trans);*/
+		//auto teapot = m_scene->CreateEntity("teapot");
+		//teapot.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
+		//teapot.AddComponent<TextureComponent>(m_textureSys->GetTexture("lion"));
+		//teapot.AddOrReplaceComponent<TransformComponent>(glm::mat4(1.0f));
+
+		//auto teapot2 = m_scene->CreateEntity("teapot2");
+		//teapot2.AddComponent<MeshComponent>(m_meshSys->GetMesh("teapot"));
+		//teapot2.AddComponent<TextureComponent>(m_textureSys->GetTexture("awesomeface"));
+		//glm::mat4 trans = glm::mat4(1.0f);
+		//trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
+		//teapot2.AddOrReplaceComponent<TransformComponent>(trans);
+
 		glm::mat4 trans = glm::mat4(1.0f);
 		trans = glm::translate(trans, glm::vec3(3.0f, 0.0f, 0.0f));
 		auto drone = m_scene->CreateEntity("busterDrone");
@@ -67,7 +68,7 @@ public:
 
 
 	
-		glm::vec4 lightpos = glm::vec4(4.0, 5.0, 12.0, 1.0);
+		glm::vec4 lightpos = glm::vec4(4.0, 5.0, 2, 1.0);
 		glm::vec4 lightcolor = glm::vec4(1.0, 1.0, 1.0, 1.0);
 		auto pointLight = m_scene->CreateEntity("pointLight0");
 		pointLight.AddComponent<PointLightComponent>(lightpos, lightcolor);
@@ -88,8 +89,8 @@ public:
 		// should shutdown renderer first, as mesh and textures are being used by renderer
 		Alalba::Application::Get().GetDevice().WaitIdle();
 
-		m_meshSys->Clean();
-		m_textureSys->Clean();
+		//m_meshSys->Clean();
+		//m_textureSys->Clean();
 		
 
 		m_renderer->Shutdown();
@@ -120,5 +121,5 @@ private:
 
 Alalba::Application* Alalba::CreateApplication()
 {
-	return new DPA8090();
+	return new Sandbox();
 }

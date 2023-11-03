@@ -1,5 +1,5 @@
 //========================================================================
-// GLFW 3.4 Cocoa - www.glfw.org
+// GLFW 3.3 Cocoa - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2009-2019 Camilla Löwy <elmindreda@glfw.org>
 // Copyright (c) 2012 Torsten Walluhn <tw@mad-cad.net>
@@ -98,23 +98,21 @@ static void closeJoystick(_GLFWjoystick* js)
 {
     int i;
 
-    if (!js->present)
-        return;
+    _glfwInputJoystick(js, GLFW_DISCONNECTED);
 
     for (i = 0;  i < CFArrayGetCount(js->ns.axes);  i++)
-        _glfw_free((void*) CFArrayGetValueAtIndex(js->ns.axes, i));
+        free((void*) CFArrayGetValueAtIndex(js->ns.axes, i));
     CFRelease(js->ns.axes);
 
     for (i = 0;  i < CFArrayGetCount(js->ns.buttons);  i++)
-        _glfw_free((void*) CFArrayGetValueAtIndex(js->ns.buttons, i));
+        free((void*) CFArrayGetValueAtIndex(js->ns.buttons, i));
     CFRelease(js->ns.buttons);
 
     for (i = 0;  i < CFArrayGetCount(js->ns.hats);  i++)
-        _glfw_free((void*) CFArrayGetValueAtIndex(js->ns.hats, i));
+        free((void*) CFArrayGetValueAtIndex(js->ns.hats, i));
     CFRelease(js->ns.hats);
 
     _glfwFreeJoystick(js);
-    _glfwInputJoystick(js, GLFW_DISCONNECTED);
 }
 
 // Callback for user-initiated joystick addition
@@ -251,7 +249,7 @@ static void matchCallback(void* context,
 
         if (target)
         {
-            _GLFWjoyelementNS* element = _glfw_calloc(1, sizeof(_GLFWjoyelementNS));
+            _GLFWjoyelementNS* element = calloc(1, sizeof(_GLFWjoyelementNS));
             element->native  = native;
             element->usage   = usage;
             element->index   = (int) CFArrayGetCount(target);
@@ -294,9 +292,9 @@ static void removeCallback(void* context,
 
     for (jid = 0;  jid <= GLFW_JOYSTICK_LAST;  jid++)
     {
-        if (_glfw.joysticks[jid].ns.device == device)
+        if (_glfw.joysticks[jid].connected && _glfw.joysticks[jid].ns.device == device)
         {
-            closeJoystick(_glfw.joysticks + jid);
+            closeJoystick(&_glfw.joysticks[jid]);
             break;
         }
     }
@@ -304,10 +302,12 @@ static void removeCallback(void* context,
 
 
 //////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
+//////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-GLFWbool _glfwPlatformInitJoysticks(void)
+// Initialize joystick interface
+//
+void _glfwInitJoysticksNS(void)
 {
     CFMutableArrayRef matching;
     const long usages[] =
@@ -326,7 +326,7 @@ GLFWbool _glfwPlatformInitJoysticks(void)
     if (!matching)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR, "Cocoa: Failed to create array");
-        return GLFW_FALSE;
+        return;
     }
 
     for (size_t i = 0;  i < sizeof(usages) / sizeof(long);  i++)
@@ -381,23 +381,28 @@ GLFWbool _glfwPlatformInitJoysticks(void)
     // Execute the run loop once in order to register any initially-attached
     // joysticks
     CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, false);
-    return GLFW_TRUE;
 }
 
-void _glfwPlatformTerminateJoysticks(void)
+// Close all opened joystick handles
+//
+void _glfwTerminateJoysticksNS(void)
 {
     int jid;
 
     for (jid = 0;  jid <= GLFW_JOYSTICK_LAST;  jid++)
-        closeJoystick(_glfw.joysticks + jid);
-
-    if (_glfw.ns.hidManager)
     {
-        CFRelease(_glfw.ns.hidManager);
-        _glfw.ns.hidManager = NULL;
+        if (_glfw.joysticks[jid].connected)
+            closeJoystick(&_glfw.joysticks[jid]);
     }
+
+    CFRelease(_glfw.ns.hidManager);
+    _glfw.ns.hidManager = NULL;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+//////                       GLFW platform API                      //////
+//////////////////////////////////////////////////////////////////////////
 
 int _glfwPlatformPollJoystick(_GLFWjoystick* js, int mode)
 {
@@ -466,7 +471,7 @@ int _glfwPlatformPollJoystick(_GLFWjoystick* js, int mode)
         }
     }
 
-    return js->present;
+    return js->connected;
 }
 
 void _glfwPlatformUpdateGamepadGUID(char* guid)

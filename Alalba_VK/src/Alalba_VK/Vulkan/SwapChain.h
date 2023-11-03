@@ -61,7 +61,7 @@ namespace vk
 		std::vector< std::unique_ptr<ImageView> > m_imageViews{};
 		uint32_t m_imgCount = 0;
 
-		std::unique_ptr<Image> m_depthImage;
-		std::unique_ptr<ImageView> m_depthImageView;
+		//std::unique_ptr<Image> m_depthImage;
+		//std::unique_ptr<ImageView> m_depthImageView;
 	};
 }

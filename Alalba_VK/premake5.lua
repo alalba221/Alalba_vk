@@ -39,7 +39,7 @@ project "Alalba_VK"
 	includedirs
 	{
 		"src",
-		"src/pch",
+		--"src/pch",
 		--"%{IncludeDir.Assimp}",
 		"%{IncludeDir.spdlog}",
 		"%{IncludeDir.GLFW}",

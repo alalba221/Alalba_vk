@@ -46,7 +46,7 @@ namespace Alalba
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, props.Title.c_str(), nullptr, nullptr);
 		ALALBA_ASSERT(m_Window);
 
-		glfwMakeContextCurrent(m_Window);
+//		glfwMakeContextCurrent(m_Window);
 	
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		//SetVSync(true);
