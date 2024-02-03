@@ -31,5 +31,47 @@ namespace vk
 
 		s_qCreateInfos.push_back(m_createInfo);
 	}
+
+	void Queue::Submit(const CommandBuffers& cmdBuffers, int bufferIndex,
+		const Semaphore& waitOn, VkPipelineStageFlags waitStage,
+		const Semaphore& completedSignal, const Fence& completedFence)const
+	{
+		VkCommandBuffer commandBuffers[]{ cmdBuffers[bufferIndex] };
+		VkSemaphore waitSemaphores[] = { waitOn.Handle() };
+		VkSemaphore signalSemaphores[] = { completedSignal.Handle() };
+		VkPipelineStageFlags waitStages[] = { waitStage };
+
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = signalSemaphores;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = commandBuffers;
+		VkResult err;
+		err = vkQueueSubmit(this->Handle(),
+			1, &submitInfo, completedFence.Handle());
+		ALALBA_ASSERT(err == VK_SUCCESS, "Q submit failed");
+	}
+
+	VkResult Queue::Present(const Semaphore& waitOn, const SwapChain& swapChain, uint32_t frameIdx) const
+	{
+		VkSemaphore signalSemaphores[] = { waitOn.Handle()};
+		VkPresentInfoKHR presentInfo{};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = 1;
+		presentInfo.pWaitSemaphores = signalSemaphores;
+
+		VkSwapchainKHR swapChains[] = { swapChain.Handle() };
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = swapChains;
+		presentInfo.pImageIndices = &frameIdx;
+		presentInfo.pResults = nullptr; // Optional
+
+		return vkQueuePresentKHR(this->Handle(), &presentInfo);
+	}
 	
 }

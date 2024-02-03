@@ -131,20 +131,7 @@ namespace Alalba
 				.UpdateDescriptors();*/
 		}
 
-///  Rendering systems
-		//0. basic
-		//m_basicDescSetLayout = vk::DescriptorSetLayout::Builder(device)
-		//	// 0 : is bingding index of the binding slot in the set
-		//	.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-		//	.AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-		//	.SetTag("basic descriptor Set Layout")
-		//	.Build();
-		//std::vector<const vk::DescriptorSetLayout*> basicDescriptorSetLayout =
-		//{
-		//	m_globalDescSetLayout.get(),
-		//	m_basicDescSetLayout.get()
-		//};
-		//m_basicRenderSys = std::make_unique<BasicRenderSys>(scene, *m_renderPass, basicDescriptorSetLayout, *m_pipelineCache);
+
 
 		
 		m_materialDescSetLayout = vk::DescriptorSetLayout::Builder(device)
@@ -414,48 +401,14 @@ namespace Alalba
 			UpdateCommandBuffer(m_currentFrame);
 		
 		}
-		// TODO: abstract to a new submit method
-		
-		// submit a command buffer batch
-		VkCommandBuffer commandBuffers[]{ (*m_commandBuffers)[m_currentFrame] };
-		VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphores[m_currentFrame]->Handle() };
-		VkSemaphore signalSemaphores[] = { m_renderFinishedSemaphores[m_currentFrame]->Handle() };
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		
-/// graphics queue  		
-		/// graphics queue waits on imageAvailable semaphore signaled by presentation queue
-		/// After graphics queue finished, it will signal fence to cpu, and renderFinished to presentation queue
-		// waitStages VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT: new image needed only when command start COLOR_ATTACHMENT_OUTPUT stage
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = commandBuffers;
-		VkResult err;
-		err = vkQueueSubmit(device.GetGraphicsQ().Handle(),
-			1, &submitInfo, m_inFlightFences[m_currentFrame]->Handle());
-		ALALBA_ASSERT(err == VK_SUCCESS, "Q submit failed");
-	
 
-/// prensent queue 
-		/// wait on signal from graphics queue
-		// TODO: abstract to a new present method
-		VkPresentInfoKHR presentInfo{};
-		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = signalSemaphores;
+		device.GetGraphicsQ().Submit(*m_commandBuffers, m_currentFrame, 
+			*m_imageAvailableSemaphores[m_currentFrame], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			*m_renderFinishedSemaphores[m_currentFrame], *m_inFlightFences[m_currentFrame]);
 
-		VkSwapchainKHR swapChains[] = { m_swapChain->Handle() };
-		presentInfo.swapchainCount = 1;
-		presentInfo.pSwapchains = swapChains;
-		presentInfo.pImageIndices = &m_currentFrame;
-		presentInfo.pResults = nullptr; // Optional
 
-		result = vkQueuePresentKHR(device.GetGraphicsQ().Handle(), &presentInfo);
+		result = device.GetGraphicsQ().Present(*m_renderFinishedSemaphores[m_currentFrame], *m_swapChain, m_currentFrame);
+
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
 			Resize();

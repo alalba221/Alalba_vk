@@ -1,5 +1,10 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include "Fence.h"
+#include "Semaphore.h"
+#include "CommandBuffers.h"
+
+#include "SwapChain.h"
 namespace vk
 {
 	class Queue final
@@ -21,6 +26,13 @@ namespace vk
 		VULKAN_NON_COPIABLE(Queue);
 
 		Queue(const uint32_t qFamily, const float priority);
+
+		void Submit(const CommandBuffers& cmdBuffers, int bufferIndex,  
+			const Semaphore& waitOn, VkPipelineStageFlags waitStage, 
+			const Semaphore& completedSignal, const Fence& completedFence) const;
+
+		VkResult Present(const Semaphore& waitOn, const SwapChain& sawpChain, uint32_t frameIdx)const;
+
 		~Queue() {};
 
 		const float GetPriority() const { return m_priority; }
