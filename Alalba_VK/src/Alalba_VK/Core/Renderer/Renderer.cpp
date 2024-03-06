@@ -30,7 +30,7 @@ namespace Alalba
 			.Build();
 		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("CmdBuffers4Graphics")
-			.OneTimeSubmit(true)
+			.OneTimeSubmit(false)
 			.SetSize(3) // one for each image in swapchain
 			.Allocate();
 		
@@ -68,7 +68,7 @@ namespace Alalba
 			// but the former does not occur at the right time
 			// https://vulkan-tutorial.com/Drawing_a_triangle/Drawing/Rendering_and_presentation
 			.AddDependency(VK_SUBPASS_EXTERNAL,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
-			.AddDependency(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0, 0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+			//.AddDependency(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0, 0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
 			.Build();
 
 		m_globalDescPool = vk::DescriptorPool::Builder(device)
@@ -171,7 +171,7 @@ namespace Alalba
 	
 
 		// ui init
-		app.m_ui = new UIOverlay(*m_renderPass);
+		//app.m_ui = new UIOverlay(*m_renderPass);
 
 		PrepareCommandBuffers();
 	}
@@ -363,7 +363,7 @@ namespace Alalba
 		/////todo: update UI
 //********** for test**************
 		Application& app = Application::Get();
-		app.m_ui->NewFrame();
+	//	app.m_ui->NewFrame();
 		//if (app.m_ui->BufferUpdated() && app.m_ui->visiable)
 		//{
 		//	PrepareCommandBuffer();
@@ -396,11 +396,11 @@ namespace Alalba
 		
 /// fence must be reset, before gpu can signal it again
 		m_inFlightFences[m_currentFrame]->Reset();
-		if (app.m_ui->BufferUpdated() && app.m_ui->visiable)
+		/*if (app.m_ui->BufferUpdated() && app.m_ui->visiable)
 		{
 			UpdateCommandBuffer(m_currentFrame);
 		
-		}
+		}*/
 
 		device.GetGraphicsQ().Submit(*m_commandBuffers, m_currentFrame, 
 			*m_imageAvailableSemaphores[m_currentFrame], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,

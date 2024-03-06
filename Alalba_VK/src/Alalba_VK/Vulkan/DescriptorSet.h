@@ -22,6 +22,7 @@ namespace vk
 			Allocator& SetDescSetLayout(const DescriptorSetLayout& descLayout);
 
 			// the set = xx in the shader, xx is determined in function vkCmdBindDescriptorSets
+			// and set binding number shouled be the same as the order of VkDescriptorSetLayout when createing PipelineLayout
 			std::unique_ptr<DescriptorSet> Allocate()
 			{
 				return std::make_unique<DescriptorSet>(m_device, m_pool, m_descSetLayout, m_tag);

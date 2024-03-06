@@ -149,7 +149,6 @@ namespace vk
       barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
       sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-      // shadow map need to be VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT which is later than VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT 
       destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     }
     // for compute shader target texture

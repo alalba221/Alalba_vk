@@ -52,7 +52,7 @@ namespace Alalba{
 	protected:
 	
 	public:
-		UIOverlay* m_ui;
+		//UIOverlay* m_ui;
 	};
 
 	// to be defined in sandbox

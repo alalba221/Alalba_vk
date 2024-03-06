@@ -26,7 +26,7 @@ public:
 
 	virtual void OnInit() override
 	{
-		ALALBA_INFO("Hello from dpa8090 OnInit");
+		ALALBA_INFO("Hello from Alalba OnInit");
 
 		//m_meshSys.reset(new Alalba::MeshSys());
 		m_scene.reset(new Alalba::Scene());

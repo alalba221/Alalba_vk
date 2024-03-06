@@ -50,22 +50,7 @@ namespace Alalba
 			for (Primitive* primitive : node->mesh->primitives) {
 				// bool skip = false;
 				uint32_t materialIndex = primitive->materialIndex;
-				//if (renderFlags & RenderFlags::RenderOpaqueNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_OPAQUE);
-				//}
-				//if (renderFlags & RenderFlags::RenderAlphaMaskedNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_MASK);
-				//}
-				//if (renderFlags & RenderFlags::RenderAlphaBlendedNodes) {
-				//	skip = (material.alphaMode != Material::ALPHAMODE_BLEND);
-				//}
-				//if (!skip) {
-				//	if (renderFlags & RenderFlags::BindImages) {
-				//		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, bindImageSet, 1, &material.descriptorSet, 0, nullptr);
-				//	}
-				//	vkCmdDrawIndexed(commandBuffer, primitive->indexCount, 1, primitive->firstIndex, 0, 0);
-				//}
-
+			
 				//
 				uint32_t materialID = primitive->materialIndex;
 				Material* material = m_materials.at(materialID);

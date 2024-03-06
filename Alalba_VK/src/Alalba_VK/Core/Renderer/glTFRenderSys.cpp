@@ -76,8 +76,8 @@ namespace Alalba
 		}
 		
 		///todo: record ui draw call
-		Application& app = Application::Get();
-		app.m_ui->Draw(cmdBuffers, currentCmdBuffer);
+		//Application& app = Application::Get();
+		//app.m_ui->Draw(cmdBuffers, currentCmdBuffer);
 
 		vkCmdEndRenderPass(cmdBuffers[currentCmdBuffer]);
 
