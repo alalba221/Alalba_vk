@@ -48,5 +48,7 @@ namespace vk
 		uint32_t m_height;
 		std::vector<const ImageView* > m_pAttachments{};
 	};
+
+	typedef std::unique_ptr<FrameBuffer> FrameBufferPtr;
 }
 

@@ -405,8 +405,8 @@ namespace Alalba
 		}*/
 
 		device.GetGraphicsQ().Submit(*m_commandBuffers, m_currentFrame, 
-			*m_imageAvailableSemaphores[m_currentFrame], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			*m_renderFinishedSemaphores[m_currentFrame], *m_inFlightFences[m_currentFrame]);
+			{ *m_imageAvailableSemaphores[m_currentFrame] }, { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT },
+			{ *m_renderFinishedSemaphores[m_currentFrame] }, * m_inFlightFences[m_currentFrame]);
 
 
 		result = device.GetGraphicsQ().Present(*m_renderFinishedSemaphores[m_currentFrame], *m_swapChain, m_currentFrame);

@@ -49,6 +49,7 @@ namespace vk
 		uint64_t s_totalAllocatedBytes = 0;
 
 	};
+	typedef std::unique_ptr<Allocator> AllocatorPtr;
 }
 
 

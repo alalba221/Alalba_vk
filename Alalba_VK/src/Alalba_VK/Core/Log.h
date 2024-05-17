@@ -4,6 +4,7 @@
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/async.h"
 namespace Alalba
 {
 	class Log
@@ -27,6 +28,13 @@ inline void ALALBA_TRACE(const Args &... args)
 {
 	Alalba::Log::GetLogger()->trace(args...);
 }
+
+//template<typename... Args>
+//inline void ALALBA_LOGGER_DEBUG(const Args &... args)
+//{
+//	Alalba::Log::GetLogger()->debug(args...);
+//}
+
 template<typename... Args>
 inline void ALALBA_INFO(const Args &... args)
 {

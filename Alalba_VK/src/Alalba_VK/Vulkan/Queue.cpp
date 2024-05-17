@@ -33,22 +33,30 @@ namespace vk
 	}
 
 	void Queue::Submit(const CommandBuffers& cmdBuffers, int bufferIndex,
-		const Semaphore& waitOn, VkPipelineStageFlags waitStage,
-		const Semaphore& completedSignal, const Fence& completedFence)const
+		const std::vector<Semaphore>& waitOn, const std::vector<VkPipelineStageFlags> waitStages,
+		const std::vector<Semaphore>& completedSignal, const Fence& completedFence)const
 	{
 		VkCommandBuffer commandBuffers[]{ cmdBuffers[bufferIndex] };
-		VkSemaphore waitSemaphores[] = { waitOn.Handle() };
-		VkSemaphore signalSemaphores[] = { completedSignal.Handle() };
-		VkPipelineStageFlags waitStages[] = { waitStage };
-
+		
+		std::vector<VkSemaphore> waitSemaphores;
+		for (auto& wait : waitOn)
+		{
+			waitSemaphores.push_back(wait.Handle());
+		}
+		
+		std::vector<VkSemaphore> signalSemaphores;
+		for (auto& comp : completedSignal)
+		{
+			signalSemaphores.push_back(comp.Handle());
+		}
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = waitSemaphores;
-		submitInfo.pWaitDstStageMask = waitStages;
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = signalSemaphores;
+		submitInfo.waitSemaphoreCount = waitSemaphores.size();
+		submitInfo.pWaitSemaphores = waitSemaphores.data();
+		submitInfo.pWaitDstStageMask = waitStages.data();
+		submitInfo.signalSemaphoreCount = signalSemaphores.size();
+		submitInfo.pSignalSemaphores = signalSemaphores.data();
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = commandBuffers;
 		VkResult err;

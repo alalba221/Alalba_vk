@@ -36,7 +36,7 @@ public:
 		// should shutdown renderer first, as mesh and textures are being used by renderer
 		Alalba::Application::Get().GetDevice().WaitIdle();
 
-
+		m_particleSys->ShutDown();
 
 		Alalba::Application::OnShutdown();
 	}

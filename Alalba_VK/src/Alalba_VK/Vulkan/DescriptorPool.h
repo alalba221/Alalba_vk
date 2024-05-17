@@ -44,6 +44,7 @@ namespace vk
 		VkDescriptorPoolCreateFlags m_poolFlags = 0;
 		const class Device& m_device;
 	};
+	typedef std::unique_ptr<DescriptorPool> DescriptorPoolPtr;
 }
 
 

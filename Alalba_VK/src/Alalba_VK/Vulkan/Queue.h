@@ -28,8 +28,8 @@ namespace vk
 		Queue(const uint32_t qFamily, const float priority);
 
 		void Submit(const CommandBuffers& cmdBuffers, int bufferIndex,  
-			const Semaphore& waitOn, VkPipelineStageFlags waitStage, 
-			const Semaphore& completedSignal, const Fence& completedFence) const;
+			const std::vector<Semaphore>& waitOn, const std::vector<VkPipelineStageFlags> waitStages,
+			const std::vector<Semaphore>& completedSignal, const Fence& completedFence) const;
 
 		VkResult Present(const Semaphore& waitOn, const SwapChain& sawpChain, uint32_t frameIdx)const;
 

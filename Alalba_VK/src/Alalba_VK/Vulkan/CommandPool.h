@@ -45,6 +45,8 @@ namespace vk
 		uint32_t m_QFamily;
 		VkCommandPoolCreateFlags m_flags;
 	};
+
+	typedef std::unique_ptr<CommandPool> CommandPoolPtr;
 }
 
 

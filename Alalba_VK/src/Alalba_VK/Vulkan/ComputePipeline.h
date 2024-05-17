@@ -50,6 +50,7 @@ namespace vk
 		const class PipelineCache& m_pipelineCache;
 
 	};
+	typedef std::unique_ptr<ComputePipeline> ComputePipelinePtr;
 }
 
 

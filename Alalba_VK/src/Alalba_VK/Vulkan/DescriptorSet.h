@@ -48,7 +48,15 @@ namespace vk
 		~DescriptorSet() { Clean(); };
 		void Clean();
 
-		// for descriptor
+		/**
+		 * @brief bind descriptor set to buffer
+		 * @param type descriptor type
+		 * @param binding binding index
+		 * @param buffer target buffer
+		 * @param offset buffer offset
+		 * @param range buffer range
+		 * @return 
+		*/
 		DescriptorSet& BindDescriptor(VkDescriptorType type, uint32_t binding, const Buffer& buffer, VkDeviceSize offset, VkDeviceSize range);
 		
 		/** @brief 
@@ -73,4 +81,6 @@ namespace vk
 		std::unordered_map<uint32_t, VkDescriptorBufferInfo> m_bufferDescInfo;
 		std::unordered_map<uint32_t, VkDescriptorImageInfo> m_imageDescInfo;
 	};
+
+	typedef std::unique_ptr<DescriptorSet> DescriptorSetPtr;
 }

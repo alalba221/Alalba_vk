@@ -51,4 +51,5 @@ namespace  vk
 		//VkComponentMapping m_components;
 	};
 
+	typedef std::unique_ptr<ImageView> ImageViewPtr;
 }

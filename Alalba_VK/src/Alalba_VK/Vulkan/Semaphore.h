@@ -20,9 +20,10 @@ namespace vk
 		};
 
 	public:
-		VULKAN_NON_COPIABLE(Semaphore);
+		//VULKAN_NON_COPIABLE(Semaphore);
 		Semaphore(const Device& device, const std::string& tag);
-		~Semaphore() { Clean(); }
+		// ~Semaphore() { Clean(); }
+		~Semaphore() { }
 		void Clean();
 
 	private:
@@ -30,6 +31,8 @@ namespace vk
 		const class Device& m_device;
 
 	};
+
+	typedef std::unique_ptr<Semaphore> SemaphorePtr;
 }
 
 

@@ -54,4 +54,5 @@ namespace vk
 
 		uint32_t m_colorAttachmentCount;
 	};
+	typedef std::unique_ptr<RenderPass> RenderPassPtr;
 }

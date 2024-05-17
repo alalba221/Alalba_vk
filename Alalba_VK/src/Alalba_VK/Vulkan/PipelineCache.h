@@ -35,5 +35,6 @@ namespace vk
 		const class Device& m_device;
 	};
 
+	typedef std::unique_ptr<PipelineCache> PipelineCachePtr;
 }
 

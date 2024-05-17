@@ -50,5 +50,6 @@ namespace vk
 
     //friend class VulkanDescriptorWriter;
 	};
+  typedef  std::unique_ptr<DescriptorSetLayout> DescriptorSetLayoutPtr;
 }
 

@@ -50,6 +50,8 @@ namespace vk
 		const class CommandPool& m_cmdPool;
 	
 	};
+
+	typedef std::unique_ptr<CommandBuffers> CommandBufferPtrs;
 }
 
 

@@ -40,7 +40,7 @@ namespace vk
 			// new
 			Builder& AddPipelineStage(const ShaderModule& shader);
 			// 1. vertex processing
-			/**
+		/**
 		 * @brief 
 		 * @tparam 
 		 * @param vertexbuffer is for model, otherwise for bufferless rendering or UI

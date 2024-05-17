@@ -29,7 +29,7 @@ namespace vk
 	{
 		if (m_pipeline != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Compute Pipeline {0}", m_tag);
+			ALALBA_WARN("Clean Compute Pipeline: {0}", m_tag);
 			vkDestroyPipeline(m_device.Handle(), m_pipeline, nullptr);
 			m_pipeline = VK_NULL_HANDLE;
 		}

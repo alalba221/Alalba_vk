@@ -39,5 +39,7 @@ namespace vk
 		const Device& m_device;
 		VkPipelineShaderStageCreateInfo m_pipelineStageCI{};
 	};
+
+	typedef std::unique_ptr < ShaderModule > ShaderModulePtr;
 }
 

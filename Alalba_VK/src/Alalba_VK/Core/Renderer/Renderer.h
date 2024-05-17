@@ -88,8 +88,9 @@ namespace Alalba
 
 		// syschronize
 		std::vector< std::unique_ptr<vk::Fence> > m_inFlightFences{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
-		std::vector< std::unique_ptr<vk::Semaphore> > m_imageAvailableSemaphores{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
-		std::vector< std::unique_ptr<vk::Semaphore> > m_renderFinishedSemaphores{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
+		
+		std::vector<vk::SemaphorePtr>  m_imageAvailableSemaphores{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
+		std::vector<vk::SemaphorePtr> m_renderFinishedSemaphores{ vk::SwapChain::MAX_FRAMES_IN_FLIGHT };
 
 		/// Systems
 		std::unique_ptr < vk::DescriptorSetLayout > m_globalDescSetLayout;
@@ -99,14 +100,14 @@ namespace Alalba
 		std::unique_ptr < vk::DescriptorSetLayout > m_basicDescSetLayout;
 		
 		// gltf test
-		bool m_gltfSysOn = true;
+		bool m_gltfSysOn = false;
 		std::unique_ptr<glTFRenderSys> m_gltfRenderSys;
 		// this is for the pipelineLayout, the one in the model is for the descriptorSet,should be same as in the molde material
 		// systems who call model drawing function should use it ;
 		std::unique_ptr < vk::DescriptorSetLayout > m_materialDescSetLayout;
 		
 		// DebugSys sys
-		bool m_DeugSysOn = false;
+		bool m_DeugSysOn = true;
 		std::unique_ptr<DebugSys> m_DebugSys;
 		// shadow sys
 		bool m_ShadowMapSysOn = true;

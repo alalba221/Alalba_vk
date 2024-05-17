@@ -63,4 +63,6 @@ namespace vk
 		//std::unique_ptr<Image> m_depthImage;
 		//std::unique_ptr<ImageView> m_depthImageView;
 	};
+
+	typedef std::unique_ptr<SwapChain> SwapChainPtr;
 }

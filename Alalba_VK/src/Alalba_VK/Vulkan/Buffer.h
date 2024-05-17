@@ -69,6 +69,7 @@ namespace vk
 	private:
 		void MoveDataFromStagingBuffer(const Buffer& stage ,uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 	};
+	typedef std::unique_ptr<Buffer> BufferPtr;
 }
 
 

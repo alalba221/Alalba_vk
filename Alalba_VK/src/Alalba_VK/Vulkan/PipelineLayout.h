@@ -49,4 +49,5 @@ namespace vk
 		VULKAN_HANDLE(VkPipelineLayout, m_pipelineLayout);
 		const class Device& m_device;
 	};
+	typedef std::unique_ptr<PipelineLayout> PipelineLayoutPtr;
 }

@@ -32,6 +32,7 @@ namespace Alalba
 	class Window
 	{
 	public:
+		
 		using EventCallbackFn = std::function<void(Event&)>;
 		Window(const WindowProps& props = WindowProps());
 		virtual ~Window();
