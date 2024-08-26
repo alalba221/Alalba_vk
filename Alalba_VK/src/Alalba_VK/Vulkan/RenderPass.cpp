@@ -83,7 +83,7 @@ namespace vk
 		const std::string tag)
 		:m_device(device), m_tag(tag)
 	{
-		ALALBA_INFO("Create Render Pass: {0}", m_tag);
+		LOG_INFO("Create Render Pass: {0}", m_tag);
 	
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -119,7 +119,7 @@ namespace vk
 	{
 		if (m_renderPass != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Render Pass {0}", m_tag);
+			LOG_WARN("Clean Render Pass {0}", m_tag);
 			vkDestroyRenderPass(m_device.Handle(), m_renderPass, nullptr);
 			m_renderPass = VK_NULL_HANDLE;
 		}

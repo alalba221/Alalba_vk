@@ -46,7 +46,7 @@ namespace vk
     const std::string& tag)
 		:m_device(device),m_allocator(allocator), m_imageType(imageType), m_usageFlags(usageFlags), m_extent(entent), m_format(format), m_tilling(tilling), m_tag(tag)
 	{
-    ALALBA_INFO("Create Image: {0}, size:({1},{2})", m_tag,m_extent.width,m_extent.height);
+    LOG_INFO("Create Image: {0}, size:({1},{2})", m_tag,m_extent.width,m_extent.height);
     // create info
 		VkImageCreateInfo createinfo{};
     createinfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -91,7 +91,7 @@ namespace vk
   {
     if (m_image != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean Image {0}", m_tag);
+      LOG_WARN("Clean Image {0}", m_tag);
       m_allocator.DestroyImage(m_image, m_allocation);
       m_image = VK_NULL_HANDLE;
     }

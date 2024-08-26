@@ -26,7 +26,7 @@ public:
 
 	virtual void OnInit() override
 	{
-		ALALBA_INFO("Hello from RayTracer OnInit");
+		LOG_INFO("Hello from RayTracer OnInit");
 
 		m_meshSys.reset(new Alalba::MeshSys());
 		m_scene.reset(new Alalba::Scene());

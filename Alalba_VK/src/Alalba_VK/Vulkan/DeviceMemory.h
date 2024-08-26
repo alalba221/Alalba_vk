@@ -5,6 +5,7 @@ buffer objects, which can be natively used by the device.
 
 #pragma once
 #include <vulkan/vulkan.h>
+#include "VkCommon.h"
 
 namespace vk
 {

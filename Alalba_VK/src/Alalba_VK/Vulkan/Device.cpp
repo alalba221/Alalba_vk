@@ -20,7 +20,7 @@ namespace vk
 	Device::Device(const PhysicalDevice& physicalDevice, const std::vector<const char*>& exts)
 		:m_physicalDevice(physicalDevice)
 	{
-		ALALBA_INFO("Create Logical Device");
+		LOG_INFO("Create Logical Device");
 		// Do we need to enable any other extensions (eg. NV_RAYTRACING?)
 		// If the device will be used for presenting to a display via a swapchain we need to request the swapchain extension
 		std::vector<const char*> deviceExtensions;
@@ -96,7 +96,7 @@ namespace vk
 	{
 		if (m_device != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Logical Device {0}", m_tag);
+			LOG_WARN("Clean Logical Device {0}", m_tag);
 			vkDestroyDevice(m_device, nullptr);
 			m_device = VK_NULL_HANDLE;
 		}
@@ -138,7 +138,7 @@ namespace vk
 		if (tiling == VK_IMAGE_TILING_LINEAR)
 			return formatProps.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 
-		ALALBA_ERROR("Current format is {0} not support linear filtering", format);
+		//LOG_ERROR("Current format is {0} not support linear filtering", format);
 		return false;
 	}
 }

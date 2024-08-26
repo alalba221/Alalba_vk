@@ -1,4 +1,5 @@
 #pragma once
+#include "VkCommon.h"
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include "Alalba_VK/Vulkan/CommandPool.h"

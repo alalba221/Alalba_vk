@@ -37,7 +37,7 @@ namespace Alalba
 			auto& transform = entity.GetComponent<TransformComponent>().Transform;
 			
 			std::string tag = entity.GetComponent<TagComponent>().Tag;
-			ALALBA_INFO("Add instance for {0}", tag);
+			LOG_INFO("Add instance for {0}", tag);
 			tlasBuilder.AddInstance(mesh->GetBLAS(), transform, 0, 0);
 		}
 		m_TLAS = tlasBuilder.Build(device.GetGraphicsQ(), *m_commandPool);

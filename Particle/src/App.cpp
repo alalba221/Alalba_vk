@@ -26,7 +26,7 @@ public:
 
 	virtual void OnInit() override
 	{
-		ALALBA_INFO("Hello from Particle OnInit");
+		LOG_INFO("Hello from Particle OnInit");
 
 
 	}

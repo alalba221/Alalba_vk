@@ -7,7 +7,7 @@ namespace vk {
   Sampler::Sampler(const Device& device, VkFilter filter, VkSamplerMipmapMode mipmapMode, VkSamplerAddressMode addressMode, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
-		ALALBA_INFO("Create Sampler: {0}", m_tag);
+		LOG_INFO("Create Sampler: {0}", m_tag);
 
     VkSamplerCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -38,7 +38,7 @@ namespace vk {
   {
     if (m_sampler != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean Sampler: {0}", m_tag);
+      LOG_WARN("Clean Sampler: {0}", m_tag);
       vkDestroySampler(m_device.Handle(), m_sampler, nullptr);
       m_sampler = VK_NULL_HANDLE;
     }

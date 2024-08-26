@@ -35,7 +35,7 @@ namespace vk
 	PhysicalDevice::PhysicalDevice(const std::vector<VkPhysicalDevice>& devices,
 		const uint32_t requestedFamily, const uint32_t gpuType, const std::vector<std::string>& exts)
 	{
-		ALALBA_INFO("Select Physical Device");
+		LOG_INFO("Select Physical Device");
 		for (const VkPhysicalDevice& device : devices)
 		{
 			if (IsDeviceSuitable(device, requestedFamily, gpuType, exts))
@@ -45,7 +45,7 @@ namespace vk
 			}
 		}
 		ALALBA_ASSERT(m_device != VK_NULL_HANDLE, "failed to find a suitable GPU!");
-		ALALBA_TRACE("	Selected Physical Device: {0}", m_properties.deviceName);
+		LOG_TRACE("	Selected Physical Device: {0}", m_properties.deviceName);
 	}
 
 	PhysicalDevice::~PhysicalDevice()
@@ -83,11 +83,11 @@ namespace vk
 			std::vector<VkExtensionProperties> extensions(extCount);
 			if (vkEnumerateDeviceExtensionProperties(device, nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
 			{
-				//ALALBA_TRACE("	Selected physical device has {0} extensions", extensions.size());
+				//LOG_TRACE("	Selected physical device has {0} extensions", extensions.size());
 				for (const auto& extension : extensions)
 				{
 					m_supportedExtensions.emplace(extension.extensionName);
-					//ALALBA_TRACE("  Device extension {0}", extension.extensionName);
+					//LOG_TRACE("  Device extension {0}", extension.extensionName);
 				}
 			}
 		}
@@ -167,9 +167,9 @@ namespace vk
 					indices.graphics = i;
 			}
 		}
-		ALALBA_ERROR("g {0}", indices.graphics.value());
-		ALALBA_ERROR("c {0}", indices.compute.value());
-		ALALBA_ERROR("t {0}", indices.transfer.value());
+		LOG_ERROR("g {0}", indices.graphics.value());
+		LOG_ERROR("c {0}", indices.compute.value());
+		LOG_ERROR("t {0}", indices.transfer.value());
 		return indices;
 	}
 	

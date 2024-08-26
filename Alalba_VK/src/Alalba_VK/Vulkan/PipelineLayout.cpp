@@ -9,7 +9,7 @@ namespace vk
 		const std::vector<VkPushConstantRange>& push_constants, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
-		ALALBA_INFO("Create PipelineLayout: {0}",m_tag);
+		LOG_INFO("Create PipelineLayout: {0}",m_tag);
 		std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
 		for (int i = 0; i < pdescSetLayout.size(); i++)
 		{
@@ -34,7 +34,7 @@ namespace vk
 	{
 		if (m_pipelineLayout != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean PipelineLayout: {0}", m_tag);
+			LOG_WARN("Clean PipelineLayout: {0}", m_tag);
 			vkDestroyPipelineLayout(m_device.Handle(), m_pipelineLayout, nullptr);
 			m_pipelineLayout = VK_NULL_HANDLE;
 		}

@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include "VkCommon.h"
 // composition queue
 #include "Queue.h"
 namespace vk

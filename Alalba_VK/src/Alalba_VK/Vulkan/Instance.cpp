@@ -4,59 +4,118 @@
 
 namespace vk
 {
+  static VkBool32 VkDebugReportCallback(VkDebugReportFlagsEXT flags,
+    VkDebugReportObjectTypeEXT                  objectType,
+    uint64_t                                    object,
+    size_t                                      location,
+    int32_t                                     messageCode,
+    const char* pLayerPrefix,
+    const char* pMessage,
+    void* pUserData)
+  {
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+    {
+      LOG_ERROR("{0}", pMessage);
+    }
+    if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT || flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+      LOG_WARN("{0}", pMessage);
+    }
+    return VK_TRUE;
+  }
+
   Instance::Builder& Instance::Builder::SetVulkanVersino(uint32_t version)
   {
     m_vulkanVersion = version;
     return *this;
   }
 
-  Instance::Builder& Instance::Builder::AddValidationLayer(const char* layer)
+  Instance::Builder& Instance::Builder::RequestLayer(const char* layer)
   {
-    m_validationLayers.push_back(layer);
+    m_requestLayers.push_back(layer);
     return *this;
   }
 
   std::unique_ptr<Instance> Instance::Builder::Build() const
   {
-    return std::make_unique<Instance>(m_window, m_validationLayers, m_vulkanVersion);
+    return std::make_unique<Instance>(m_window, m_requestLayers, m_vulkanVersion);
   }
 
 
-	Instance::Instance(const Alalba::Window* window, const std::vector<const char*>& validationLayers, uint32_t vulkanVersion )
-    :m_validationLayers(validationLayers)
+	Instance::Instance(const Alalba::Window* window, const std::vector<const char*>& requestLayers, uint32_t vulkanVersion )
+    //:m_Layers(Layers)
 	{
-    ALALBA_INFO("Create Vulkan Instance");
-    VkApplicationInfo appInfo{};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.apiVersion = vulkanVersion;
+    //1. Layers
+    uint32_t availableLayerCount = 0;
+    CALL_VK(vkEnumerateInstanceLayerProperties(&availableLayerCount, nullptr));
+    std::vector<VkLayerProperties> availableLayers(availableLayerCount);
+    CALL_VK(vkEnumerateInstanceLayerProperties(&availableLayerCount, availableLayers.data()));
+    
+    uint32_t enableLayerCount = 0;
+    const char* enableLayers[32];
+    if (!checkContextFeatures("Instance Layers", false, availableLayerCount, availableLayers.data(),
+       requestLayers.size(), requestLayers, &enableLayerCount, enableLayers))
+    {
+        return;
+    }
 
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
+    //2. Extensions
+    uint32_t availableExtensionCount;
+    CALL_VK(vkEnumerateInstanceExtensionProperties("", &availableExtensionCount, nullptr));
+    std::vector<VkExtensionProperties> availableExtensions(availableExtensionCount);
+    CALL_VK(vkEnumerateInstanceExtensionProperties("", &availableExtensionCount, availableExtensions.data()));
 
-    auto extensions = window->GetRequiredInstanceExtensions();
-    //ALALBA_ERROR("{0}", extensions[0]);
-    /*std::vector<const char*>extensions;
-    extensions.push_back("VK_KHR_win32_surface");
-    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);*/
+    auto requestedExtensions = window->GetRequiredInstanceExtensions();
+
 #ifdef ALALBA_DEBUG    
-    extensions.push_back("VK_EXT_debug_utils");
+    requestedExtensions.push_back("VK_EXT_debug_report");
 #else
     createInfo.enabledLayerCount = 0;
 #endif
 
-    createInfo.enabledLayerCount = static_cast<unsigned int>(validationLayers.size());;
-    createInfo.ppEnabledLayerNames = validationLayers.data();
-    createInfo.enabledExtensionCount = static_cast<unsigned int>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
+    uint32_t enableExtensionCount;
+    const char* enableExtensions[32];
+    if (!checkContextFeatures("Instance Extension", true, availableExtensionCount, availableExtensions.data(),
+      requestedExtensions.size(), requestedExtensions, &enableExtensionCount, enableExtensions))
+    {
+      return;
+    }
+
+
+    // 3. create instance
+    VkApplicationInfo appInfo{};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.apiVersion = vulkanVersion;
+
+
+    VkDebugReportCallbackCreateInfoEXT debugReportCallbackInfoExt{};
+
+    debugReportCallbackInfoExt.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+    debugReportCallbackInfoExt.pNext = nullptr;
+    debugReportCallbackInfoExt.flags = VK_DEBUG_REPORT_WARNING_BIT_EXT
+      | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
+      | VK_DEBUG_REPORT_ERROR_BIT_EXT;
+    debugReportCallbackInfoExt.pfnCallback = VkDebugReportCallback;
+
+
+    VkInstanceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+#ifdef ALALBA_DEBUG
+    createInfo.pNext = &debugReportCallbackInfoExt;
+#else
+    createInfo.pNext = nullptr;
+#endif
+    createInfo.pApplicationInfo = &appInfo;
+    createInfo.enabledLayerCount = enableLayerCount;
+    createInfo.ppEnabledLayerNames = enableLayerCount > 0 ? enableLayers : nullptr;
+    createInfo.enabledExtensionCount = enableExtensionCount;
+    createInfo.ppEnabledExtensionNames = enableExtensionCount > 0 ? enableExtensions : nullptr;
 
     VkResult err;
     err = vkCreateInstance(&createInfo, nullptr, &m_instance);
     ALALBA_ASSERT(err == VK_SUCCESS);
-
+    LOG_TRACE("{0} : instance : {1}", __FUNCTION__, (void*)m_instance);
+    
     // For other private data
-    GetInstanceExtensions();
-    GetInstanceLayers();
     GetPhysicalDevices();
 
     // pick physic device
@@ -78,39 +137,13 @@ namespace vk
   {
     if (m_instance != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean Vulkan Instance {0}", m_tag);
+      //LOG_WARN("Clean Vulkan Instance {0}", m_tag);
       vkDestroyInstance(m_instance, nullptr);
       m_instance = VK_NULL_HANDLE;
     }
   }
 
-  // Get extensions supported by the instance and store for later use
-  void Instance::GetInstanceExtensions()
-  {
-    uint32_t extCount;
-    vkEnumerateInstanceExtensionProperties(nullptr,&extCount, nullptr);
-    ALALBA_ASSERT(extCount > 0);
-    std::vector<VkExtensionProperties> extensions(extCount);
-    vkEnumerateInstanceExtensionProperties(nullptr, &extCount, extensions.data());
-
-    for (VkExtensionProperties extension : extensions)
-    {
-      m_supportedInstanceExtensions.push_back(extension.extensionName);
-    }
-  }
-  void Instance::GetInstanceLayers()
-  {
-    uint32_t count;
-    vkEnumerateInstanceLayerProperties(&count, nullptr);
-    ALALBA_ASSERT(count > 0);
-    m_layerProperties.resize(count);
-    vkEnumerateInstanceLayerProperties(&count, m_layerProperties.data());
-
-    for (auto layer : m_layerProperties)
-    {
-      ALALBA_ERROR("LAYER {0}", layer.layerName);
-    }
-  }
+  
   void Instance::GetPhysicalDevices()
   {
     uint32_t deviceCount = 0;

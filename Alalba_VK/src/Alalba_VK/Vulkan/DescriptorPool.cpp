@@ -8,7 +8,7 @@ namespace vk
 		const std::string& tag)
 		:m_device(device), m_poolFlags(flags), m_tag(tag)
 	{
-		ALALBA_INFO("Create Descriptor Pool:{0}", m_tag);
+		LOG_INFO("Create Descriptor Pool:{0}", m_tag);
 		VkDescriptorPoolCreateInfo ci{};
 		ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		ci.pNext = nullptr;
@@ -26,7 +26,7 @@ namespace vk
 	{
 		if (m_descriptorPool != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Descriptor Pool: {0}", m_tag);
+			LOG_WARN("Clean Descriptor Pool: {0}", m_tag);
 			vkDestroyDescriptorPool(m_device.Handle(), m_descriptorPool, nullptr);
 			m_descriptorPool = VK_NULL_HANDLE;
 		}

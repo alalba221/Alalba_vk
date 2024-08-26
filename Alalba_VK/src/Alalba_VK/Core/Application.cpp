@@ -24,9 +24,11 @@ namespace Alalba
 		
 		m_vulkanInstance = vk::Instance::Builder(m_Window.get())
 			.SetVulkanVersino(VK_API_VERSION_1_3)
-			.AddValidationLayer("VK_LAYER_KHRONOS_validation")
-			.AddValidationLayer("VK_LAYER_LUNARG_monitor")
-			//.AddValidationLayer("VK_LAYER_RENDERDOC_Capture")
+#ifdef  ALALBA_DEBUG
+			.RequestLayer("VK_LAYER_KHRONOS_validation")
+#endif //  ALALBA_DEBUG
+			.RequestLayer("VK_LAYER_LUNARG_monitor")
+
 			.Build();
 
 		m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance, *m_Window)
@@ -88,7 +90,7 @@ namespace Alalba
 	}
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
-		//ALALBA_ERROR("{0}", e);
+		//LOG_ERROR("{0}", e);
 		//vk::VulkanRenderer::Get(*m_vulkanDevice, *m_allocator).Resize();
 		return false;
 	}

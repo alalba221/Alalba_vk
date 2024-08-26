@@ -128,9 +128,7 @@ namespace Alalba
 				.SetTag("Global Descritor Set " + std::to_string(i))
 				.SetDescSetLayout(*m_globalDescSetLayout)
 				.Allocate();
-	/*		m_GlobalDescriptorSets[i]->
-				BindDescriptor(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, *m_globalUniformbuffers[i], 0, sizeof(GlobalUBO))
-				.UpdateDescriptors();*/
+
 		}
 
 
@@ -172,8 +170,6 @@ namespace Alalba
 		m_gltfRenderSys = std::make_unique<glTFRenderSys>(scene, *m_renderPass, gltfDescriptorSetLayout, *m_pipelineCache);
 	
 
-		// ui init
-		//app.m_ui = new UIOverlay(*m_renderPass);
 
 		PrepareCommandBuffers();
 	}

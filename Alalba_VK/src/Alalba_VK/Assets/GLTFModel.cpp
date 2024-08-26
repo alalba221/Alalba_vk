@@ -73,7 +73,7 @@ namespace Alalba
 		size_t pos = filename.find_last_of('/');
 		path = filename.substr(0, pos);
 		
-		ALALBA_TRACE("loading model {0}", filename);
+		LOG_TRACE("loading model {0}", filename);
 		std::string error, warning;
 		bool fileLoaded = gltfLoader.LoadASCIIFromFile(&gltfModel, &error, &warning, filename);
 

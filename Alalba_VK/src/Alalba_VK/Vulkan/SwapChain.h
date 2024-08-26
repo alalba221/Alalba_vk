@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.h>
+#include "VkCommon.h"
 #include "ImageView.h"
 #include "Image.h"
 

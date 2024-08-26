@@ -10,7 +10,7 @@ namespace vk
 	ComputePipeline::ComputePipeline(const Device& device, const PipelineLayout& layout, const PipelineCache& pipelineCache, const ShaderModule& computeShader, const std::string tag)
 		:m_device(device), m_layout(layout), m_pipelineCache(pipelineCache), m_computeShader(computeShader), m_tag(tag)
 	{
-		ALALBA_INFO("Create Compute Pipeline: {0}", m_tag);
+		LOG_INFO("Create Compute Pipeline: {0}", m_tag);
 		 
 		VkComputePipelineCreateInfo CI{};
 		CI.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
@@ -29,7 +29,7 @@ namespace vk
 	{
 		if (m_pipeline != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Compute Pipeline: {0}", m_tag);
+			LOG_WARN("Clean Compute Pipeline: {0}", m_tag);
 			vkDestroyPipeline(m_device.Handle(), m_pipeline, nullptr);
 			m_pipeline = VK_NULL_HANDLE;
 		}

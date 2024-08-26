@@ -11,7 +11,7 @@ namespace Alalba
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		ALALBA_ERROR("GLFW Error ({0}): {1}", error, description);
+		LOG_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
 	Window::Window(const WindowProps& props)
@@ -30,7 +30,7 @@ namespace Alalba
 		m_Data.Height = props.Height;
 		m_Data.Width = props.Width;
 
-		ALALBA_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		LOG_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		int sucess = glfwInit();
 		ALALBA_ASSERT(sucess);

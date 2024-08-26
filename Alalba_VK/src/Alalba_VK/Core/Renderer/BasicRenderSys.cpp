@@ -179,7 +179,7 @@ namespace Alalba
 	}
 	void BasicRenderSys::ShutDown()
 	{
-		ALALBA_ERROR("shut down basic system");
+		LOG_ERROR("shut down basic system");
 		m_vertexShader->Clean();
 		m_fragShader->Clean();
 		m_pipelineLayout->Clean();

@@ -195,7 +195,7 @@ namespace vk
     :m_device(device), m_layout(layout), m_renderpass(renderpass), m_pipelineCache(pipelineCache),m_tag(tag)
   {
 
-    ALALBA_INFO("Create Graphic Pipeline: {0}", m_tag);
+    LOG_INFO("Create Graphic Pipeline: {0}", m_tag);
     VkGraphicsPipelineCreateInfo CI{};
     CI.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     CI.pNext = nullptr;
@@ -234,7 +234,7 @@ namespace vk
  //   const float viewportWidth, const float viewportHight, const VkExtent2D scirrorExtent)
 	//	: m_device(device), m_layout(layout),m_renderpass(renderpass),m_vertShader(vertex),m_fragShader(fragment), m_pipelineCache(pipelineCache)
 	//{
- //   ALALBA_INFO("Create Graphics Pipeline");
+ //   LOG_INFO("Create Graphics Pipeline");
 		/////***** shader stage
   //  std::vector<VkPipelineShaderStageCreateInfo> shaderStageCIs{};
   //  shaderStageCIs.push_back(m_vertShader.GetStageCI());
@@ -413,7 +413,7 @@ namespace vk
   {
     if (m_pipeline != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean Graphics Pipeline {0}", m_tag);
+      LOG_WARN("Clean Graphics Pipeline {0}", m_tag);
       vkDestroyPipeline(m_device.Handle(), m_pipeline, nullptr);
       m_pipeline = VK_NULL_HANDLE;
     }

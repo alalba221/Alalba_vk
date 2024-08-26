@@ -19,7 +19,7 @@ namespace vk
 		const std::string& tag)
 		:m_device(device), m_descPool(pool),m_descLayout(descLayout), m_tag(tag)
 	{
-		ALALBA_INFO("Allocate Descriptor Set: {0}", m_tag);
+		LOG_INFO("Allocate Descriptor Set: {0}", m_tag);
 
 		VkDescriptorSetLayout layout = m_descLayout->Handle();
 		VkDescriptorSetAllocateInfo allocInfo = {};
@@ -35,7 +35,7 @@ namespace vk
 
 	void DescriptorSet::Clean()
 	{
-		// ALALBA_WARN("Clean Descriptor Set: {0}", m_tag);
+		// LOG_WARN("Clean Descriptor Set: {0}", m_tag);
 		//vkFreeDescriptorSets(
 		//	m_device.Handle(),
 		//	m_descPool.Handle(),

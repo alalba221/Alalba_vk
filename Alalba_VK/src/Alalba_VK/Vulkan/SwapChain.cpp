@@ -93,7 +93,7 @@ namespace vk
     const VkSharingMode imageShareMode)
 		:m_device(device),m_surface(surface)
 	{
-    ALALBA_INFO("Create Swap Chain");
+    LOG_INFO("Create Swap Chain");
 
     Surface::SupportDetails surfaceDetails = m_surface.FindDetails();
     
@@ -168,7 +168,7 @@ namespace vk
 
     if (m_swapChain != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean SwapChain {0}", m_tag);
+      LOG_WARN("Clean SwapChain {0}", m_tag);
       vkDestroySwapchainKHR(m_device.Handle(), m_swapChain, nullptr);
       m_swapChain = VK_NULL_HANDLE;
     }

@@ -7,7 +7,7 @@ namespace vk
 	CommandBuffers::CommandBuffers(const Device& device, const CommandPool& cmdPool, const uint32_t count, bool oneTimeSubmit, const std::string& tag)
 		:m_device(device),m_cmdPool(cmdPool), m_oneTimeSubmit(oneTimeSubmit),m_tag(tag)
 	{
-		ALALBA_INFO("Allocate Command Buffers: {0}, size: {1}", m_tag, count);
+		LOG_INFO("Allocate Command Buffers: {0}, size: {1}", m_tag, count);
 		VkCommandBufferAllocateInfo AI{};
 		AI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		AI.pNext = nullptr;
@@ -21,7 +21,7 @@ namespace vk
 	}
 	void CommandBuffers::BeginRecording(uint32_t index)
 	{
-		//ALALBA_INFO("Record Command Buffers: {0}, {1}", m_tag, index);
+		//LOG_INFO("Record Command Buffers: {0}, {1}", m_tag, index);
 		VkCommandBufferBeginInfo beginInfo = {};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = m_oneTimeSubmit? VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT:VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
@@ -63,7 +63,7 @@ namespace vk
 	{
 		if (!m_cmdBuffers.empty())
 		{
-			ALALBA_WARN("Clean Command Buffers {0}", m_tag);
+			LOG_WARN("Clean Command Buffers {0}", m_tag);
 			vkFreeCommandBuffers(m_device.Handle(), m_cmdPool.Handle(), static_cast<uint32_t>(m_cmdBuffers.size()), m_cmdBuffers.data());
 			m_cmdBuffers.clear();
 		}

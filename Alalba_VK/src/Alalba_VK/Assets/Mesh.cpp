@@ -90,7 +90,7 @@ namespace Alalba
 
 		tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, file.c_str());
 		if (!warn.empty()) {
-			ALALBA_FATAL("WARN: {0}",warn);
+			LOG_WARN("WARN: {0}",warn);
 		}
 		ALALBA_ASSERT(err.empty(), err);
 

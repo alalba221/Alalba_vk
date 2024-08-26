@@ -17,6 +17,7 @@ namespace vk
 		VkResult err;
 		err = glfwCreateWindowSurface(m_instance.Handle(), (GLFWwindow*)m_window.GetNativeWindow(),nullptr, &m_surface);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create glfw surface failed");
+		LOG_TRACE("{0} : surface : {1}", __FUNCTION__, (void*)m_surface);
 	}
 	Surface::~Surface()
 	{
@@ -27,7 +28,7 @@ namespace vk
 	{
 		if (m_surface != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean GLFW Surface {0}", m_tag);
+			//LOG_WARN("Clean GLFW Surface {0}", m_tag);
 			vkDestroySurfaceKHR(m_instance.Handle(), m_surface, nullptr);
 			m_surface = VK_NULL_HANDLE;
 		}

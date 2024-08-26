@@ -15,7 +15,7 @@ namespace Alalba
 	Texture::Texture(VkFormat format,const std::string& filename, vk::Allocator& allocator, vk::CommandPool& cmdPool)
 		:m_filePath(filename)
 	{
-		ALALBA_INFO("loading texture image from {0}", m_filePath);
+		LOG_INFO("loading texture image from {0}", m_filePath);
 
 		// loading an image
 		int width, height, channels;
@@ -96,7 +96,7 @@ namespace Alalba
 	//Texture::Texture(const vk::VulkanComputer& computer, uint32_t height, uint32_t width, VkFormat format)
 	//{
 	//	// static member
-	//	ALALBA_INFO("Creating Target texture");
+	//	LOG_INFO("Creating Target texture");
 
 	//	//
 	//	VkDeviceSize  imageSize = width * height * 4;

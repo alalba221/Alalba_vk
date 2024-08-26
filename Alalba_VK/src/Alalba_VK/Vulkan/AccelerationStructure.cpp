@@ -24,7 +24,7 @@ namespace vk
 		const uint32_t vertexCount,const uint32_t indexCount, Allocator& allocator, const std::string& tag)
 		:m_device(device), m_allocator(allocator), m_tag(tag)
 	{
-		ALALBA_INFO("Create Blas: {0}",m_tag);
+		LOG_INFO("Create Blas: {0}",m_tag);
 
 		GET_DEVICE_PROC_ADDR(m_device.Handle(), GetBufferDeviceAddressKHR);
 		GET_DEVICE_PROC_ADDR(m_device.Handle(), CreateAccelerationStructureKHR);
@@ -171,7 +171,7 @@ namespace vk
 	{
 		if (m_BLAS != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean BLAS {0}", m_tag);
+			LOG_WARN("Clean BLAS {0}", m_tag);
 			fpDestroyAccelerationStructureKHR(m_device.Handle(), m_BLAS, nullptr);
 			m_BLAS = VK_NULL_HANDLE;
 		}
@@ -306,7 +306,7 @@ namespace vk
 	{
 		if (m_TLAS != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean TLAS {0}", m_tag);
+			LOG_WARN("Clean TLAS {0}", m_tag);
 			fpDestroyAccelerationStructureKHR(m_device.Handle(), m_TLAS, nullptr);
 			m_TLAS = VK_NULL_HANDLE;
 		}

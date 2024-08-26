@@ -69,7 +69,7 @@ namespace Alalba
 	}
 	void ShadowMappingSys::ShutDown()
 	{
-		ALALBA_ERROR("shut down shadow map system");
+		LOG_ERROR("shut down shadow map system");
 		
 		m_vertShader->Clean();
 		m_pipelineCache->Clean();

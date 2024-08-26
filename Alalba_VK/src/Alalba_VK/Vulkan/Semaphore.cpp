@@ -6,7 +6,7 @@ namespace vk
 	Semaphore::Semaphore(const Device& device, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
-		ALALBA_INFO("Create Semaphore: {0}", m_tag);
+		LOG_INFO("Create Semaphore: {0}", m_tag);
 		VkSemaphoreCreateInfo CI{};
 		CI.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 		CI.pNext = nullptr;
@@ -20,7 +20,7 @@ namespace vk
 	{
 		if (m_semaphore != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Semaphore {0}", m_tag);
+			LOG_WARN("Clean Semaphore {0}", m_tag);
 			vkDestroySemaphore(m_device.Handle(), m_semaphore, nullptr);
 			m_semaphore = VK_NULL_HANDLE;
 		}

@@ -1,8 +1,8 @@
 #pragma once
 #include <memory>
-
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+//#include "spdlog/fmt/ostr.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/async.h"
 namespace Alalba
@@ -17,41 +17,9 @@ namespace Alalba
 		static std::shared_ptr<spdlog::logger> s_Logger;
 	};
 }
-// #define ALALBA_TRACE(...)		::Alalba_vk::Log::GetLogger()->trace(__VA_ARGS__)
-// #define ALALBA_INFO(...)			::Alalba_vk::Log::GetLogger()->info(__VA_ARGS__)
-// #define ALALBA_WARN(...)		::Alalba_vk::Log::GetLogger()->warn(__VA_ARGS__)
-// #define ALALBA_ERROR(...)		::Alalba_vk::Log::GetLogger()->error(__VA_ARGS__)
-// #define ALALBA_FATAL(...)		::Alalba_vk::Log::GetLogger()->fatal(__VA_ARGS__)
+ #define LOG_TRACE(...)		SPDLOG_LOGGER_TRACE(Alalba::Log::GetLogger(),__VA_ARGS__)
+ #define LOG_INFO(...)			SPDLOG_LOGGER_INFO(Alalba::Log::GetLogger(),__VA_ARGS__)
+ #define LOG_WARN(...)			SPDLOG_LOGGER_WARN(Alalba::Log::GetLogger(),__VA_ARGS__)
+ #define LOG_ERROR(...)		SPDLOG_LOGGER_ERROR(Alalba::Log::GetLogger(),__VA_ARGS__)
+ #define LOG_DEBUG(...)		SPDLOG_LOGGER_DEBUG(Alalba::Log::GetLogger(),__VA_ARGS__)
 
-template<typename... Args>
-inline void ALALBA_TRACE(const Args &... args)
-{
-	Alalba::Log::GetLogger()->trace(args...);
-}
-
-//template<typename... Args>
-//inline void ALALBA_LOGGER_DEBUG(const Args &... args)
-//{
-//	Alalba::Log::GetLogger()->debug(args...);
-//}
-
-template<typename... Args>
-inline void ALALBA_INFO(const Args &... args)
-{
-	Alalba::Log::GetLogger()->info(args...);
-}
-template<typename... Args>
-inline void ALALBA_WARN(const Args &... args)
-{
-	Alalba::Log::GetLogger()->warn(args...);
-}
-template<typename... Args>
-inline void ALALBA_ERROR(const Args &... args)
-{
-	Alalba::Log::GetLogger()->error(args...);
-}
-template<typename... Args>
-inline void ALALBA_FATAL(const Args &... args)
-{
-	Alalba::Log::GetLogger()->critical(args...);
-}

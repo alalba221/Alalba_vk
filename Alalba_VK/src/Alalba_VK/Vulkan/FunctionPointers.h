@@ -1,5 +1,6 @@
 #pragma once
 #include<vulkan/vulkan.h>
+#include "VkCommon.h"
 namespace vk
 {
 	//extern PFN_vkGetBufferDeviceAddressKHR vkGetBufferDeviceAddressKHR;

@@ -9,7 +9,7 @@ namespace Alalba
 	CubeTexture::CubeTexture(const Scene& scene, const std::string& filename)
 		:m_filePath(filename)
 	{
-		//ALALBA_INFO("loading Cube texture image from {0}", m_filePath);
+		//LOG_INFO("loading Cube texture image from {0}", m_filePath);
 
 		//// loading an image
 		//int width, height, channels;

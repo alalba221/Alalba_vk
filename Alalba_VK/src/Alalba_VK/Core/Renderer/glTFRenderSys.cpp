@@ -83,7 +83,7 @@ namespace Alalba
 
 		//auto end = std::chrono::system_clock::now();
 		//double diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		//ALALBA_ERROR("time {0}", diff);
+		//LOG_ERROR("time {0}", diff);
 	}
 
 	// private
@@ -149,7 +149,7 @@ namespace Alalba
 	}
 	void glTFRenderSys::ShutDown()
 	{
-		ALALBA_ERROR("shut downgltf system");
+		LOG_ERROR("shut downgltf system");
 		m_vertexShader->Clean();
 		m_fragShader->Clean();
 		m_pipelineLayout->Clean();

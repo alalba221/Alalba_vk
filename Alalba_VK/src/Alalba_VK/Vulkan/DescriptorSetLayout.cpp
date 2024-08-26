@@ -32,7 +32,7 @@ namespace vk
     const std::string& tag)
     : m_device{ device }, m_bindings{ bindings },m_tag(tag)
   {
-    ALALBA_INFO("Create DescriptorSet Layout: {0}", m_tag);
+    LOG_INFO("Create DescriptorSet Layout: {0}", m_tag);
     std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
     for (auto kv : m_bindings) {
       setLayoutBindings.push_back(kv.second);
@@ -56,7 +56,7 @@ namespace vk
   {
     if (m_desLayout != VK_NULL_HANDLE)
     {
-      ALALBA_WARN("Clean DescriptorSet Layout: {0}", m_tag);
+      LOG_WARN("Clean DescriptorSet Layout: {0}", m_tag);
       vkDestroyDescriptorSetLayout(m_device.Handle(), m_desLayout, nullptr);
       m_desLayout = VK_NULL_HANDLE;
     }

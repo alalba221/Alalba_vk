@@ -10,7 +10,7 @@ namespace vk
 	Allocator::Allocator(const Device& device, const Instance& instance, const std::string& tag)
 		:m_device(device),m_instance(instance),m_tag(tag)
 	{
-		ALALBA_INFO("Create VMA Allocator: {0}", m_tag);
+		LOG_INFO("Create VMA Allocator: {0}", m_tag);
 		VmaAllocatorCreateInfo CI = {};
 		CI.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
 		CI.physicalDevice = m_instance.GetPhysicalDevice().Handle();
@@ -37,10 +37,10 @@ namespace vk
 		// TODO: Tracking
 		VmaAllocationInfo allocInfo;
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
-		ALALBA_INFO("VulkanAllocator: {0} allocating image: {1}; size = {2}", m_tag, imagetag, Utils::BytesToString(allocInfo.size));
+		LOG_INFO("VulkanAllocator: {0} allocating image: {1}; size = {2}", m_tag, imagetag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
-			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}", m_tag, Utils::BytesToString(s_totalAllocatedBytes));
+			LOG_INFO("VulkanAllocator: {0} total allocated since start is {1}", m_tag, Utils::BytesToString(s_totalAllocatedBytes));
 		}
 		return allocation;
 	}
@@ -57,10 +57,10 @@ namespace vk
 		VmaAllocationInfo allocInfo{};
 		vmaGetAllocationInfo(m_allocator, allocation, &allocInfo);
 
-		ALALBA_INFO("VulkanAllocator: {0} allocating buffer: {1}; size = {2}",m_tag, buffertag, Utils::BytesToString(allocInfo.size));
+		LOG_INFO("VulkanAllocator: {0} allocating buffer: {1}; size = {2}",m_tag, buffertag, Utils::BytesToString(allocInfo.size));
 		{
 			s_totalAllocatedBytes += allocInfo.size;
-			ALALBA_INFO("VulkanAllocator: {0} total allocated since start is {1}",m_tag, Utils::BytesToString(s_totalAllocatedBytes));
+			LOG_INFO("VulkanAllocator: {0} total allocated since start is {1}",m_tag, Utils::BytesToString(s_totalAllocatedBytes));
 		}
 
 		return allocation;
@@ -83,7 +83,7 @@ namespace vk
 	{
 		if (m_allocator != nullptr)
 		{
-			ALALBA_WARN("Clean Allocotor {0}", m_tag);
+			LOG_WARN("Clean Allocotor {0}", m_tag);
 			vmaDestroyAllocator(m_allocator);
 			m_allocator = nullptr;
 		}

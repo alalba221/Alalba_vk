@@ -17,7 +17,7 @@ namespace vk
 		m_vmaUsage(vmaUsage),
 		m_tag(tag)
 	{
-		ALALBA_INFO("Create Buffer: {0}", m_tag);
+		LOG_INFO("Create Buffer: {0}", m_tag);
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.pNext = nullptr;
@@ -58,7 +58,7 @@ namespace vk
 	{
 		if (m_buffer != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Buffer {0}", m_tag);
+			LOG_WARN("Clean Buffer {0}", m_tag);
 
 			if (m_mapped != nullptr)
 				UnMapMemory();

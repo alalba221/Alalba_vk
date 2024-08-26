@@ -4,7 +4,7 @@
 
 	// Alteratively we could use the same "default" message for both "WITH_MSG" and "NO_MSG" and
 	// provide support for custom formatting by concatenating the formatting string instead of having the format inside the default message
-	#define ALALBA_INTERNAL_ASSERT_IMPL(type, check, msg, ...) { if(!(check)) { ALALBA##type##ERROR(msg, __VA_ARGS__); ALALBA_DEBUGBREAK(); } }
+	#define ALALBA_INTERNAL_ASSERT_IMPL(type, check, msg, ...) { if(!(check)) { LOG##type##ERROR(msg, __VA_ARGS__); ALALBA_DEBUGBREAK(); } }
 	#define ALALBA_INTERNAL_ASSERT_WITH_MSG(type, check, ...) ALALBA_INTERNAL_ASSERT_IMPL(type, check, "Assertion failed: {0}", __VA_ARGS__)
 	#define ALALBA_INTERNAL_ASSERT_NO_MSG(type, check) ALALBA_INTERNAL_ASSERT_IMPL(type, check, "Assertion '{0}' failed at {1}:{2}", ALALBA_STRINGIFY_MACRO(check), std::filesystem::path(__FILE__).filename().string(), __LINE__)
 

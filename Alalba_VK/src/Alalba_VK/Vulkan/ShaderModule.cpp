@@ -12,7 +12,7 @@ namespace vk
 	ShaderModule::ShaderModule(const Device& device, const std::string& filename, const VkShaderStageFlagBits& stageBits, const std::string& tag)
 		:m_device(device),m_tag(tag)
 	{
-		ALALBA_INFO("Create Shader Module: {0}",m_tag);
+		LOG_INFO("Create Shader Module: {0}",m_tag);
 		std::vector<char> shaderCode = ReadSpvFile(filename);
 
 		// create info
@@ -39,7 +39,7 @@ namespace vk
 	{
 		if (m_shaderModule != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Shader Module {0}", m_tag);
+			LOG_WARN("Clean Shader Module {0}", m_tag);
 			vkDestroyShaderModule(m_device.Handle(), m_shaderModule, nullptr);
 			m_shaderModule = VK_NULL_HANDLE;
 		}

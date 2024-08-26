@@ -14,7 +14,7 @@ namespace vk
 		:m_device(device), m_vkImage(vkImage), m_subresourceflags(subresourceflags), m_format(format), m_viewType(viewType), m_tag(tag)
 	{
 		// create info	
-		ALALBA_INFO("	Create Image View: {0}",m_tag);
+		LOG_INFO("	Create Image View: {0}",m_tag);
 		VkImageSubresourceRange subresourceRange{};
 		subresourceRange.aspectMask = m_subresourceflags;
 		subresourceRange.baseMipLevel = 0;
@@ -48,7 +48,7 @@ namespace vk
 	{
 		if (m_imageView != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Clean Image View {0}", m_tag);
+			LOG_WARN("Clean Image View {0}", m_tag);
 			vkDestroyImageView(m_device.Handle(), m_imageView, nullptr);
 			m_imageView = VK_NULL_HANDLE;
 		}

@@ -186,7 +186,7 @@ namespace Alalba
 
 	void DebugSys::ShutDown()
 	{
-		ALALBA_ERROR("shut down Debug system");
+		LOG_ERROR("shut down Debug system");
 		m_vertexShader->Clean();
 		m_fragShader->Clean();
 		m_pipelineCache->Clean();

@@ -32,7 +32,7 @@ namespace vk
 		const VkMemoryAllocateFlags flags)
 		:m_device(device), m_size(size), m_memoryType(memoryType)
 	{
-		ALALBA_INFO("Allocate Device Memory");
+		LOG_INFO("Allocate Device Memory");
 		// create info
 		VkMemoryAllocateFlagsInfo flagsInfo = {};
 		flagsInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO; 
@@ -60,7 +60,7 @@ namespace vk
 	{
 		if (m_deviceMemory != VK_NULL_HANDLE)
 		{
-			ALALBA_WARN("Deallocate Device Memory {0}", m_tag);
+			LOG_WARN("Deallocate Device Memory {0}", m_tag);
 			vkFreeMemory(m_device.Handle(), m_deviceMemory, nullptr);
 			m_deviceMemory = VK_NULL_HANDLE;
 		}
