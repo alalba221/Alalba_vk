@@ -44,7 +44,7 @@ namespace vk
 			const std::string& tag);
 
 		// TO GPU
-		void CopyDataFrom(const void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
+		void CopyDataFrom(const void* src, size_t sizeInByte, const Queue& q, const CommandPool& cmdPool);
 		~Buffer() { Clean(); }
 		void Clean();
 

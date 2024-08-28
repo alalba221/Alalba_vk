@@ -16,8 +16,8 @@ namespace Alalba
 		std::vector<uint32_t> indices;
 		LoadModel(file, vertices,indices);
 
-		uint32_t vertexSize = sizeof(Vertex) * vertices.size();
-		uint32_t indexSize = sizeof(uint32_t) * indices.size();
+		size_t vertexSize = sizeof(Vertex) * vertices.size();
+		size_t indexSize = sizeof(uint32_t) * indices.size();
 		
 		m_indexCount = indices.size();
 		m_vertexCount = vertices.size();

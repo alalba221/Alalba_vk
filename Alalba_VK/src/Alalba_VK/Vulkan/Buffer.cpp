@@ -33,7 +33,7 @@ namespace vk
 
 	}
 	// copy from memory  to gpu_only or (cpu_to_gpu) using a cpu_only 
-	void Buffer::CopyDataFrom(const void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
+	void Buffer::CopyDataFrom(const void* src, size_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
 	{
 		// 1. create staging buffer 
 		std::unique_ptr<Buffer>stagingBuffer = Buffer::Builder(m_device, m_allocator)

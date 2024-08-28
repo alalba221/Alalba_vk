@@ -1,6 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include "VkCommon.h"
+#include "Alalba_VK/Core/GFX/Device.h"
+#include "Alalba_VK/Vulkan/GFXContext.h"
+
 // composition queue
 #include "Queue.h"
 namespace vk
@@ -8,7 +11,7 @@ namespace vk
 	// create from 
 	class PhysicalDevice;
 	
-	class Device final
+	class Device final: public Alalba::Device
 	{
 	public:
 		class Builder
@@ -29,15 +32,17 @@ namespace vk
 		~Device();
 		void Clean();
 
-		const Queue& GetGraphicsQ() const { return *(m_grapicsQ); }
-		const Queue& GetComputeQ()	const { return *(m_computeQ); }
-		const Queue& GetTransferQ() const { return *(m_transferQ); }
+		const Queue& GetGraphicsQ() const { return *(m_grapicsQList[0]); }
+		const Queue& GetComputeQ()	const { return *(m_computeQList[0]); }
+		const Queue& GetTransferQ() const { return *(m_transferQList[0]); }
+
+		const Queue& GetGraphicsQ(uint32_t index) const { return *(m_grapicsQList[index]); }
+		const Queue& GetComputeQ(uint32_t index)	const { return *(m_computeQList[index]); }
+		const Queue& GetTransferQ(uint32_t index) const { return *(m_transferQList[index]); }
 		
 		void WaitIdle() const;
 
-		//const DescriptorSetLayout& GetDescriptorSetLayout(uint32_t index) const;
 
-		//const SwapChain& GetSwapChain() const { return *m_SwapChain; }
 
 		/* helper*/
 		// find a proper format statisfing features from candidates
@@ -47,9 +52,12 @@ namespace vk
 		VULKAN_HANDLE(VkDevice, m_device);
 
 		// For now, each Qfamlily has only one Q availabe!!!
-		std::unique_ptr<Queue> m_grapicsQ;
-		std::unique_ptr<Queue> m_transferQ;
-		std::unique_ptr<Queue> m_computeQ;
+		
+		std::vector< std::unique_ptr<Queue> > m_grapicsQList;
+		std::vector< std::unique_ptr<Queue> > m_transferQList;
+		std::vector< std::unique_ptr<Queue> > m_computeQList;
+
+
 		const class PhysicalDevice& m_physicalDevice;
 	};
 }

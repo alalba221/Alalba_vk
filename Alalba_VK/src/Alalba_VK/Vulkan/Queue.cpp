@@ -1,35 +1,14 @@
 #include "pch.h"
 #include "Queue.h"
+#include "Device.h"
 namespace vk
 {
-	std::vector<VkDeviceQueueCreateInfo> Queue::s_qCreateInfos{};
-
-	Queue::Configurer& Queue::Configurer::SetQFamily(const uint32_t queueFamily)
+	
+	Queue::Queue(const Device& device, const uint32_t qFamily, const uint32_t index, const float priority)
+		:m_device(device),m_queueFamily(qFamily), m_index(index), m_priority(priority)
 	{
-		m_qFamily = queueFamily;
-		return *this;
-	}
-
-	Queue::Configurer& Queue::Configurer::SetPriority(const float priority)
-	{
-		m_priority = priority;
-		return *this;
-	}
-
-	std::unique_ptr<Queue> Queue::Configurer::Configure()
-	{
-		return std::make_unique<Queue>(m_qFamily, m_priority);
-	}
-
-	Queue::Queue(const uint32_t qFamily, const float priority)
-		:m_queueFamily(qFamily),m_priority(priority)
-	{
-		m_createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		m_createInfo.queueFamilyIndex = m_queueFamily;
-		m_createInfo.queueCount = 1;
-		m_createInfo.pQueuePriorities = &m_priority;
-
-		s_qCreateInfos.push_back(m_createInfo);
+		vkGetDeviceQueue(m_device.Handle(), m_queueFamily, m_index, &m_queue);
+		LOG_TRACE("Create a new queue: Family:{0} - Index:{1} - {2}", m_queueFamily, m_index, (void*)m_queue);
 	}
 
 	void Queue::Submit(const CommandBuffers& cmdBuffers, int bufferIndex,
@@ -80,6 +59,11 @@ namespace vk
 		presentInfo.pResults = nullptr; // Optional
 
 		return vkQueuePresentKHR(this->Handle(), &presentInfo);
+	}
+
+	void Queue::WaitIdle() const
+	{
+		CALL_VK(vkQueueWaitIdle(m_queue));
 	}
 	
 }

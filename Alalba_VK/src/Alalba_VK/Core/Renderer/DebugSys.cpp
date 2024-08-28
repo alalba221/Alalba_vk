@@ -145,8 +145,8 @@ namespace Alalba
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
-		viewport.width = areaExtend.width;
-		viewport.height = areaExtend.height;
+		viewport.width = (float)areaExtend.width;
+		viewport.height = (float)areaExtend.height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 

@@ -22,3 +22,4 @@ using Ref = std::shared_ptr<T>;
 #define ALALBA_BIND_EVENT_FN(x) std::bind(&x, this, std::placeholders::_1)
 
 #define ARRAY_SIZE(r) (sizeof(r)/sizeof(r[0]))
+#define __FILE_NAME__ (strrchr(__FILE__,'/')+1)

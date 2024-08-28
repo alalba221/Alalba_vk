@@ -2,9 +2,7 @@
 #include <memory>
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #include "spdlog/spdlog.h"
-//#include "spdlog/fmt/ostr.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/async.h"
+
 namespace Alalba
 {
 	class Log

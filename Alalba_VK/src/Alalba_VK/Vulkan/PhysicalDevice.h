@@ -3,6 +3,7 @@
 #include "VkCommon.h"
 namespace vk 
 {
+
 	class PhysicalDevice final
 	{
 	public:
@@ -29,8 +30,11 @@ namespace vk
 		struct QueueFamilies
 		{
 			std::optional<uint32_t> graphics;
+			std::optional<uint32_t> graphics_count;
 			std::optional<uint32_t> compute;
+			std::optional<uint32_t> compute_count;
 			std::optional<uint32_t> transfer;
+			std::optional<uint32_t> transfer_count;
 
 			bool IsComplete() {
 				return graphics.has_value() &&
@@ -41,9 +45,9 @@ namespace vk
 		// Leave for later use 
 		struct MemoryHeapIndices{};
 		struct MemoryTypeIndices{};
-
+		
 	public:
-		PhysicalDevice(const std::vector<VkPhysicalDevice>& devices, 
+		PhysicalDevice(const std::vector<VkPhysicalDevice>& devices,
 			const uint32_t requestedQFamilies, const uint32_t gpuType, const std::vector<std::string>& exts);
 		~PhysicalDevice();
 
@@ -53,9 +57,10 @@ namespace vk
 
 		// memory type = memoryTypeIndex is an index identifying a memory type from the memoryTypes 
 		// array of the VkPhysicalDeviceMemoryProperties structure.
-		const uint32_t FindRequiredMemoryType(const uint32_t bitFiledType, const VkMemoryPropertyFlags& typeFlag ) const;
+		//const uint32_t FindRequiredMemoryType(const uint32_t bitFiledType, const VkMemoryPropertyFlags& typeFlag ) const;
 	
 	private:
+		
 		bool IsDeviceSuitable(const VkPhysicalDevice& device, const uint32_t requestedFamily, 
 			const uint32_t gpuType, const std::vector<std::string>& exts);
 		QueueFamilies FindRequestedQFamilies(const VkPhysicalDevice& device, const uint32_t requestedFamily);

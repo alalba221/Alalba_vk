@@ -47,7 +47,9 @@ struct ContextFeature {
   bool required;
 };
 
-#define CALL_VK(func) check_vk_result(func, __FILE__, __LINE__, #func)
+
+
+#define CALL_VK(func) check_vk_result(func, __FILE_NAME__, __LINE__, #func)
 
 /**
  * check device features

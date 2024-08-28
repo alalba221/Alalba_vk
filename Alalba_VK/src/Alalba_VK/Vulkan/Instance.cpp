@@ -68,8 +68,8 @@ namespace vk
 
 #ifdef ALALBA_DEBUG    
     requestedExtensions.push_back("VK_EXT_debug_report");
-#else
-    createInfo.enabledLayerCount = 0;
+//#else
+//    createInfo.enabledLayerCount = 0;
 #endif
 
     uint32_t enableExtensionCount;
@@ -115,17 +115,7 @@ namespace vk
     ALALBA_ASSERT(err == VK_SUCCESS);
     LOG_TRACE("{0} : instance : {1}", __FUNCTION__, (void*)m_instance);
     
-    // For other private data
-    GetPhysicalDevices();
-
-    // pick physic device
-    m_pPhysicalDevice = PhysicalDevice::Selector(m_physicalDevices)
-      .RequireExtention("VK_KHR_ray_tracing_pipeline")
-      .RequireExtention("VK_KHR_swapchain")
-      .RequireQueueFamily(VK_QUEUE_TRANSFER_BIT)
-      .RequireQueueFamily(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT)
-      .RequireGpuType(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-      .Select();
+   
 
 	}
   Instance::~Instance()
@@ -151,5 +141,50 @@ namespace vk
     ALALBA_ASSERT(deviceCount > 0, "No gpu found");
     m_physicalDevices.resize(deviceCount);
     vkEnumeratePhysicalDevices(m_instance, &deviceCount, m_physicalDevices.data());
+  }
+  void Instance::PrintPhyDeviceInfo(VkPhysicalDeviceProperties& props)
+  {
+    const char* deviceType = props.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU ? "integrated gpu" :
+      props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU ? "discrete gpu" :
+      props.deviceType == VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU ? "virtual gpu" :
+      props.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU ? "cpu" : "others";
+
+    uint32_t driverVersionMajor = VK_VERSION_MAJOR(props.driverVersion);
+    uint32_t driverVersionMinor = VK_VERSION_MINOR(props.driverVersion);
+    uint32_t driverVersionPatch = VK_VERSION_PATCH(props.driverVersion);
+
+    uint32_t apiVersionMajor = VK_VERSION_MAJOR(props.apiVersion);
+    uint32_t apiVersionMinor = VK_VERSION_MINOR(props.apiVersion);
+    uint32_t apiVersionPatch = VK_VERSION_PATCH(props.apiVersion);
+
+    LOG_DEBUG("-----------------------------");
+    LOG_DEBUG("deviceName       : {0}", props.deviceName);
+    LOG_DEBUG("deviceType       : {0}", deviceType);
+    LOG_DEBUG("vendorID         : {0}", props.vendorID);
+    LOG_DEBUG("deviceID         : {0}", props.deviceID);
+    LOG_DEBUG("driverVersion    : {0}.{1}.{2}", driverVersionMajor, driverVersionMinor, driverVersionPatch);
+    LOG_DEBUG("apiVersion       : {0}.{1}.{2}", apiVersionMajor, apiVersionMinor, apiVersionPatch);
+  }
+
+  void Instance::SelectPhysicalDevice()
+  {
+    // Physics Device
+    LOG_DEBUG("-----------------------------");
+    LOG_DEBUG("Physical devices: ");
+    GetPhysicalDevices();
+    for (auto phyDevuce : m_physicalDevices)
+    {
+      VkPhysicalDeviceProperties props;
+      vkGetPhysicalDeviceProperties(phyDevuce, &props);
+      PrintPhyDeviceInfo(props);
+    }
+    // pick physic device
+    m_pPhysicalDevice = PhysicalDevice::Selector(m_physicalDevices)
+      .RequireExtention("VK_KHR_ray_tracing_pipeline")
+      .RequireExtention("VK_KHR_swapchain")
+      .RequireQueueFamily(VK_QUEUE_TRANSFER_BIT)
+      .RequireQueueFamily(VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT)
+      .RequireGpuType(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+      .Select();
   }
 }

@@ -31,17 +31,12 @@ namespace vk {
 		~Instance();
 		void Clean();
 
-		const std::vector<std::string>& Extensions() const { return m_supportedInstanceExtensions; }
-		const std::vector<VkLayerProperties>& Layers() const { return m_layerProperties; }
 		const std::vector<VkPhysicalDevice>& PhysicalDevices() const { return m_physicalDevices; }
-		const std::vector<const char*>& ValidationLayers() const { return m_Layers; }
+
 		
 	private: // data
 		VULKAN_HANDLE(VkInstance, m_instance);
-		std::vector<std::string> m_supportedInstanceExtensions;
 
-		std::vector<const char*> m_Layers;
-		std::vector<VkLayerProperties> m_layerProperties;
 		
 
 	private: //function
@@ -50,6 +45,10 @@ namespace vk {
 		//********************************** physical device related*************************************************
 	public:
 		const PhysicalDevice& GetPhysicalDevice() const{ return *m_pPhysicalDevice; }
+		void PrintPhyDeviceInfo(VkPhysicalDeviceProperties& props);
+		
+		void SelectPhysicalDevice();
+
 	private:
 		std::vector<VkPhysicalDevice> m_physicalDevices;
 		std::unique_ptr<PhysicalDevice> m_pPhysicalDevice;

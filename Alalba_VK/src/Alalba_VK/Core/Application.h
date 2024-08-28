@@ -6,9 +6,10 @@
 #include "Events/ApplicationEvent.h"
 
 #include "Alalba_VK/Vulkan/Instance.h"
-#include "Alalba_VK/Vulkan/Device.h"
 #include "Alalba_VK/Vulkan/Surface.h"
+#include "Alalba_VK/Vulkan/Device.h"
 
+#include "Alalba_VK/Core/GFX/GFXConstext.h"
 #include "Alalba_VK/Core/ImGui/UIOverlay.h"
 
 namespace Alalba{
@@ -35,6 +36,8 @@ namespace Alalba{
 		const vk::Surface& GetSurface() const { return *m_vulkanSurface; };
 
 		const vk::Instance& GetVulkanInstance() const { return *m_vulkanInstance; }
+
+		const GFXConstext& GetGFXContext() { return *m_gfxContext; }
 		const vk::Device& GetDevice() const { return *m_vulkanDevice; }
 
 	private:
@@ -47,6 +50,7 @@ namespace Alalba{
 		static Application* s_Instance;
 		std::unique_ptr<vk::Instance> m_vulkanInstance;
 		std::unique_ptr<vk::Surface> m_vulkanSurface;
+		std::unique_ptr<GFXConstext> m_gfxContext;
 		std::unique_ptr<vk::Device> m_vulkanDevice;
 	
 	protected:

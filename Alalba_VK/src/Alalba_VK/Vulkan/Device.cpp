@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Device.h"
 #include "PhysicalDevice.h"
-
+#include "Queue.h"
 #include"Alalba_VK/Core/Application.h"
 namespace vk
 {
@@ -20,7 +20,6 @@ namespace vk
 	Device::Device(const PhysicalDevice& physicalDevice, const std::vector<const char*>& exts)
 		:m_physicalDevice(physicalDevice)
 	{
-		LOG_INFO("Create Logical Device");
 		// Do we need to enable any other extensions (eg. NV_RAYTRACING?)
 		// If the device will be used for presenting to a display via a swapchain we need to request the swapchain extension
 		std::vector<const char*> deviceExtensions;
@@ -53,25 +52,41 @@ namespace vk
 		rayTracingFeatures.rayTracingPipeline = true;
 
 		// config queues
-		m_grapicsQ = Queue::Configurer()
-			.SetQFamily(m_physicalDevice.GetQFamilies().graphics.value())
-			.SetPriority(1.0f)
-			.Configure();
-		m_transferQ = Queue::Configurer()
-			.SetQFamily(m_physicalDevice.GetQFamilies().transfer.value())
-			.SetPriority(1.0f)
-			.Configure();
-		m_computeQ = Queue::Configurer()
-			.SetQFamily(m_physicalDevice.GetQFamilies().compute.value())
-			.SetPriority(1.0f)
-			.Configure();
 
+		PhysicalDevice::QueueFamilies QInfos = m_physicalDevice.GetQFamilies();
+		
+		std::vector<float> GFXQPriorities(QInfos.graphics_count.value(),1.0f);
+		std::vector<float> CompQPriorities(QInfos.compute_count.value(), 1.0f);
+		std::vector<float> TransQPriorities(QInfos.transfer_count.value(), 1.0f);
+
+		std::vector<VkDeviceQueueCreateInfo> QCIs;
+		VkDeviceQueueCreateInfo GfxQCI{};
+		GfxQCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		GfxQCI.queueFamilyIndex = QInfos.graphics.value();
+		GfxQCI.queueCount = QInfos.graphics_count.value();
+		GfxQCI.pQueuePriorities = GFXQPriorities.data();
+
+		VkDeviceQueueCreateInfo CompQCI{};
+		CompQCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		CompQCI.queueFamilyIndex = QInfos.compute.value();
+		CompQCI.queueCount = QInfos.compute_count.value();
+		CompQCI.pQueuePriorities = CompQPriorities.data();
+
+		VkDeviceQueueCreateInfo TransQCI{};
+		TransQCI.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		TransQCI.queueFamilyIndex = QInfos.transfer.value();
+		TransQCI.queueCount = QInfos.transfer_count.value();
+		TransQCI.pQueuePriorities = TransQPriorities.data();
+
+		QCIs.push_back(GfxQCI); QCIs.push_back(CompQCI); QCIs.push_back(TransQCI);
 
 		// create info
 		VkDeviceCreateInfo deviceCreateInfo{};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-		deviceCreateInfo.pQueueCreateInfos = Queue::s_qCreateInfos.data();
-		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(Queue::s_qCreateInfos.size());
+		deviceCreateInfo.pQueueCreateInfos = QCIs.data();
+		deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(QCIs.size());
+		deviceCreateInfo.enabledLayerCount = 0;
+		deviceCreateInfo.ppEnabledLayerNames = nullptr;
 		deviceCreateInfo.pEnabledFeatures = &(m_physicalDevice.GetPhysicalDeviceFeatures());
 		deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 		deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
@@ -81,10 +96,27 @@ namespace vk
 		err = vkCreateDevice(m_physicalDevice.Handle(), &deviceCreateInfo, nullptr, &m_device);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create Logical Device Failed");
 
-		/// Other private members 
-		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().graphics.value(), 0, &m_grapicsQ->m_queue);
-		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().compute.value(), 0, &m_computeQ->m_queue);
-		vkGetDeviceQueue(this->Handle(), m_physicalDevice.GetQFamilies().transfer.value(), 0, &m_transferQ->m_queue);
+		LOG_TRACE("Vulkan Device : {0}", (void*)m_device);
+
+		/// Create Qs
+		//m_grapicsQList.resize(QInfos.graphics_count.value());
+		for (uint32_t i = 0; i < QInfos.graphics_count.value(); i++)
+		{
+			// m_grapicsQList[i].reset(new Queue(*this, QInfos.graphics.value(), i, GFXQPriorities[i]));
+			m_grapicsQList.push_back(std::make_unique<Queue>(*this, QInfos.graphics.value(), i, GFXQPriorities[i]));
+		}
+		
+		//m_computeQList.resize(QInfos.compute_count.value());
+		for (uint32_t i = 0; i < QInfos.compute_count.value(); i++)
+		{
+			m_computeQList.push_back(std::make_unique<Queue>(*this, QInfos.compute.value(), i, CompQPriorities[i]));
+		}
+
+		//m_transferQList.resize(QInfos.transfer_count.value());
+		for (uint32_t i = 0; i < QInfos.transfer_count.value(); i++)
+		{
+			m_transferQList.push_back(std::make_unique<Queue>(*this, QInfos.transfer.value(), i, TransQPriorities[i]));
+		}
 	}
 
 	Device::~Device()
@@ -96,7 +128,8 @@ namespace vk
 	{
 		if (m_device != VK_NULL_HANDLE)
 		{
-			LOG_WARN("Clean Logical Device {0}", m_tag);
+			/*LOG_WARN("Clean Logical Device {0}", m_tag);*/
+			vkDeviceWaitIdle(m_device);
 			vkDestroyDevice(m_device, nullptr);
 			m_device = VK_NULL_HANDLE;
 		}

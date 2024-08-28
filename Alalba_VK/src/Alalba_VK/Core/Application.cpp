@@ -22,29 +22,32 @@ namespace Alalba
 		m_Window = std::unique_ptr<Window>(new Window());
 		m_Window->SetEventCallback(BIND_ENVENT_FN(Application::OnEvent));
 		
-		m_vulkanInstance = vk::Instance::Builder(m_Window.get())
-			.SetVulkanVersino(VK_API_VERSION_1_3)
+		
+		{
+			m_vulkanInstance = vk::Instance::Builder(m_Window.get())
+				.SetVulkanVersino(VK_API_VERSION_1_3)
 #ifdef  ALALBA_DEBUG
-			.RequestLayer("VK_LAYER_KHRONOS_validation")
+				.RequestLayer("VK_LAYER_KHRONOS_validation")
 #endif //  ALALBA_DEBUG
-			.RequestLayer("VK_LAYER_LUNARG_monitor")
+				.RequestLayer("VK_LAYER_LUNARG_monitor")
+				.Build();
 
-			.Build();
+			m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance, *m_Window)
+				.Build();
 
-		m_vulkanSurface = vk::Surface::Builder(*m_vulkanInstance, *m_Window)
-			.Build();
+			m_vulkanInstance->SelectPhysicalDevice();
 
-		m_vulkanDevice = vk::Device::Builder(m_vulkanInstance->GetPhysicalDevice())
-			.AddExtension("VK_KHR_swapchain")
-			.AddExtension("VK_KHR_ray_tracing_pipeline")
-			.AddExtension("VK_KHR_acceleration_structure")
-			.AddExtension("VK_KHR_deferred_host_operations")
-			.AddExtension("VK_KHR_ray_query")
-			.AddExtension("VK_KHR_buffer_device_address")
-// for debug computer shader
-			.AddExtension("VK_KHR_shader_non_semantic_info")
-			.Build();
-
+			m_vulkanDevice = vk::Device::Builder(m_vulkanInstance->GetPhysicalDevice())
+				.AddExtension("VK_KHR_swapchain")
+				.AddExtension("VK_KHR_ray_tracing_pipeline")
+				.AddExtension("VK_KHR_acceleration_structure")
+				.AddExtension("VK_KHR_deferred_host_operations")
+				.AddExtension("VK_KHR_ray_query")
+				.AddExtension("VK_KHR_buffer_device_address")
+				// for debug computer shader
+				.AddExtension("VK_KHR_shader_non_semantic_info")
+				.Build();
+		}
 
 	}
 
@@ -56,7 +59,7 @@ namespace Alalba
 	void Application::OnShutdown()
 	{				
 		//m_ui->Clean();
-		m_vulkanDevice->Clean();
+		/*m_vulkanDevice->Clean();*/
 	}
 
 	Application::~Application()
