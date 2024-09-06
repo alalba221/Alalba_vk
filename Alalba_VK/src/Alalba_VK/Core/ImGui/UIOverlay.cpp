@@ -21,7 +21,7 @@ namespace Alalba
 		m_cmdPool = vk::CommandPool::Builder(device)
 			.SetTag("UI CmdPool")
 			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(device.GetGraphicsQ().GetFamily())
+			.SetQFamily(device.GetGraphicsQ(0).GetFamily())
 			.Build();
 
 		m_descPool = vk::DescriptorPool::Builder(device)
@@ -64,7 +64,7 @@ namespace Alalba
 		vulkanInit.PhysicalDevice = Application::Get().GetVulkanInstance().GetPhysicalDevice().Handle();
 		vulkanInit.Device = Application::Get().GetDevice().Handle();
 		vulkanInit.QueueFamily = Application::Get().GetVulkanInstance().GetPhysicalDevice().GetQFamilies().graphics.value();
-		vulkanInit.Queue = Application::Get().GetDevice().GetGraphicsQ().Handle();
+		vulkanInit.Queue = Application::Get().GetDevice().GetGraphicsQ(0).Handle();
 		vulkanInit.PipelineCache = m_pipelineCache->Handle();
 		vulkanInit.DescriptorPool = m_descPool->Handle();
 		vulkanInit.MinImageCount =3;
@@ -84,7 +84,7 @@ namespace Alalba
 			Application::Get().GetDevice(), *m_cmdPool)
 			.SetTag("Command Buffers for ImGui font")
 			.OneTimeSubmit(true)
-			.SetSize(1)
+			.SetCount(1)
 			.Allocate();
 
 		CmdBuffer->BeginRecording(0);
@@ -92,7 +92,7 @@ namespace Alalba
 		ImGui_ImplVulkan_CreateFontsTexture(cmdbuffer);
 		CmdBuffer->EndRecording(0);
 
-		CmdBuffer->Flush(0, Application::Get().GetDevice().GetGraphicsQ());
+		CmdBuffer->Flush(0, Application::Get().GetDevice().GetGraphicsQ(0));
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 	void UIOverlay::Clean()

@@ -118,7 +118,7 @@ namespace Alalba
 		*/
 		m_vertexBuffer->CopyDataFrom(
 			vertexBuffer.data(), vertexBufferSize,
-			Application::Get().GetDevice().GetGraphicsQ(), m_loader.CmdPool()
+			Application::Get().GetDevice().GetGraphicsQ(0), m_loader.CmdPool()
 		);
 		m_indexBuffer = vk::Buffer::Builder(Application::Get().GetDevice(), m_loader.Allocator())
 			.SetTag("Index Buffer")
@@ -129,7 +129,7 @@ namespace Alalba
 
 		m_indexBuffer->CopyDataFrom(
 			indexBuffer.data(), indexBufferSize,
-			Application::Get().GetDevice().GetGraphicsQ(), m_loader.CmdPool()
+			Application::Get().GetDevice().GetGraphicsQ(0), m_loader.CmdPool()
 		);
 		/// 4. Descriptors for per-node uniform buffers
 		

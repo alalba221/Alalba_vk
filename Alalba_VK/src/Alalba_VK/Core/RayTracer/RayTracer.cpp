@@ -18,7 +18,7 @@ namespace Alalba
 			.SetTag("RayTracer CmdPool")
 			//	.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(device.GetGraphicsQ().GetFamily())
+			.SetQFamily(device.GetGraphicsQ(0).GetFamily())
 			.Build();
 
 
@@ -40,7 +40,7 @@ namespace Alalba
 			LOG_INFO("Add instance for {0}", tag);
 			tlasBuilder.AddInstance(mesh->GetBLAS(), transform, 0, 0);
 		}
-		m_TLAS = tlasBuilder.Build(device.GetGraphicsQ(), *m_commandPool);
+		m_TLAS = tlasBuilder.Build(device.GetGraphicsQ(0), *m_commandPool);
 	}
 	void RayTracer::Shutdown()
 	{

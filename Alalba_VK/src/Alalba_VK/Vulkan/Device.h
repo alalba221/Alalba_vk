@@ -32,9 +32,11 @@ namespace vk
 		~Device();
 		void Clean();
 
-		const Queue& GetGraphicsQ() const { return *(m_grapicsQList[0]); }
-		const Queue& GetComputeQ()	const { return *(m_computeQList[0]); }
-		const Queue& GetTransferQ() const { return *(m_transferQList[0]); }
+		// TODO: USE GetGraphicsQ(uint32_t index)
+		//const Queue& GetGraphicsQ() const { return *(m_grapicsQList[0]); }
+		//const Queue& GetComputeQ()	const { return *(m_computeQList[0]); }
+		//const Queue& GetTransferQ() const { return *(m_transferQList[0]); }
+
 
 		const Queue& GetGraphicsQ(uint32_t index) const { return *(m_grapicsQList[index]); }
 		const Queue& GetComputeQ(uint32_t index)	const { return *(m_computeQList[index]); }

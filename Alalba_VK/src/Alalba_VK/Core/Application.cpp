@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Application.h"
 // included before event sys
 #include <GLFW/glfw3.h>
@@ -49,6 +49,8 @@ namespace Alalba
 				.Build();
 		}
 
+
+		m_startTimePoint = std::chrono::steady_clock::now();
 	}
 
 	void Application::OnInit()
@@ -59,7 +61,9 @@ namespace Alalba
 	void Application::OnShutdown()
 	{				
 		//m_ui->Clean();
-		/*m_vulkanDevice->Clean();*/
+		m_vulkanDevice->Clean();
+		m_vulkanSurface->Clean();
+		m_vulkanInstance->Clean();
 	}
 
 	Application::~Application()
@@ -70,10 +74,15 @@ namespace Alalba
 	{
 		OnInit();
 
+		m_lastTimePoint = std::chrono::steady_clock::now();
 		while(m_Running)
 		{
-			OnUpdate();
+			float deltaTime = std::chrono::duration<float>(std::chrono::steady_clock::now() - m_lastTimePoint).count();
+			m_lastTimePoint = std::chrono::steady_clock::now();
+			
+			OnUpdate(deltaTime);
 			m_Window->OnUpdate();
+			m_Window->SwapBuffer();
 		}
 		OnShutdown();
 	}

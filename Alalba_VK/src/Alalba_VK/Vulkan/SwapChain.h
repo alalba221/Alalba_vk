@@ -1,13 +1,16 @@
 #pragma once
-#include <vulkan/vulkan.h>
+
 #include "VkCommon.h"
 #include "ImageView.h"
 #include "Image.h"
+
 
 namespace vk
 {
 	class Device;
 	class Surface;
+
+
 
 	class SwapChain final
 	{
@@ -44,6 +47,9 @@ namespace vk
 		const VkFormat& GetFormat() const { return m_imageFormat; }
 		const ImageView& GetImageView(const uint32_t index) const;
 		const uint32_t GetImgCount() const { return m_imgCount; }
+
+		VkResult AcquireNextImage(uint32_t* outImageIndex, VkSemaphore semaphore, VkFence fence);
+	
 	private:
 		VkSurfaceFormatKHR ChooseSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
 		VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
@@ -55,6 +61,9 @@ namespace vk
 		VULKAN_HANDLE(VkSwapchainKHR, m_swapChain);
 		const class Device& m_device;
 		const class Surface& m_surface;
+		VkPresentModeKHR m_requiredPresentMode;
+		VkPresentModeKHR m_actualPresentMode;
+
 		
 		VkFormat m_imageFormat{};
 		VkExtent2D m_extent{};

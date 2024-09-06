@@ -26,12 +26,12 @@ namespace Alalba
 			.SetTag("Renderer CmdPool")
 			//.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(device.GetGraphicsQ().GetFamily())
+			.SetQFamily(device.GetGraphicsQ(0).GetFamily())
 			.Build();
 		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("CmdBuffers4Graphics")
 			.OneTimeSubmit(false)
-			.SetSize(3) // one for each image in swapchain
+			.SetCount(3) // one for each image in swapchain
 			.Allocate();
 		
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
@@ -50,7 +50,7 @@ namespace Alalba
 				.SetImgExtent(VkExtent3D{ m_swapChain->GetExtent().width, m_swapChain->GetExtent().height,1 })
 				.Build();
 
-			m_depthImages[i]->TransitionImageLayout(*m_commandPool, device.GetGraphicsQ(),
+			m_depthImages[i]->TransitionImageLayout(*m_commandPool, device.GetGraphicsQ(0),
 				VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 			m_depthImageViews[i] = vk::ImageView::Builder(device, *m_depthImages[i])
@@ -61,17 +61,35 @@ namespace Alalba
 				.Build();
 		}
 
-		m_renderPass = vk::RenderPass::Builder(device)
-			.PushColorAttachment(m_swapChain->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-			.PushDepthAttachment(m_depthImages[0]->GetFormat(), VK_ATTACHMENT_LOAD_OP_CLEAR, VK_IMAGE_LAYOUT_UNDEFINED)
-			
-			// 2 subpass denpendency for color and depth
-			//  same as https://github.com/SaschaWillems/Vulkan/blob/master/examples/subpasses/subpasses.cpp
-			// or 1 subpass dependency for both using or operation like the https://vulkan-tutorial.com/Depth_buffering
-			.AddDependency(VK_SUBPASS_EXTERNAL,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0,VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
-			.AddDependency(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0, 
-				0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
-			.Build();
+
+		
+		///***************** Render Pass
+		vk::RenderPass::Builder renderPassBuilder(device);
+		renderPassBuilder.AddAttachment(m_swapChain->GetFormat(), VK_SAMPLE_COUNT_1_BIT,
+			VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE,
+			VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+
+			.AddAttachment(m_depthImages[0]->GetFormat(), VK_SAMPLE_COUNT_1_BIT,
+				VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE,
+				VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+
+		vk::SubPass subPass0{};
+		subPass0.UseAttachment(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, vk::AttachmentType::Color)
+			.UseAttachment(1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, vk::AttachmentType::Depth)
+			.SetDescription(false);
+		
+		// 2 subpass denpendency for color and depth
+		//  same as https://github.com/SaschaWillems/Vulkan/blob/master/examples/subpasses/subpasses.cpp
+		// or 1 subpass dependency for both using or operation like the https://vulkan-tutorial.com/Depth_buffering
+		renderPassBuilder.AddSubPass(subPass0)
+			.SetSubPassDependencies(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+			.SetSubPassDependencies(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0,
+				0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT);
+		
+		m_renderPass = renderPassBuilder.Build();
+		///**************************************** End RenderPass
 
 		m_globalDescPool = vk::DescriptorPool::Builder(device)
 			.SetTag("Global Descriptor Pool")
@@ -97,7 +115,7 @@ namespace Alalba
 				.SetTag(tag)
 				.SetWidthHeight(m_swapChain->GetExtent().width, m_swapChain->GetExtent().height)
 				.PushAttachment(m_swapChain->GetImageView(i))
-				.PushAttachment(*m_depthImageViews[i]) // TODO : FOR NOW depth attachment must be added at the end of attachment list
+				.PushAttachment(*m_depthImageViews[i])
 				.Build();
 
 			m_inFlightFences[i] =
@@ -239,8 +257,6 @@ namespace Alalba
 		// recreate framebuffers , depth image , depthimage view and swapchain
 		m_swapChain.reset(new vk::SwapChain(device, app.GetSurface(), VK_PRESENT_MODE_MAILBOX_KHR, VK_SHARING_MODE_EXCLUSIVE));
 
-		
-
 		for (int i = 0; i < vk::SwapChain::MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			m_depthImages[i].reset(new vk::Image(device, *m_allocator, VK_IMAGE_TYPE_2D,
@@ -253,6 +269,8 @@ namespace Alalba
 				),
 				VK_IMAGE_TILING_OPTIMAL,
 				VK_SHARING_MODE_EXCLUSIVE,
+				VK_SAMPLE_COUNT_1_BIT,
+				VMA_MEMORY_USAGE_GPU_ONLY,
 				"Recreated depth image"
 			));
 
@@ -377,7 +395,8 @@ namespace Alalba
 		m_inFlightFences[m_currentFrame]->Wait(UINT64_MAX);
 
 /// Presentation queue: siganl semaphore for graphics queue
-		VkResult result = vkAcquireNextImageKHR(device.Handle(), m_swapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &m_currentFrame);
+		// VkResult result = vkAcquireNextImageKHR(device.Handle(), m_swapChain->Handle(), UINT64_MAX, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE, &m_currentFrame);
+		VkResult result = m_swapChain->AcquireNextImage(&m_currentFrame, m_imageAvailableSemaphores[m_currentFrame]->Handle(), VK_NULL_HANDLE);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{
@@ -400,12 +419,12 @@ namespace Alalba
 		
 		}*/
 
-		device.GetGraphicsQ().Submit(*m_commandBuffers, m_currentFrame, 
+		device.GetGraphicsQ(0).Submit({ (*m_commandBuffers)[m_currentFrame]},
 			{ *m_imageAvailableSemaphores[m_currentFrame] }, { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT },
 			{ *m_renderFinishedSemaphores[m_currentFrame] }, * m_inFlightFences[m_currentFrame]);
 
 
-		result = device.GetGraphicsQ().Present(*m_renderFinishedSemaphores[m_currentFrame], *m_swapChain, m_currentFrame);
+		result = device.GetGraphicsQ(1).Present(*m_renderFinishedSemaphores[m_currentFrame], *m_swapChain, m_currentFrame);
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 		{

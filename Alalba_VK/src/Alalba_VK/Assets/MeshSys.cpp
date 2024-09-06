@@ -10,7 +10,7 @@ namespace Alalba
 		m_commandPool = vk::CommandPool::Builder(app.GetDevice())
 			.SetTag("MeshSys CmdPool")
 			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(app.GetDevice().GetGraphicsQ().GetFamily())
+			.SetQFamily(app.GetDevice().GetGraphicsQ(0).GetFamily())
 			.Build();
 	}
 

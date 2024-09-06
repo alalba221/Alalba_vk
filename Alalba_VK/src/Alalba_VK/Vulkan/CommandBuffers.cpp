@@ -5,17 +5,17 @@
 namespace vk
 {
 	CommandBuffers::CommandBuffers(const Device& device, const CommandPool& cmdPool, const uint32_t count, bool oneTimeSubmit, const std::string& tag)
-		:m_device(device),m_cmdPool(cmdPool), m_oneTimeSubmit(oneTimeSubmit),m_tag(tag)
+		:m_device(device),m_cmdPool(cmdPool), m_count(count), m_oneTimeSubmit(oneTimeSubmit), m_tag(tag)
 	{
-		LOG_INFO("Allocate Command Buffers: {0}, size: {1}", m_tag, count);
+		LOG_INFO("Allocate Command Buffers: {0}, size: {1}", m_tag, m_count);
 		VkCommandBufferAllocateInfo AI{};
 		AI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		AI.pNext = nullptr;
 		AI.commandPool = m_cmdPool.Handle();
 		AI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		AI.commandBufferCount = count;
+		AI.commandBufferCount = m_count;
 
-		m_cmdBuffers.resize(count);
+		m_cmdBuffers.resize(m_count);
 		VkResult err = vkAllocateCommandBuffers(m_device.Handle(), &AI, m_cmdBuffers.data());
 		ALALBA_ASSERT(err == VK_SUCCESS, "Allocate Command Buffer Failed");
 	}

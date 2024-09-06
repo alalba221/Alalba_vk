@@ -23,7 +23,7 @@ namespace Alalba{
 		void Run();
 
 		virtual void OnInit();
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(float deltaTime) {}
 		virtual void OnShutdown();
 
 		virtual void DesignUI(UIOverlay* overlay) {};
@@ -46,6 +46,9 @@ namespace Alalba{
 	private:
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
+
+		std::chrono::steady_clock::time_point m_startTimePoint;
+		std::chrono::steady_clock::time_point m_lastTimePoint;
 
 		static Application* s_Instance;
 		std::unique_ptr<vk::Instance> m_vulkanInstance;

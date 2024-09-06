@@ -4,6 +4,38 @@
 namespace vk
 {
 	class Device;
+	enum class  AttachmentType
+	{
+		Color,
+		Depth,
+		Input,
+		Preserve,
+		Resolve
+	};
+	class SubPass
+	{
+	public:
+		SubPass() {};
+		~SubPass() {};
+		
+		SubPass& UseAttachment(uint32_t attachIdx, VkImageLayout layout, AttachmentType type);
+		SubPass& SetDescription(bool msaa);
+
+		VkSubpassDescription GetDescrition()const { return m_subPassDesc;}
+	private:
+
+		std::vector<VkAttachmentReference> m_colorAttachmentRefs;
+		std::vector<VkAttachmentReference> m_resolvedAttachmentRefs;
+		std::vector<VkAttachmentReference> m_inputAttachmentRefs;
+		VkAttachmentReference m_depthAttachmentRef{};
+		std::vector<uint32_t> m_preservedAttachmentRefs;
+
+		VkSubpassDescription m_subPassDesc{};
+		bool m_msaa = false;
+	};
+
+
+
 	class RenderPass
 	{
 	public: 
@@ -12,25 +44,31 @@ namespace vk
 		public:
 			Builder(const Device& device):m_device(device) {};
 			
-			Builder& PushColorAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkImageLayout finalLayout);
-			Builder& PushDepthAttachment(VkFormat format, VkAttachmentLoadOp loadop, VkImageLayout initialLayout, VkAttachmentStoreOp storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE, VkImageLayout finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			Builder& AddAttachment(VkFormat format, VkSampleCountFlagBits samples, 
+				VkAttachmentLoadOp loadOp, VkAttachmentStoreOp storeOp,
+				VkAttachmentLoadOp stencilLoadOp, VkAttachmentStoreOp stencilStoreOp,
+				VkImageLayout initialLayout, VkImageLayout finalLayout);
+			
+			Builder& AddSubPass(SubPass subpass);
+			Builder& SetSubPassDependencies(uint32_t src, VkPipelineStageFlags srcStage, VkAccessFlags srcOp, 
+				uint32_t dst, VkPipelineStageFlags dstStage, VkAccessFlags dstOp);
+
 			// for now: dependecy is only for attachment referred images' layout transition
-			Builder& AddDependency(uint32_t src, VkPipelineStageFlags srcStage, VkAccessFlags srcOp, uint32_t dst, VkPipelineStageFlags dstStage, VkAccessFlags dstOp);
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
+			
 			std::unique_ptr<RenderPass> Build() const
 			{
-				return std::make_unique<RenderPass>(m_device, m_attachments, m_colorAttachmentRefs, m_depthAttachmentRef, m_dependencies, m_tag);
+				return std::make_unique<RenderPass>(m_device, m_attachments,
+					m_subPasses, m_dependencies, m_tag);
 			}
 
 		private:
 			const class Device& m_device;
 		
 			std::string m_tag;
-			uint32_t nextColorAttachIndex = 0;
-
 			std::vector<VkAttachmentDescription> m_attachments{};
-			std::vector<VkAttachmentReference> m_colorAttachmentRefs{};
-			VkAttachmentReference m_depthAttachmentRef{};
+			std::vector<SubPass> m_subPasses;
+
 
 			std::vector<VkSubpassDependency> m_dependencies{};
 		};
@@ -39,20 +77,22 @@ namespace vk
 		VULKAN_NON_COPIABLE(RenderPass);
 		RenderPass(const Device& device, 
 			const std::vector<VkAttachmentDescription>& attachments,
-			const std::vector<VkAttachmentReference>& colorAttachmentRefs, const VkAttachmentReference& depthAttachmentRef,
+			const std::vector<SubPass>& subPass,
 			const std::vector<VkSubpassDependency>& dependencies,
 			const std::string tag
 		);
 		~RenderPass() { Clean(); };
 		void Clean();
 
-		const uint32_t ColorAttachmentCount()const { return m_colorAttachmentCount; }
 
 	private:
 		VULKAN_HANDLE(VkRenderPass, m_renderPass);
 		const class Device& m_device;
+		
+		std::vector<VkAttachmentDescription> m_attachments{};
+		std::vector<SubPass> m_subPasses;
+		std::vector<VkSubpassDependency> m_dependencies{};
 
-		uint32_t m_colorAttachmentCount;
 	};
 	typedef std::unique_ptr<RenderPass> RenderPassPtr;
 }

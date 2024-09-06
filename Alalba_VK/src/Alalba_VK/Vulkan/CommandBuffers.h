@@ -14,7 +14,7 @@ namespace vk
 		public: 
 			Allocator(const Device& device, const CommandPool& cmdPool) :m_device(device), m_cmdPool(cmdPool) {};
 			Allocator& SetTag(const std::string& tag) { m_tag = tag; return *this; }
-			Allocator& SetSize(uint32_t count) { m_count = count; return *this; }
+			Allocator& SetCount(uint32_t count) { m_count = count; return *this; }
 			Allocator& OneTimeSubmit(bool onetime) { m_oneTimeSubmit = onetime; return *this; }
 
 			std::unique_ptr<CommandBuffers> Allocate() const 
@@ -34,6 +34,8 @@ namespace vk
 		CommandBuffers(const Device& device, const CommandPool& cmdPool, const uint32_t count, bool oneTimeSubmit, const std::string& tag);
 		VkCommandBuffer operator [] (const size_t i) const { return m_cmdBuffers[i]; }
 
+		
+
 		~CommandBuffers() { Clean(); };
 		void BeginRecording(uint32_t index);
 		void EndRecording(uint32_t index);
@@ -42,6 +44,8 @@ namespace vk
 
 		void Clean();
 
+		/*const std::vector<VkCommandBuffer>& Handle() const { return m_cmdBuffers; }*/
+
 	private:
 		//VULKAN_HANDLE(VkCommandBuffer, m_cmdBuffer);
 		std::vector<VkCommandBuffer> m_cmdBuffers;
@@ -49,7 +53,7 @@ namespace vk
 		bool m_oneTimeSubmit;
 		const class Device& m_device;
 		const class CommandPool& m_cmdPool;
-	
+		uint32_t m_count;
 	};
 
 	typedef std::unique_ptr<CommandBuffers> CommandBufferPtrs;

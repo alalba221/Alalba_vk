@@ -19,6 +19,7 @@ namespace vk
 		VkResult err;
 		err = vkCreatePipelineCache(m_device.Handle(), &CI, nullptr, &m_pipelineCache);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create Pipeline Cache failed");
+		LOG_TRACE("Create Pipeline Cache: {0}", (void*)m_pipelineCache);
 	}
 
 	void PipelineCache::Clean()

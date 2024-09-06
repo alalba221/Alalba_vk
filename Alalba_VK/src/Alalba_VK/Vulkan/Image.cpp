@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Image.h"
 #include "Device.h"
 #include "Allocator.h"
@@ -9,7 +9,7 @@ namespace vk
   std::unique_ptr<Image>Image::Builder::Build()const
   {
     return std::make_unique<Image>(m_device, m_allocator, m_imageType, m_usageFlags, m_extent, m_format, m_tilling,
-      m_sharingMode,m_tag);
+      m_sharingMode,m_sample,m_vmaUsage,m_tag);
   }
 
   void Image::CopyImageFromData(void* src, uint32_t sizeInByte, const Queue& q, const CommandPool& cmdPool)
@@ -42,7 +42,7 @@ namespace vk
 	Image::Image(const Device& device, Allocator& allocator,
     const VkImageType imageType, 
     const VkImageUsageFlags usageFlags, const VkExtent3D entent, const VkFormat format, const VkImageTiling tilling,
-    const VkSharingMode& sharingMode,
+    const VkSharingMode& sharingMode, const VkSampleCountFlagBits sampleCount, VmaMemoryUsage VMAUsage,
     const std::string& tag)
 		:m_device(device),m_allocator(allocator), m_imageType(imageType), m_usageFlags(usageFlags), m_extent(entent), m_format(format), m_tilling(tilling), m_tag(tag)
 	{
@@ -59,7 +59,7 @@ namespace vk
     createinfo.usage = m_usageFlags;
     createinfo.mipLevels = 1;
     createinfo.arrayLayers = 1;
-    createinfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    createinfo.samples = sampleCount;
     // initialLayout must be VK_IMAGE_LAYOUT_UNDEFINED or VK_IMAGE_LAYOUT_PREINITIALIZED
     //https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkImageCreateInfo.html#VUID-VkImageCreateInfo-initialLayout-00993
     createinfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; 
@@ -72,8 +72,8 @@ namespace vk
     if (sharingMode == VK_SHARING_MODE_CONCURRENT)
     {
       queueFamilyIndices = {
-        m_device.GetGraphicsQ().GetFamily(),
-        m_device.GetComputeQ().GetFamily()
+        m_device.GetGraphicsQ(0).GetFamily(),
+        m_device.GetComputeQ(0).GetFamily()
       };
       createinfo.queueFamilyIndexCount = queueFamilyIndices.size();
       createinfo.pQueueFamilyIndices = queueFamilyIndices.data();
@@ -82,9 +82,7 @@ namespace vk
     // createinfo.pQueueFamilyIndices = 
     // createinfo.flags =
     // createinfo.pNext =
-    
-    /// GPU_ONLY
-    m_allocation= m_allocator.AllocateImage(createinfo, VMA_MEMORY_USAGE_GPU_ONLY, m_image, m_tag);
+    m_allocation= m_allocator.AllocateImage(createinfo, VMAUsage, m_image, m_tag);
 	}
 
   void Image::Clean()
@@ -173,7 +171,7 @@ namespace vk
     std::unique_ptr<CommandBuffers>m_copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
       .SetTag("Command Buffers for Layout Transition")
       .OneTimeSubmit(true)
-      .SetSize(1)
+      .SetCount(1)
       .Allocate();
     {
       // recording command buffer
@@ -196,7 +194,7 @@ namespace vk
     std::unique_ptr<CommandBuffers>copyCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
       .SetTag("Command Buffers for Copy Image: "+m_tag)
       .OneTimeSubmit(true)
-      .SetSize(1)
+      .SetCount(1)
       .Allocate();
     // recording command buffer
     VkBufferImageCopy  region = {};

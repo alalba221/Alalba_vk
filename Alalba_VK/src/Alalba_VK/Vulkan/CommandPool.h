@@ -14,11 +14,11 @@ namespace vk
 			Builder(const Device& device) :m_device(device) {};
 			Builder& SetTag(const std::string& tag) { m_tag = tag; return *this; }
 			Builder& SetQFamily(const uint32_t QFamily) { m_QFamily = QFamily; return *this; }
+			
 			// VK_COMMAND_POOL_CREATE_TRANSIENT_BIT = 0x00000001,
 			// VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT = 0x00000002,
 			// // Provided by VK_VERSION_1_1
 			// VK_COMMAND_POOL_CREATE_PROTECTED_BIT = 0x00000004,
-
 			Builder& SetFlags(const VkCommandPoolCreateFlags flags) { m_flags = flags; return *this; }
 			std::unique_ptr<CommandPool>Build() const
 			{

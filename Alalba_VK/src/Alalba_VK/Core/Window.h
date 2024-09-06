@@ -37,6 +37,7 @@ namespace Alalba
 		Window(const WindowProps& props = WindowProps());
 		virtual ~Window();
 		void OnUpdate();
+		void SwapBuffer();
 		inline unsigned int GetWidth()const { return m_Data.Width; };
 		inline unsigned int GetHeight() const { return m_Data.Height; };
 		

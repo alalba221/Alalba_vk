@@ -36,7 +36,7 @@ namespace Alalba
 			.Build();
 
 		m_image->CopyImageFromData(imageData, imageSize,
-			app.GetDevice().GetGraphicsQ(), cmdPool);
+			app.GetDevice().GetGraphicsQ(0), cmdPool);
 		stbi_image_free(imageData);
 
 		// image view
@@ -72,7 +72,7 @@ namespace Alalba
 			.Build();
 
 		m_image->CopyImageFromData(data, bufferSize,
-			device.GetGraphicsQ(), cmdPool);
+			device.GetGraphicsQ(0), cmdPool);
 
 		// image view
 		m_imageView = vk::ImageView::Builder(device, *m_image)

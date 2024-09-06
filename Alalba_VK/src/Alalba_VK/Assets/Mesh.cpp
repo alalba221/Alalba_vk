@@ -43,7 +43,7 @@ namespace Alalba
 		*/
 		m_vertexBuffer->CopyDataFrom(
 			vertices.data(), vertexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
+			Application::Get().GetDevice().GetGraphicsQ(0), sys.CmdPool()
 		);
 
 		// Index buffer
@@ -56,7 +56,7 @@ namespace Alalba
 		
 		m_indexBuffer->CopyDataFrom(
 			indices.data(), indexSize,
-			Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool()
+			Application::Get().GetDevice().GetGraphicsQ(0), sys.CmdPool()
 		);
 
 		vertices.clear();
@@ -71,7 +71,7 @@ namespace Alalba
 			.SetIndexCount(m_indexCount)
 			.SetVertexCount(m_vertexCount)
 			.Build();
-		m_blas->BuildOnDevice(Application::Get().GetDevice().GetGraphicsQ(), sys.CmdPool());
+		m_blas->BuildOnDevice(Application::Get().GetDevice().GetGraphicsQ(0), sys.CmdPool());
 	}
 
 	void Mesh::Clean()

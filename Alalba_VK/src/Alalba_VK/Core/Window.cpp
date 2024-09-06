@@ -153,6 +153,11 @@ namespace Alalba
 			glfwPollEvents();
 	}
 
+	void Window::SwapBuffer()
+	{
+		glfwSwapBuffers(m_Window);
+	}
+
 	std::vector<const char*> Window::GetRequiredInstanceExtensions() const
 	{
 		if (!glfwVulkanSupported())

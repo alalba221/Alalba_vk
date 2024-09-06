@@ -49,6 +49,11 @@ namespace Alalba
     }
 
     static std::array<VkVertexInputAttributeDescription, 5> attribute_descriptions;
+
+    //layout(location = 0) in vec3 inPosition;
+    //layout(location = 1) in vec3 inNormal;
+    //layout(location = 2) in vec2 inTexCoord;
+
     static std::array<VkVertexInputAttributeDescription, 5>& GetAttributeDescriptions()
     {
       // position

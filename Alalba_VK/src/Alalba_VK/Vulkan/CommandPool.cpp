@@ -15,6 +15,7 @@ namespace vk
 		ci.queueFamilyIndex = m_QFamily;
 
 		VkResult err = vkCreateCommandPool(m_device.Handle(), &ci, nullptr, &m_cmdPool);
+		LOG_TRACE("Create Command pool: {0}", (void*)m_cmdPool);
 	}
 	void CommandPool::Clean()
 	{

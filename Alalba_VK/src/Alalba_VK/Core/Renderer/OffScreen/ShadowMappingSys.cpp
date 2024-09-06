@@ -19,7 +19,7 @@ namespace Alalba
 			.SetTag("ShadowMapSys CmdPool")
 			.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			//.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(device.GetGraphicsQ().GetFamily())
+			.SetQFamily(device.GetGraphicsQ(0).GetFamily())
 			.Build();
 
 		// 1. prepare frame buffer and renderpass
@@ -102,21 +102,29 @@ namespace Alalba
 		Application& app = Application::Get();
 		const vk::Device& device = app.GetDevice();
 
-		m_renderPass = vk::RenderPass::Builder(device)
-			.SetTag("ShadowMapSys RenderPass")																																																		
-			.PushDepthAttachment(m_depthImages[0]->GetFormat(),
-				VK_ATTACHMENT_LOAD_OP_CLEAR, //Clear depth at beginning of the render pass
-				VK_IMAGE_LAYOUT_UNDEFINED,  // We don't care about initial layout of the attachment
-				VK_ATTACHMENT_STORE_OP_STORE, // We will read from depth, so it's important to store the depth attachment results 
-				VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL // Attachment will be transitioned to shader read at render pass end
-			)
-			// for initial layout: before write change layout to initial
-			.AddDependency(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT, 
-				0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
-			// for final layout : after write change laypout to readable
-			.AddDependency(0, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, 
-				VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT)
-			.Build();
+
+		/// Render Pass
+		vk::RenderPass::Builder renderPassBuilder(device);
+		renderPassBuilder.AddAttachment(m_depthImages[0]->GetFormat(), VK_SAMPLE_COUNT_1_BIT,
+				VK_ATTACHMENT_LOAD_OP_CLEAR, VK_ATTACHMENT_STORE_OP_STORE,
+				VK_ATTACHMENT_LOAD_OP_DONT_CARE, VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+
+		vk::SubPass subPass0{};
+		subPass0.UseAttachment(0, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, vk::AttachmentType::Depth)
+			.SetDescription(false);
+
+		// 2 subpass denpendency for color and depth
+		//  same as https://github.com/SaschaWillems/Vulkan/blob/master/examples/subpasses/subpasses.cpp
+		// or 1 subpass dependency for both using or operation like the https://vulkan-tutorial.com/Depth_buffering
+		renderPassBuilder.AddSubPass(subPass0)
+			.SetSubPassDependencies(VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT,
+						0, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT)
+			.SetSubPassDependencies(0, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+						VK_SUBPASS_EXTERNAL, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT);
+
+		m_renderPass = renderPassBuilder.Build();
+
 	}
 	void ShadowMappingSys::PrepareOffscreenFramebuffer()
 	{
@@ -137,7 +145,7 @@ namespace Alalba
 				.SetUsageFlags(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 				.SetImgExtent(VkExtent3D{ SHADOWMAP_DIM, SHADOWMAP_DIM,1 })
 				.Build();
-			m_depthImages[i]->TransitionImageLayout(*m_cmdPool, device.GetGraphicsQ(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+			m_depthImages[i]->TransitionImageLayout(*m_cmdPool, device.GetGraphicsQ(0), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 			m_depthImageViews[i] = vk::ImageView::Builder(device, *m_depthImages[i])
 				.SetTag("ShadowMapSys DepthImageView")
@@ -231,7 +239,7 @@ namespace Alalba
 			.SetDepthState(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS_OR_EQUAL)
 			.SetMultisampleState(VK_SAMPLE_COUNT_1_BIT)
 			//.AddColorBlendAttachmentState(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT, VK_FALSE)
-			.SetColorBlendState(m_renderPass->ColorAttachmentCount()/*0*/)
+			//.SetColorBlendState(m_renderPass->ColorAttachmentCount()/*0*/)
 			.SetViewportState(1, 1)
 			.SetDynamicState(true)
 			.Build();

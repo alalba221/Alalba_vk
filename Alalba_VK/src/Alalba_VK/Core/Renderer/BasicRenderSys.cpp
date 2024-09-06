@@ -106,7 +106,7 @@ namespace Alalba
 			.SetDepthState(VK_TRUE, VK_TRUE, VK_COMPARE_OP_LESS)
 			.SetMultisampleState(VK_SAMPLE_COUNT_1_BIT)
 			.AddColorBlendAttachmentState(VK_COLOR_COMPONENT_R_BIT| VK_COLOR_COMPONENT_G_BIT| VK_COLOR_COMPONENT_B_BIT| VK_COLOR_COMPONENT_A_BIT, VK_FALSE)
-			.SetColorBlendState(renderpass.ColorAttachmentCount())
+			//.SetColorBlendState(renderpass.ColorAttachmentCount())
 			.SetViewportState(1,1)
 			.SetDynamicState(VK_FALSE)
 			.Build();

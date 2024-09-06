@@ -18,7 +18,7 @@ public:
 		
 	}
 
-	virtual void OnUpdate() override
+	virtual void OnUpdate(float deltaTime) override
 	{
 		m_scene->OnUpdate();
 		m_renderer->DrawFrame(*m_scene);

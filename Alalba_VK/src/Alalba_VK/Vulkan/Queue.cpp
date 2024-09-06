@@ -11,11 +11,11 @@ namespace vk
 		LOG_TRACE("Create a new queue: Family:{0} - Index:{1} - {2}", m_queueFamily, m_index, (void*)m_queue);
 	}
 
-	void Queue::Submit(const CommandBuffers& cmdBuffers, int bufferIndex,
+	void Queue::Submit(const std::vector<VkCommandBuffer>& vk_cmdBuffers,
 		const std::vector<Semaphore>& waitOn, const std::vector<VkPipelineStageFlags> waitStages,
 		const std::vector<Semaphore>& completedSignal, const Fence& completedFence)const
 	{
-		VkCommandBuffer commandBuffers[]{ cmdBuffers[bufferIndex] };
+		/*VkCommandBuffer commandBuffers[]{ cmdBuffers[bufferIndex] };*/
 		
 		std::vector<VkSemaphore> waitSemaphores;
 		for (auto& wait : waitOn)
@@ -36,8 +36,9 @@ namespace vk
 		submitInfo.pWaitDstStageMask = waitStages.data();
 		submitInfo.signalSemaphoreCount = signalSemaphores.size();
 		submitInfo.pSignalSemaphores = signalSemaphores.data();
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = commandBuffers;
+		submitInfo.commandBufferCount = vk_cmdBuffers.size();
+		submitInfo.pCommandBuffers = vk_cmdBuffers.data();
+
 		VkResult err;
 		err = vkQueueSubmit(this->Handle(),
 			1, &submitInfo, completedFence.Handle());

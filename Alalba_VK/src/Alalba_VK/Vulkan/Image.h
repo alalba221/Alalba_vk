@@ -21,11 +21,15 @@ namespace vk
 			Builder(const Device& device, Allocator& allocator) : m_device(device),m_allocator(allocator) {};
 			Builder& SetTag(const std::string tag) { m_tag = tag; return *this; }
 			Builder& SetImgType(const VkImageType imageType) { m_imageType = imageType; return *this; };
+			
 			Builder& SetImgExtent(const VkExtent3D entent) { m_extent = entent; return *this; };
 			Builder& SetImageFormat(const VkFormat format) { m_format = format; return*this; }
 			Builder& SetUsageFlags(const VkImageUsageFlags usageFlags) { m_usageFlags = usageFlags; return *this; }
 			Builder& SetImageTiling(const VkImageTiling tilling) { m_tilling = tilling; return *this; }
 			Builder& SetSharingMode(const VkSharingMode sharingMode) { m_sharingMode = sharingMode; return *this; }
+
+			Builder& SetSampleCount(VkSampleCountFlagBits sample) { m_sample = sample; return *this; }
+			Builder& SetVMAUsage(const VmaMemoryUsage& vmaUsage) { m_vmaUsage = vmaUsage; return *this; }
 			std::unique_ptr<Image>Build()const;
 
 		private:
@@ -39,6 +43,8 @@ namespace vk
 			VkImageUsageFlags m_usageFlags;
 			VkImageTiling m_tilling;
 			VkSharingMode m_sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+			VkSampleCountFlagBits m_sample = VK_SAMPLE_COUNT_1_BIT;
+			VmaMemoryUsage m_vmaUsage = VMA_MEMORY_USAGE_GPU_ONLY;
 			std::string m_tag;
 		};
 
@@ -48,7 +54,7 @@ namespace vk
 		Image(const Device& device, Allocator& allocator,
 			const VkImageType imageType, 
 			const VkImageUsageFlags usageFlags, const VkExtent3D entent, const VkFormat format, const VkImageTiling tilling,
-			const VkSharingMode& sharingMode,
+			const VkSharingMode& sharingMode, const VkSampleCountFlagBits sampleCount, VmaMemoryUsage VMAUsage,
 			const std::string& tag);
 		const VkImageType& GetType() const { return m_imageType; };
 		const VkExtent3D& GetExtent() const { return m_extent; }

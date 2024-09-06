@@ -24,7 +24,7 @@ namespace vk
   {
     for (const auto& availablePresentMode : availablePresentModes)
     {
-      if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+      if (availablePresentMode == m_requiredPresentMode) {
         return availablePresentMode;
       }
     }
@@ -53,6 +53,22 @@ namespace vk
 
       return actualExtent;
     }
+  }
+
+  VkResult SwapChain::AcquireNextImage(uint32_t* outImageIndex, VkSemaphore semaphore, VkFence fence)
+  {
+    uint32_t imageIndex;
+    VkResult ret = vkAcquireNextImageKHR(m_device.Handle(),m_swapChain, UINT64_MAX, semaphore, fence, &imageIndex);
+    if (fence != VK_NULL_HANDLE) {
+      CALL_VK(vkWaitForFences(m_device.Handle(), 1, &fence, VK_FALSE, UINT64_MAX));
+      CALL_VK(vkResetFences(m_device.Handle(), 1, &fence));
+    }
+
+    if (ret == VK_SUCCESS || ret == VK_SUBOPTIMAL_KHR) {
+      *outImageIndex = imageIndex;
+      //mCurrentImageIndex = imageIndex;
+    }
+    return ret;
   }
 
   const ImageView& SwapChain::GetImageView(const uint32_t index) const
@@ -91,10 +107,12 @@ namespace vk
 	SwapChain::SwapChain(const Device& device, const Surface& surface,
     const VkPresentModeKHR presentMode,
     const VkSharingMode imageShareMode)
-		:m_device(device),m_surface(surface)
+		:m_device(device),m_surface(surface), m_requiredPresentMode(presentMode)
 	{
-    LOG_INFO("Create Swap Chain");
-
+  /*  LOG_INFO("Create Swap Chain");*/
+    LOG_DEBUG("-----------------------------");
+    LOG_DEBUG(" SwapChain: ");
+    
     Surface::SupportDetails surfaceDetails = m_surface.FindDetails();
     
     // minImage count
@@ -102,13 +120,16 @@ namespace vk
     if (surfaceDetails.capabilities.maxImageCount > 0 && minImageCount > surfaceDetails.capabilities.maxImageCount) {
       minImageCount = surfaceDetails.capabilities.maxImageCount;
     }
+
     // Color space and image format
-    // const auto surfaceFormat = ChoosefaceFormat(surfaceDetails.formats);
-    // const auto actualPresentMode = ChooseSwapPresentMode(surfaceDetails.presentModes);
-    // const auto extent = ChooseSwapExtent(surfaceDetails.capabilities);
     VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat(surfaceDetails.formats);
-    VkPresentModeKHR actualPresentMode = ChooseSwapPresentMode(surfaceDetails.presentModes);
+    m_actualPresentMode = ChooseSwapPresentMode(surfaceDetails.presentModes);
     m_extent = ChooseSwapExtent(surfaceDetails.capabilities);
+    
+    LOG_DEBUG("currentExtent : {0} x {1}", m_extent.width, m_extent.height);
+    LOG_DEBUG("surfaceFormat : {0}", vk_format_string(surfaceFormat.format));
+    LOG_DEBUG("presentMode   : {0}", vk_present_mode_string(m_actualPresentMode));
+    LOG_DEBUG("-----------------------------");
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -125,13 +146,16 @@ namespace vk
     createInfo.pQueueFamilyIndices = nullptr; // Optional
     createInfo.preTransform = surfaceDetails.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = presentMode;
+    createInfo.presentMode = m_actualPresentMode;
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VK_NULL_HANDLE;
 
     VkResult err;
     err = vkCreateSwapchainKHR(m_device.Handle(), &createInfo, nullptr, &m_swapChain);
     ALALBA_ASSERT(err == VK_SUCCESS);
+
+    LOG_TRACE("Swapchain {0} :new: {1}, image count: {2}, format: {3}, present mode : {4}", __FUNCTION__, (void*)m_swapChain, minImageCount,
+      vk_format_string(surfaceFormat.format), vk_present_mode_string(m_actualPresentMode));
 
     /// For other private data
     m_imageFormat = surfaceFormat.format;
@@ -168,7 +192,7 @@ namespace vk
 
     if (m_swapChain != VK_NULL_HANDLE)
     {
-      LOG_WARN("Clean SwapChain {0}", m_tag);
+      //LOG_WARN("Clean SwapChain {0}", m_tag);
       vkDestroySwapchainKHR(m_device.Handle(), m_swapChain, nullptr);
       m_swapChain = VK_NULL_HANDLE;
     }

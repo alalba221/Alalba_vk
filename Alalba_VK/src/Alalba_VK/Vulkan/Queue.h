@@ -31,7 +31,7 @@ namespace vk
 
 		Queue(const Device& device, const uint32_t qFamily, const uint32_t index, const float priority);
 
-		void Submit(const CommandBuffers& cmdBuffers, int bufferIndex,  
+		void Submit(const std::vector<VkCommandBuffer>& vk_cmdBuffers,
 			const std::vector<Semaphore>& waitOn, const std::vector<VkPipelineStageFlags> waitStages,
 			const std::vector<Semaphore>& completedSignal, const Fence& completedFence) const;
 

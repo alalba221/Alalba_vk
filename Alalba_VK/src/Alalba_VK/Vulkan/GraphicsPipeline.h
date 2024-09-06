@@ -47,7 +47,7 @@ namespace vk
 		 * @param vertexbuffer is for model, otherwise for bufferless rendering or UI
 		 * @return
 		 */
-			Builder& SetVertexProcessingState(bool formodel = true);
+			Builder& SetVertexProcessingState(bool formodel = true, VkPrimitiveTopology primitiveTopo= VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 			
 			// 2. tessellation state
 			Builder& SetTessellationState() { return *this; };
@@ -61,7 +61,7 @@ namespace vk
 			Builder& SetDepthState(VkBool32 depthTestEnable, VkBool32 depthWriteEnable, VkCompareOp depthCompareOp);
 
 			// 6. pixel Proccessing
-			Builder& SetMultisampleState(VkSampleCountFlagBits rasterizationSamples);
+			Builder& SetMultisampleState(VkSampleCountFlagBits rasterizationSamples = VK_SAMPLE_COUNT_1_BIT, bool sampleShadingEnable = false);
 			Builder& AddColorBlendAttachmentState(VkColorComponentFlags colorWriteMask, VkBool32 blendEnable);
 			// todo : make colorAttachmentCount more meaningfull
 			Builder& SetColorBlendState(uint32_t colorAttachmentCount);

@@ -14,13 +14,13 @@ namespace Alalba
 			.SetTag("Partical Sys CmdPool")
 			//.SetFlags(VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
 			.SetFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
-			.SetQFamily(device.GetComputeQ().GetFamily())
+			.SetQFamily(device.GetComputeQ(0).GetFamily())
 			.Build();
 
 		m_commandBuffers = vk::CommandBuffers::Allocator(device, *m_commandPool)
 			.SetTag("CmdBuffers4 compute partical")
 			.OneTimeSubmit(true)
-			.SetSize(vk::SwapChain::MAX_FRAMES_IN_FLIGHT) // one for each image in swapchain
+			.SetCount(vk::SwapChain::MAX_FRAMES_IN_FLIGHT) // one for each image in swapchain
 			.Allocate();
 		
 		createUniformBuffers();
@@ -138,7 +138,7 @@ namespace Alalba
 				.SetSize(bufferSize)
 				.Build();
 
-			m_SSBOs[i]->CopyDataFrom(particles.data(), bufferSize, Application::Get().GetDevice().GetComputeQ(), *m_commandPool);
+			m_SSBOs[i]->CopyDataFrom(particles.data(), bufferSize, Application::Get().GetDevice().GetGraphicsQ(0), *m_commandPool);
 		}
 	}
 	void ParticalSystem::createUniformBuffers()

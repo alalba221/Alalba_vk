@@ -152,7 +152,7 @@ namespace vk
 		std::unique_ptr<CommandBuffers>buildBLASCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
 			.SetTag("Command Buffers for BLAS Build: " + m_tag)
 			.OneTimeSubmit(true)
-			.SetSize(1)
+			.SetCount(1)
 			.Allocate();
 		
 		buildBLASCmdBuffer->BeginRecording(0);
@@ -279,7 +279,7 @@ namespace vk
 		std::unique_ptr<CommandBuffers>buildTLASCmdBuffer = CommandBuffers::Allocator(m_device, cmdPool)
 			.SetTag("Command Buffers for TLAS Build: " + m_tag)
 			.OneTimeSubmit(true)
-			.SetSize(1)
+			.SetCount(1)
 			.Allocate();
 
 		buildTLASCmdBuffer->BeginRecording(0);

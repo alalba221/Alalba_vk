@@ -28,13 +28,14 @@ namespace vk
 		VkResult err;
 		err = vkCreatePipelineLayout(m_device.Handle(), &ci, nullptr, &m_pipelineLayout);
 		ALALBA_ASSERT(err == VK_SUCCESS, "Create Pipeline Layout failed");
+		
 	}
 
 	void PipelineLayout::Clean()
 	{
 		if (m_pipelineLayout != VK_NULL_HANDLE)
 		{
-			LOG_WARN("Clean PipelineLayout: {0}", m_tag);
+			//LOG_WARN("Clean PipelineLayout: {0}", m_tag);
 			vkDestroyPipelineLayout(m_device.Handle(), m_pipelineLayout, nullptr);
 			m_pipelineLayout = VK_NULL_HANDLE;
 		}
